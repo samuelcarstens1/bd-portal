@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>BD Progress Portal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: fixed navy sidebar + fluid paper-white content; one view visible at a time, switched by hash token. */
+:root{
+  --bg:#F4F2EC; --card:#FFFFFF; --line:#E3DFD5; --line-soft:#EDE9E0;
+  --fg:#1B1F27; --muted:#5B6270; --mute-soft:#9AA6BA;
+  --navy:#16233A; --navy-fg:#E6E9EF; --navy-dim:#C9D1DE;
+  --accent:#C44A08; --accent-bright:#E8600A; --accent-wash:#FBF1E9;
+  --good:#1E6B3A; --good-wash:#E3F1E8; --warn:#B78A1D;
+  --s1:#C44A08; --s2:#D97A3F; --s3:#E8A878; --s4:#5C7496; --s5:#16233A;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12161E; --card:#1A2029; --line:#2A313D; --line-soft:#232A35;
+  --fg:#ECEEF2; --muted:#A3ACBA; --mute-soft:#7E8899;
+  --navy:#0E1626; --navy-fg:#E6E9EF; --navy-dim:#B5BFCE;
+  --accent:#F07A33; --accent-bright:#F07A33; --accent-wash:#2A1D14;
+  --good:#5BC98A; --good-wash:#15291E; --warn:#D9A93A;
+  --s5:#8FA3C4; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#12161E; --card:#1A2029; --line:#2A313D; --line-soft:#232A35;
+  --fg:#ECEEF2; --muted:#A3ACBA; --mute-soft:#7E8899;
+  --navy:#0E1626; --navy-fg:#E6E9EF; --navy-dim:#B5BFCE;
+  --accent:#F07A33; --accent-bright:#F07A33; --accent-wash:#2A1D14;
+  --good:#5BC98A; --good-wash:#15291E; --warn:#D9A93A;
+  --s5:#8FA3C4; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button,input{font-family:inherit;font-size:14px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.shell{display:flex;flex-wrap:wrap;min-height:100vh}
+
+/* Sidebar */
+.side{flex:0 0 248px;background:var(--navy);color:var(--navy-fg);display:flex;flex-direction:column;gap:28px;padding-block:28px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px}
+.brand{display:flex;align-items:center;gap:12px;padding:0 8px}
+.brand-mark{width:36px;height:36px;border-radius:6px;background:var(--accent-bright);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600}
+.brand-name{font-weight:700;font-size:15px;letter-spacing:-.01em}
+.brand-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-soft)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;min-height:44px;border-radius:6px;color:var(--navy-dim)}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav a[aria-current="page"]{background:rgba(255,255,255,.10);color:#fff;font-weight:600}
+.nav svg{flex:0 0 18px}
+.side-foot{margin-top:auto;padding:16px 12px 0;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:8px}
+.side-foot span:last-child{font-size:13px;color:var(--navy-dim)}
+.menu-btn{display:none}
+
+/* Content */
+.main{flex:999 1 560px;min-width:0;padding-block:32px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:900px){.main{padding-left:40px;padding-right:max(40px,env(safe-area-inset-right,0px))}}
+.view{display:none;flex-direction:column;gap:28px}
+.view.active{display:flex}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.head h1{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.head .sub{font-size:15px;color:var(--muted)}
+.head-left{display:flex;flex-direction:column;gap:6px}
+.head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:500;border:1px solid var(--line);background:var(--card);color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.btn{min-height:44px;padding:0 18px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-weight:600;cursor:pointer}
+.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn:focus-visible,.nav a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:1100px){.g4,.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.span2{grid-column:span 1}}
+@media (max-width:640px){.g4,.g3,.g2{grid-template-columns:1fr}}
+.span2{grid-column:span 2}
+@media (max-width:1100px){.span2{grid-column:auto}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.card.tight{padding:20px 22px;gap:10px}
+.card.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.card.dark .label{color:var(--mute-soft)}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.card-head h2{font-size:18px;font-weight:700}
+.card-head .link{font-size:13px;font-weight:600;color:var(--accent)}
+.card-head .note{font-size:13px;color:var(--muted)}
+.big{font-family:var(--mono);font-size:34px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.delta{font-size:13px;font-weight:500;color:var(--good)}
+.sub13{font-size:13px;color:var(--muted)}
+
+.rows{display:flex;flex-direction:column}
+.row{display:flex;gap:16px;padding:12px 0;border-top:1px solid var(--line-soft)}
+.row:last-child{border-bottom:1px solid var(--line-soft)}
+.row .day{font-family:var(--mono);font-size:12px;color:var(--muted);flex:0 0 36px;padding-top:2px}
+.kv{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-top:1px solid var(--line-soft)}
+.kv:last-child{border-bottom:1px solid var(--line-soft)}
+.kv .v{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.kv .v.muted{color:var(--muted)}
+
+.stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.stage{display:flex;flex-direction:column;gap:8px}
+.bar{height:10px;border-radius:3px}
+.stage .label{font-size:12px;letter-spacing:.04em}
+.stage .n{font-family:var(--mono);font-size:22px;font-weight:600}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:999px;background:var(--bg);font-size:12px;font-weight:500}
+.chip.outline{background:transparent;border:1px solid var(--line)}
+.tool{gap:12px;padding:20px;color:inherit}
+.tool:hover{border-color:var(--accent)}
+.tool .t{font-weight:700;font-size:15px}
+.tool .d{font-size:13px;color:var(--muted)}
+.tool .m{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:auto}
+.tool svg{stroke:var(--accent)}
+
+/* Reports */
+.split{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.list{flex:1 1 300px;max-width:360px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.list-head{padding:14px 18px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center}
+.list a{display:flex;flex-direction:column;gap:4px;padding:14px 18px;border-bottom:1px solid var(--line-soft);min-height:44px}
+.list a:last-child{border-bottom:0}
+.list a:hover{background:var(--bg)}
+.list a[aria-current="true"]{background:var(--accent-wash)}
+.list .top{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.list .sum{font-size:13px;color:var(--muted)}
+.tag{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:var(--bg);color:var(--muted)}
+.tag.ok{background:var(--good-wash);color:var(--good)}
+.report{flex:999 1 520px;min-width:0;padding:32px 36px;gap:24px}
+@media (max-width:640px){.report{padding:20px}}
+.report h2{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--bg);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.stat .n{font-family:var(--mono);font-size:24px;font-weight:600}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.sec p{margin:0;font-size:15px;line-height:1.65;max-width:68ch}
+input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);width:220px;max-width:100%}
+
+/* Placeholder module pages */
+.module{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:28px}
+.module .status{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--warn)}
+.module p{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
+.module ul{margin:0;padding-left:18px;color:var(--fg);font-size:14px;display:flex;flex-direction:column;gap:6px}
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line)}
+.table td{padding:12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.scroll{overflow-x:auto}
+
+/* Phone */
+@media (max-width:760px){
+  .shell{flex-direction:column}
+  .side{flex:0 0 auto;gap:16px;padding-block:16px;padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .brand{justify-content:space-between}
+  .menu-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;cursor:pointer}
+  .nav{display:none}
+  .side.open .nav{display:flex}
+  .side-foot{display:none}
+  .head h1{font-size:26px}
+}
+@media (prefers-reduced-motion:no-preference){.tool,.nav a,.btn{transition:border-color .15s,background .15s}}
+</style>
+</head>
+<body>
+
+<div class="shell">
+<nav class="side" id="side" aria-label="Portal sections">
+  <div class="brand">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="brand-mark">IB</div>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <span class="brand-name">IB Group Worldwide</span>
+        <span class="brand-sub">BD Progress Portal</span>
+      </div>
+    </div>
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle menu" aria-expanded="false">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+  <div class="nav" id="nav">
+    <a href="#overview" data-view="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>Overview</a>
+    <a href="#reports" data-view="reports"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h7"/></svg>Daily Reports</a>
+    <a href="#foundations" data-view="foundations"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>Foundations to Occupancy</a>
+    <a href="#week" data-view="week"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Work Week Summary</a>
+    <a href="#roi" data-view="roi"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Salary ROI</a>
+    <a href="#expenses" data-view="expenses"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>Expense Report</a>
+    <a href="#contacts" data-view="contacts"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4a3.5 3.5 0 0 1 0 7M18 13.5a6.5 6.5 0 0 1 3.5 6.5"/></svg>Contact Database</a>
+    <a href="#leads" data-view="leads"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>Lead Generation</a>
+    <a href="#flow" data-view="flow"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3 7M16 8l-3 7"/></svg>Who's Working Where</a>
+    <a href="#research" data-view="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Company Researcher</a>
+  </div>
+  <div class="side-foot">
+    <span class="brand-sub">Representing</span>
+    <span>INTAL Construction · Elite Mainframe Solutions · Global Drywall Services</span>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- OVERVIEW -->
+<section class="view" id="view-overview" aria-labelledby="h-overview">
+  <header class="head">
+    <div class="head-left">
+      <span class="eyebrow" id="todayLine">Friday · Oct 23, 2026 · Week 7 in role</span>
+      <h1 id="h-overview">Overview</h1>
+      <span class="sub">Samuel R. Carstens — Strategic Accounts &amp; Data Centers · FL · TX · LA · GA</span>
+    </div>
+    <div class="head-right">
+      <span class="pill"><span class="dot"></span>Sample data · not connected</span>
+      <button class="btn primary" type="button">Export week to PDF</button>
+    </div>
+  </header>
+
+  <div class="grid g4" aria-label="Key numbers">
+    <div class="card tight"><span class="label">Pipeline value</span><span class="big">$4.2M</span><span class="delta">▲ $610K vs last week</span></div>
+    <div class="card tight"><span class="label">Active leads</span><span class="big">38</span><span class="sub13">12 data center · 26 commercial</span></div>
+    <div class="card tight"><span class="label">Meetings this week</span><span class="big">9</span><span class="sub13">4 on site · 5 virtual</span></div>
+    <div class="card tight dark"><span class="label">Salary ROI (to date)</span><span class="big" style="color:var(--accent-bright)">3.1×</span><span class="sub13" style="color:var(--navy-dim)">Gross margin placed ÷ cost of seat</span></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <div class="card-head"><h2>Work week summary</h2><a class="link" href="#week">Open full week</a></div>
+      <div class="rows">
+        <div class="row"><span class="day">MON</span><span>Site walk with a data-center GC in Dallas; scoped drywall and ACT labor for Phase 2.</span></div>
+        <div class="row"><span class="day">TUE</span><span>Cold-call block: 42 dials, 6 conversations, 2 discovery meetings booked.</span></div>
+        <div class="row"><span class="day">WED</span><span>Proposal sent for framing crew, 14 heads, 10-week duration (Orlando).</span></div>
+        <div class="row"><span class="day">THU</span><span>Networking: ABC South Florida mixer — 11 new contacts added to database.</span></div>
+        <div class="row"><span class="day">FRI</span><span>Follow-ups and weekly report. Next week: Houston trip, 3 site visits.</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Foundations to occupancy</h2><span class="note">Tracked projects by build stage</span></div>
+      <div class="stages">
+        <div class="stage"><div class="bar" style="background:var(--s1)"></div><span class="label">Foundation</span><span class="n">6</span></div>
+        <div class="stage"><div class="bar" style="background:var(--s2)"></div><span class="label">Structure</span><span class="n">9</span></div>
+        <div class="stage"><div class="bar" style="background:var(--s3)"></div><span class="label">Envelope</span><span class="n">7</span></div>
+        <div class="stage"><div class="bar" style="background:var(--s4)"></div><span class="label">Interiors</span><span class="n">11</span></div>
+        <div class="stage"><div class="bar" style="background:var(--s5)"></div><span class="label">Occupancy</span><span class="n">4</span></div>
+      </div>
+      <p class="sub13" style="margin:0;font-size:14px;line-height:1.55">Interiors is where INTAL, Elite Mainframe and Global Drywall enter a job. Projects in Foundation and Structure today are the labor opportunities 4–9 months out.</p>
+      <div class="chips"><span class="chip">37 projects tracked</span><span class="chip">14 entering Interiors by Q1</span></div>
+    </div>
+  </div>
+
+  <div class="grid g3">
+    <div class="card span2">
+      <div class="card-head"><h2>Latest daily report</h2><a class="link" href="#reports">All reports</a></div>
+      <span class="eyebrow">Thu Oct 22 · Submitted 6:48 PM</span>
+      <p style="margin:0;font-size:15px;line-height:1.6;max-width:72ch">Attended the ABC South Florida mixer and connected with three GC project executives working on Miami-Dade commercial jobs. Two agreed to a labor-capacity conversation next week. Database updated with 11 contacts, LinkedIn verified. Sent a proposal for the Orlando framing scope and confirmed Houston site visits for Tuesday through Thursday.</p>
+      <div class="chips"><span class="chip outline">Calls 18</span><span class="chip outline">Meetings 2</span><span class="chip outline">New contacts 11</span><span class="chip outline">Proposals 1</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Expenses</h2><span class="note">October</span></div>
+      <span class="big" style="font-size:30px">$2,340</span>
+      <div class="rows">
+        <div class="kv"><span>Travel</span><span class="v">$1,180</span></div>
+        <div class="kv"><span>Client meals</span><span class="v">$640</span></div>
+        <div class="kv"><span>Events &amp; dues</span><span class="v">$395</span></div>
+        <div class="kv"><span>Golf</span><span class="v">$125</span></div>
+      </div>
+      <span class="sub13">Receipts attached · pending approval</span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <h2 style="font-size:18px;font-weight:700">Tools &amp; systems</h2>
+    <div class="grid g4">
+      <a class="card tool" href="#contacts"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4a3.5 3.5 0 0 1 0 7M18 13.5a6.5 6.5 0 0 1 3.5 6.5"/></svg><span class="t">Company contact database</span><span class="d">Every GC, developer and decision-maker in territory, with verified LinkedIn profiles.</span><span class="m">412 contacts · 96 companies</span></a>
+      <a class="card tool" href="#leads"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg><span class="t">Labor staffing lead generation</span><span class="d">Permits, bid boards and project announcements turned into ranked labor leads.</span><span class="m">23 new this week</span></a>
+      <a class="card tool" href="#flow"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3 7M16 8l-3 7"/></svg><span class="t">Who's Working Where</span><span class="d">Interactive flowchart of which companies are on which jobs across FL, TX, LA and GA.</span><span class="m">Updated Oct 20</span></a>
+      <a class="card tool" href="#research"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="t">Company researcher</span><span class="d">One-page brief on any prospect: projects, key people, labor needs, best way in.</span><span class="m">31 briefs generated</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- DAILY REPORTS -->
+<section class="view" id="view-reports" aria-labelledby="h-reports">
+  <header class="head">
+    <div class="head-left">
+      <span class="eyebrow">Reports · October 2026</span>
+      <h1 id="h-reports">Daily reports</h1>
+      <span class="sub">One entry per working day, submitted by 7 PM. Numbers roll up into the week summary.</span>
+    </div>
+    <div class="head-right">
+      <label for="searchReports" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search reports</label>
+      <input id="searchReports" type="search" placeholder="Search reports">
+      <button class="btn" type="button">Export month</button>
+    </div>
+  </header>
+  <div class="split">
+    <aside class="list" aria-label="Report list">
+      <div class="list-head"><span class="label">Week of Oct 19</span><span class="mono sub13">4 of 5 filed</span></div>
+      <a href="#reports"><span class="top"><span>Fri, Oct 23</span><span class="tag">Draft</span></span><span class="sum">Follow-ups, weekly report, Houston prep</span></a>
+      <a href="#reports" aria-current="true"><span class="top"><span>Thu, Oct 22</span><span class="tag ok">Submitted</span></span><span class="sum">ABC mixer, 11 contacts, Orlando proposal</span></a>
+      <a href="#reports"><span class="top"><span>Wed, Oct 21</span><span class="tag ok">Submitted</span></span><span class="sum">Framing proposal drafted, 2 discovery calls</span></a>
+      <a href="#reports"><span class="top"><span>Tue, Oct 20</span><span class="tag ok">Submitted</span></span><span class="sum">Cold-call block, 42 dials, 2 meetings booked</span></a>
+      <a href="#reports"><span class="top"><span>Mon, Oct 19</span><span class="tag ok">Submitted</span></span><span class="sum">Dallas site walk, Phase 2 labor scope</span></a>
+    </aside>
+    <article class="card report">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span class="eyebrow">Thursday · Oct 22, 2026 · Submitted 6:48 PM</span>
+          <h2>Networking night and Orlando proposal</h2>
+          <span class="sub13" style="font-size:14px">Miami, FL · Field day</span>
+        </div>
+        <div style="display:flex;gap:8px"><button class="btn" type="button">Comment</button><button class="btn primary" type="button">Mark reviewed</button></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="label" style="font-size:11px">Calls</span><span class="n">18</span></div>
+        <div class="stat"><span class="label" style="font-size:11px">Meetings</span><span class="n">2</span></div>
+        <div class="stat"><span class="label" style="font-size:11px">New contacts</span><span class="n">11</span></div>
+        <div class="stat"><span class="label" style="font-size:11px">Proposals</span><span class="n">1</span></div>
+      </div>
+      <div class="sec"><h3>What happened</h3><p>Attended the ABC South Florida mixer in Doral. Connected with three GC project executives running Miami-Dade commercial work; two agreed to a labor-capacity conversation next week. Added 11 contacts to the database, all LinkedIn-verified. Sent the Orlando framing proposal (14 heads, 10 weeks) and confirmed Houston site visits for Tuesday through Thursday.</p></div>
+      <div class="sec"><h3>Pipeline movement</h3>
+        <div class="rows">
+          <div class="kv"><span>Orlando framing scope</span><span class="v muted">Qualified → Proposal sent</span></div>
+          <div class="kv"><span>Miami-Dade mixed-use GC (2 contacts)</span><span class="v muted">New → Meeting set</span></div>
+          <div class="kv"><span>Houston data-center shell</span><span class="v muted">Meeting set → Site visit</span></div>
+        </div>
+      </div>
+      <div class="sec"><h3>Tomorrow</h3><p>Follow up with both mixer contacts, close out the weekly report, and pack the Houston trip: three site visits, one dinner, expense pre-approval requested.</p></div>
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:16px;border-top:1px solid var(--line-soft)" class="sub13"><span>Filed by Samuel R. Carstens · 2 attachments</span><span>Not yet reviewed</span></div>
+    </article>
+  </div>
+</section>
+
+<!-- FOUNDATIONS -->
+<section class="view" id="view-foundations" aria-labelledby="h-foundations">
+  <header class="head"><div class="head-left"><span class="eyebrow">Project pipeline · 37 tracked</span><h1 id="h-foundations">Foundations to occupancy</h1><span class="sub">Every tracked project placed on the build timeline, so labor demand is visible months before the call comes.</span></div><div class="head-right"><span class="pill"><span class="dot"></span>Sample data</span></div></header>
+  <div class="card">
+    <div class="stages">
+      <div class="stage"><div class="bar" style="background:var(--s1)"></div><span class="label">Foundation</span><span class="n">6</span><span class="sub13">Labor need in 6–9 mo</span></div>
+      <div class="stage"><div class="bar" style="background:var(--s2)"></div><span class="label">Structure</span><span class="n">9</span><span class="sub13">4–6 mo</span></div>
+      <div class="stage"><div class="bar" style="background:var(--s3)"></div><span class="label">Envelope</span><span class="n">7</span><span class="sub13">2–4 mo</span></div>
+      <div class="stage"><div class="bar" style="background:var(--s4)"></div><span class="label">Interiors</span><span class="n">11</span><span class="sub13">Crews on site now</span></div>
+      <div class="stage"><div class="bar" style="background:var(--s5)"></div><span class="label">Occupancy</span><span class="n">4</span><span class="sub13">Closeout · reference</span></div>
+    </div>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="scroll"><table class="table">
+      <thead><tr><th>Project</th><th>Metro</th><th>GC</th><th>Stage</th><th>Interiors start</th><th>Our status</th></tr></thead>
+      <tbody>
+        <tr><td>Hyperscale campus, Bldg 2</td><td>Dallas, TX</td><td>[GC name]</td><td>Structure</td><td class="mono">Mar 2027</td><td><span class="tag ok">Proposal</span></td></tr>
+        <tr><td>Mixed-use tower</td><td>Miami, FL</td><td>[GC name]</td><td>Envelope</td><td class="mono">Jan 2027</td><td><span class="tag">Meeting set</span></td></tr>
+        <tr><td>Logistics hub</td><td>Houston, TX</td><td>[GC name]</td><td>Foundation</td><td class="mono">Jun 2027</td><td><span class="tag">Tracking</span></td></tr>
+        <tr><td>Hospital expansion</td><td>Atlanta, GA</td><td>[GC name]</td><td>Interiors</td><td class="mono">Now</td><td><span class="tag ok">Crew placed</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- WEEK -->
+<section class="view" id="view-week" aria-labelledby="h-week">
+  <header class="head"><div class="head-left"><span class="eyebrow">Week 7 · Oct 19–23, 2026</span><h1 id="h-week">Work week summary</h1><span class="sub">Rolled up from the five daily reports. Sent to Juan Carlos every Friday.</span></div><div class="head-right"><button class="btn" type="button">Previous week</button><button class="btn primary" type="button">Export week to PDF</button></div></header>
+  <div class="grid g4">
+    <div class="card tight"><span class="label">Dials</span><span class="big">118</span></div>
+    <div class="card tight"><span class="label">Conversations</span><span class="big">24</span></div>
+    <div class="card tight"><span class="label">Meetings held</span><span class="big">9</span></div>
+    <div class="card tight"><span class="label">Proposals out</span><span class="big">2</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><div class="card-head"><h2>Wins</h2></div><div class="rows"><div class="row"><span>Orlando framing proposal sent — 14 heads, 10 weeks.</span></div><div class="row"><span>Two Miami-Dade GC executives agreed to capacity meetings.</span></div><div class="row"><span>Dallas data-center Phase 2 scope confirmed in writing.</span></div></div></div>
+    <div class="card"><div class="card-head"><h2>Next week</h2></div><div class="rows"><div class="row"><span class="day">TUE</span><span>Houston: site visit 1 and 2.</span></div><div class="row"><span class="day">WED</span><span>Houston: site visit 3, client dinner.</span></div><div class="row"><span class="day">THU</span><span>Return; follow up on Orlando proposal.</span></div></div></div>
+  </div>
+</section>
+
+<!-- ROI -->
+<section class="view" id="view-roi" aria-labelledby="h-roi">
+  <header class="head"><div class="head-left"><span class="eyebrow">Return on the seat</span><h1 id="h-roi">Salary ROI</h1><span class="sub">Gross margin from placements I originated, divided by the fully loaded cost of my position.</span></div><div class="head-right"><span class="pill"><span class="dot"></span>Sample data</span></div></header>
+  <div class="grid g3">
+    <div class="card tight dark"><span class="label">ROI to date</span><span class="big" style="color:var(--accent-bright)">3.1×</span><span class="sub13" style="color:var(--navy-dim)">Target by month 12: 5.0×</span></div>
+    <div class="card tight"><span class="label">Gross margin originated</span><span class="big">[$ GM]</span><span class="sub13">From crews placed on jobs I opened</span></div>
+    <div class="card tight"><span class="label">Fully loaded seat cost</span><span class="big">[$ cost]</span><span class="sub13">Salary + benefits + expenses, to date</span></div>
+  </div>
+  <div class="card"><div class="card-head"><h2>How it's calculated</h2></div>
+    <div class="rows">
+      <div class="kv"><span>Heads placed × billable hours × margin per hour</span><span class="v">= Gross margin</span></div>
+      <div class="kv"><span>Salary + benefits + T&amp;E, prorated to date</span><span class="v">= Seat cost</span></div>
+      <div class="kv"><span>Gross margin ÷ Seat cost</span><span class="v" style="color:var(--accent);font-weight:600">= ROI</span></div>
+    </div>
+    <p class="sub13" style="margin:0;max-width:68ch">Pipeline value is shown separately and never counted here. Only invoiced work counts toward ROI.</p>
+  </div>
+</section>
+
+<!-- EXPENSES -->
+<section class="view" id="view-expenses" aria-labelledby="h-expenses">
+  <header class="head"><div class="head-left"><span class="eyebrow">October 2026</span><h1 id="h-expenses">Expense report</h1><span class="sub">Every receipt tied to a client, a project or an event.</span></div><div class="head-right"><button class="btn" type="button">Previous month</button><button class="btn primary" type="button">Submit for approval</button></div></header>
+  <div class="grid g4">
+    <div class="card tight"><span class="label">Total</span><span class="big">$2,340</span></div>
+    <div class="card tight"><span class="label">Travel</span><span class="big">$1,180</span></div>
+    <div class="card tight"><span class="label">Client meals</span><span class="big">$640</span></div>
+    <div class="card tight"><span class="label">Events · golf</span><span class="big">$520</span></div>
+  </div>
+  <div class="card" style="padding:0"><div class="scroll"><table class="table">
+    <thead><tr><th>Date</th><th>Vendor</th><th>Category</th><th>Client / purpose</th><th style="text-align:right">Amount</th><th>Receipt</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">Oct 22</td><td>ABC South Florida</td><td>Events &amp; dues</td><td>Member mixer, Doral</td><td class="mono" style="text-align:right">$95</td><td><span class="tag ok">Attached</span></td></tr>
+      <tr><td class="mono">Oct 20</td><td>[Restaurant]</td><td>Client meals</td><td>GC project executive, Miami</td><td class="mono" style="text-align:right">$184</td><td><span class="tag ok">Attached</span></td></tr>
+      <tr><td class="mono">Oct 19</td><td>[Airline]</td><td>Travel</td><td>MIA → DFW, Dallas site walk</td><td class="mono" style="text-align:right">$412</td><td><span class="tag ok">Attached</span></td></tr>
+      <tr><td class="mono">Oct 17</td><td>[Golf club]</td><td>Golf</td><td>Round with [client]</td><td class="mono" style="text-align:right">$125</td><td><span class="tag">Missing</span></td></tr>
+    </tbody>
+  </table></div></div>
+</section>
+
+<!-- CONTACTS -->
+<section class="view" id="view-contacts" aria-labelledby="h-contacts">
+  <header class="head"><div class="head-left"><span class="eyebrow">412 contacts · 96 companies</span><h1 id="h-contacts">Company contact database</h1><span class="sub">GCs, developers and decision-makers across FL, TX, LA and GA. Every profile verified before it goes in.</span></div><div class="head-right"><input type="search" id="searchContacts" placeholder="Search people or companies" aria-label="Search contacts"><button class="btn primary" type="button">Add contact</button></div></header>
+  <div class="card" style="padding:0"><div class="scroll"><table class="table">
+    <thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Metro</th><th>LinkedIn</th><th>Last touch</th></tr></thead>
+    <tbody>
+      <tr><td>[Name]</td><td>Project Executive</td><td>[GC name]</td><td>Miami, FL</td><td><span class="tag ok">Verified</span></td><td class="mono">Oct 22</td></tr>
+      <tr><td>[Name]</td><td>Preconstruction Director</td><td>[GC name]</td><td>Dallas, TX</td><td><span class="tag ok">Verified</span></td><td class="mono">Oct 19</td></tr>
+      <tr><td>[Name]</td><td>VP Operations</td><td>[Developer]</td><td>Atlanta, GA</td><td><span class="tag">Pending</span></td><td class="mono">Oct 14</td></tr>
+    </tbody>
+  </table></div></div>
+</section>
+
+<!-- LEADS -->
+<section class="view" id="view-leads" aria-labelledby="h-leads">
+  <header class="head"><div class="head-left"><span class="eyebrow">23 new this week</span><h1 id="h-leads">Labor staffing lead generation</h1><span class="sub">Permits, bid boards and announcements scored for drywall, framing, ACT and insulation labor demand.</span></div><div class="head-right"><span class="pill"><span class="dot"></span>Sample data</span></div></header>
+  <div class="card module"><span class="status">● Module layout</span><p>Each lead arrives as a card: project, GC, metro, stage, estimated head count and a score. One click moves it into the contact database or the Foundations timeline.</p>
+    <ul><li>Sources: county permits, Dodge/ConstructConnect-style bid boards, press and LinkedIn announcements</li><li>Scoring: trade fit × metro × stage × size</li><li>Owner: Samuel · reviewed weekly with Juan Carlos</li></ul></div>
+</section>
+
+<!-- FLOW -->
+<section class="view" id="view-flow" aria-labelledby="h-flow">
+  <header class="head"><div class="head-left"><span class="eyebrow">Interactive flowchart · updated Oct 20</span><h1 id="h-flow">Who's Working Where</h1><span class="sub">Which companies are on which jobs, and who at each company we know.</span></div><div class="head-right"><button class="btn primary" type="button">Open full screen</button></div></header>
+  <div class="card module" style="min-height:360px;align-items:center;justify-content:center;text-align:center"><span class="status">● Embed slot</span><p>The existing bubble map loads here when we connect it.</p></div>
+</section>
+
+<!-- RESEARCH -->
+<section class="view" id="view-research" aria-labelledby="h-research">
+  <header class="head"><div class="head-left"><span class="eyebrow">31 briefs generated</span><h1 id="h-research">Company researcher</h1><span class="sub">Type a company. Get a one-page brief: active projects, key people with verified profiles, labor needs, best way in.</span></div></header>
+  <div class="card"><form id="researchForm" style="display:flex;flex-wrap:wrap;gap:10px"><label for="researchQ" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Company name</label><input id="researchQ" type="search" placeholder="Company name" style="flex:1 1 240px"><button class="btn primary" type="submit">Research</button></form><p class="sub13" id="researchNote" style="margin:0">Briefs will be generated by Claude once the portal is connected.</p></div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var views=['overview','reports','foundations','week','roi','expenses','contacts','leads','flow','research'];
+  var side=document.getElementById('side'), menuBtn=document.getElementById('menuBtn');
+  function show(){
+    var h=(location.hash||'#overview').slice(1);
+    if(views.indexOf(h)<0)h='overview';
+    views.forEach(function(v){document.getElementById('view-'+v).classList.toggle('active',v===h)});
+    document.querySelectorAll('#nav a').forEach(function(a){
+      if(a.dataset.view===h)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
+    });
+    side.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');
+    window.scrollTo(0,0);
+    try{localStorage.setItem('bdp-view',h)}catch(e){}
+  }
+  window.addEventListener('hashchange',show);
+  if(!location.hash){try{var s=localStorage.getItem('bdp-view');if(s&&views.indexOf(s)>=0)location.hash=s}catch(e){}}
+  show();
+  menuBtn.addEventListener('click',function(){var o=side.classList.toggle('open');menuBtn.setAttribute('aria-expanded',o?'true':'false')});
+  var d=new Date();
+  document.getElementById('todayLine').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric',year:'numeric'}).replace(',',' ·')+' · Week 7 in role';
+  document.getElementById('researchForm').addEventListener('submit',function(e){e.preventDefault();
+    var q=document.getElementById('researchQ').value.trim();
+    document.getElementById('researchNote').textContent=q?('Brief for "'+q+'" will generate here once the portal is connected.'):'Enter a company name.';
+  });
+})();
+</script>
+</body>
+</html>
