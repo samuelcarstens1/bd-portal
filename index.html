@@ -637,6 +637,29 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:middle;margin-right:4px}
 #aopProgress .label{font-size:12px}
 
+.importbox{border:1px dashed var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.importbox .btn{position:relative;overflow:hidden}
+.maprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 14px;align-items:center;font-size:13px}
+.maprow select{min-height:36px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--fg);font-family:var(--sans);font-size:13px}
+.exphead{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;padding:20px 24px;border-bottom:1px solid var(--line);background:var(--navy);color:#fff}
+.exphead>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.exphead .label{color:var(--mute-soft)}
+.exphead input{color:var(--fg)}
+@media (max-width:1100px){.exphead{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.exphead{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.expgrid{min-width:860px}
+.expgrid th,.expgrid td{padding:8px 10px;white-space:nowrap}
+.expgrid td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.expgrid td.n.zero{color:var(--mute-soft)}
+.expgrid tr.sec{background:var(--bg)}.expgrid tr.sec td{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+.expgrid tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+.expgrid tr.grand td{background:var(--accent-wash);font-weight:700}
+.expgrid td.hit{cursor:pointer}
+.expgrid td.hit:hover{outline:2px solid var(--accent);outline-offset:-2px}
+.exptotals{padding:16px 24px 20px;display:flex;flex-direction:column;gap:4px;max-width:520px;margin-left:auto}
+.thumb{width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--line);cursor:zoom-in}
+.ocrbar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}.ocrbar div{height:100%;background:var(--accent);transition:width .2s}
+
 /* Phone */
 @media (max-width:760px){
   .shell{flex-direction:column}
@@ -744,17 +767,12 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       <p style="margin:0;font-size:15px;line-height:1.6;max-width:72ch">Attended the ABC South Florida mixer and connected with three GC project executives working on Miami-Dade commercial jobs. Two agreed to a labor-capacity conversation next week. Database updated with 11 contacts, LinkedIn verified. Sent a proposal for the Orlando framing scope and confirmed Houston site visits for Tuesday through Thursday.</p>
       <div class="chips"><span class="chip outline">Calls 18</span><span class="chip outline">Meetings 2</span><span class="chip outline">New contacts 11</span><span class="chip outline">Proposals 1</span></div>
     </div>
-    <div class="card">
-      <div class="card-head"><h2>Expenses</h2><span class="note">October</span></div>
-      <span class="big" style="font-size:30px">$2,340</span>
-      <div class="rows">
-        <div class="kv"><span>Travel</span><span class="v">$1,180</span></div>
-        <div class="kv"><span>Client meals</span><span class="v">$640</span></div>
-        <div class="kv"><span>Events &amp; dues</span><span class="v">$395</span></div>
-        <div class="kv"><span>Golf</span><span class="v">$125</span></div>
-      </div>
-      <span class="sub13">Receipts attached · pending approval</span>
-    </div>
+    <a class="card tool" href="#expenses" style="padding:24px;gap:14px">
+      <div class="card-head"><h2>Expenses</h2><span class="note" id="ovExpMonth">—</span></div>
+      <span class="big" style="font-size:30px" id="ovExpTotal">—</span>
+      <div class="rows" id="ovExpRows"></div>
+      <span class="sub13" id="ovExpFoot">No expenses logged yet</span>
+    </a>
   </div>
 
   <div style="display:flex;flex-direction:column;gap:14px">
@@ -781,6 +799,13 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
   <div class="card" id="addOppCard" hidden>
     <div class="card-head"><h2>New opportunity</h2><span class="note">Enters at the New stage</span></div>
+    <div class="importbox">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Import from a file</span><span class="sub13">Spreadsheet or CSV (.xlsx, .xls, .csv). One row fills the form below; several rows import as separate opportunities. Columns are matched by their headings.</span></div>
+        <label class="btn" style="display:inline-flex;align-items:center;cursor:pointer"><input type="file" id="oppImportFile" accept=".xlsx,.xls,.csv,.txt" style="position:absolute;width:1px;height:1px;opacity:0">Choose file</label>
+      </div>
+      <div id="oppImportPreview" hidden></div>
+    </div>
     <form id="oppForm" class="oppform">
       <label>Project<input id="fProject" required placeholder="e.g. Hyperscale campus, Bldg 2"></label>
       <label>General contractor<input id="fGc" required placeholder="Company name"></label>
@@ -1212,35 +1237,113 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <!-- EXPENSES -->
 <section class="view" id="view-expenses" aria-labelledby="h-expenses">
-  <header class="head"><div class="head-left"><span class="eyebrow">October 2026</span><h1 id="h-expenses">Expense report</h1><span class="sub">Every receipt tied to a client, a project or an event.</span></div><div class="head-right"><button class="btn" type="button">Previous month</button><button class="btn primary" type="button">Submit for approval</button></div></header>
-  <div class="grid g4">
-    <div class="card tight"><span class="label">Total</span><span class="big">$2,340</span></div>
-    <div class="card tight"><span class="label">Travel</span><span class="big">$1,180</span></div>
-    <div class="card tight"><span class="label">Client meals</span><span class="big">$640</span></div>
-    <div class="card tight"><span class="label">Events · golf</span><span class="big">$520</span></div>
+  <header class="head">
+    <div class="head-left"><span class="eyebrow" id="expEyebrow">Weekly expense report</span><h1 id="h-expenses">Expense report</h1><span class="sub">Same layout as the IB Group expense form. Log each expense (snap the receipt and the fields fill in), and it lands in the right cell of the week.</span></div>
+    <div class="head-right"><button class="btn" type="button" id="expPrev" aria-label="Previous week">‹ Week</button><button class="btn" type="button" id="expNext" aria-label="Next week">Week ›</button><button class="btn" type="button" id="expExport">Download week (.xlsx)</button><button class="btn primary" type="button" id="addExpBtn" aria-expanded="false" aria-controls="addExpCard">Add expense</button></div>
+  </header>
+
+  <div class="card" id="addExpCard" hidden>
+    <div class="card-head"><h2>New expense</h2><span class="note">Receipt first, then check the fields</span></div>
+    <div class="importbox">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Upload a receipt</span><span class="sub13">Photo or screenshot (JPG, PNG). The page reads it and fills vendor, date, amount and a suggested category. Always check before submitting.</span></div>
+        <label class="btn" style="display:inline-flex;align-items:center;cursor:pointer"><input type="file" id="receiptFile" accept="image/*" capture="environment" style="position:absolute;width:1px;height:1px;opacity:0">Choose receipt</label>
+      </div>
+      <div id="receiptStatus" class="sub13" hidden></div>
+      <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap" id="receiptPreviewWrap" hidden><img id="receiptPreview" alt="Receipt preview" style="max-width:160px;max-height:200px;border:1px solid var(--line);border-radius:6px"><pre id="receiptText" class="sub13" style="margin:0;max-height:200px;overflow:auto;white-space:pre-wrap;flex:1 1 240px;min-width:0;font-family:var(--mono);font-size:11px"></pre></div>
+    </div>
+    <form id="expForm" class="oppform">
+      <label>Date<input id="eDate" type="date" required></label>
+      <label>Category<select id="eCat">
+        <optgroup label="Transportation"><option>Miles Driven</option><option>Parking And Tolls</option><option>Auto Rental</option><option>Taxi / Limo</option><option>Fuel</option><option>Airfare</option></optgroup>
+        <optgroup label="Lodging &amp; Meals"><option>Lodging</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></optgroup>
+        <optgroup label="Miscellaneous"><option>Supplies</option><option>Equipment</option><option>Phone, Fax, Internet</option><option>Other*</option><option>Entertainment*</option></optgroup>
+      </select></label>
+      <label>Vendor<input id="eVendor" placeholder="Where"></label>
+      <label id="eAmountLabel">Amount ($)<input id="eAmount" type="number" min="0" step="0.01" placeholder="0.00"></label>
+      <label id="eMilesLabel" hidden>Miles<input id="eMiles" type="number" min="0" step="0.1" placeholder="0"></label>
+      <label>Client / purpose<input id="ePurpose" placeholder="Who it was for, which project"></label>
+      <label style="grid-column:span 2">Notes<input id="eNotes" placeholder="Optional"></label>
+      <div class="oppform-actions"><button class="btn primary" type="submit">Add to report</button><button class="btn" type="button" id="cancelExp">Cancel</button></div>
+    </form>
   </div>
-  <div class="card" style="padding:0"><div class="scroll"><table class="table">
-    <thead><tr><th>Date</th><th>Vendor</th><th>Category</th><th>Client / purpose</th><th style="text-align:right">Amount</th><th>Receipt</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">Oct 22</td><td>ABC South Florida</td><td>Events &amp; dues</td><td>Member mixer, Doral</td><td class="mono" style="text-align:right">$95</td><td><span class="tag ok">Attached</span></td></tr>
-      <tr><td class="mono">Oct 20</td><td>[Restaurant]</td><td>Client meals</td><td>GC project executive, Miami</td><td class="mono" style="text-align:right">$184</td><td><span class="tag ok">Attached</span></td></tr>
-      <tr><td class="mono">Oct 19</td><td>[Airline]</td><td>Travel</td><td>MIA → DFW, Dallas site walk</td><td class="mono" style="text-align:right">$412</td><td><span class="tag ok">Attached</span></td></tr>
-      <tr><td class="mono">Oct 17</td><td>[Golf club]</td><td>Golf</td><td>Round with [client]</td><td class="mono" style="text-align:right">$125</td><td><span class="tag">Missing</span></td></tr>
-    </tbody>
-  </table></div></div>
+
+  <div class="grid g4">
+    <div class="card tight"><span class="label">Week total</span><span class="big" id="kExpTotal">—</span><span class="sub13" id="kExpSub">—</span></div>
+    <div class="card tight"><span class="label">Transportation</span><span class="big" id="kExpT">—</span></div>
+    <div class="card tight"><span class="label">Lodging &amp; meals</span><span class="big" id="kExpL">—</span></div>
+    <div class="card tight"><span class="label">Miscellaneous</span><span class="big" id="kExpM">—</span></div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="exphead">
+      <div><span class="label">Company</span><span>IB Group Worldwide, Inc.</span></div>
+      <div><span class="label">Employee</span><span>Samuel R. Carstens</span></div>
+      <div><span class="label">Department</span><span>Business Development</span></div>
+      <div><span class="label">Week ending</span><span class="mono" id="expWeekEnding">—</span></div>
+      <div><span class="label">Mileage rate</span><span style="display:flex;align-items:center;gap:4px">$<input id="expRate" type="number" step="0.001" min="0" value="0.70" style="width:80px;min-height:32px;padding:0 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);font-family:var(--mono)"> / mile</span></div>
+      <div><span class="label">Authorized by</span><span class="sub13">__________________</span></div>
+    </div>
+    <div class="scroll"><table class="table expgrid" id="expGrid"></table></div>
+    <div class="exptotals">
+      <div class="kv"><span>Total expenses</span><span class="v" id="expGrand">—</span></div>
+      <div class="kv"><span>IB Group prepaid advances</span><span class="v" style="display:flex;align-items:center;gap:4px">$<input id="expAdv" type="number" min="0" step="0.01" value="0" style="width:110px;min-height:32px;padding:0 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);font-family:var(--mono);text-align:right"></span></div>
+      <div class="kv" style="font-weight:700"><span>Total reimbursement</span><span class="v" id="expReimb">—</span></div>
+      <label class="sub13" style="display:flex;flex-direction:column;gap:6px;margin-top:8px">Comments<textarea id="expComments" rows="2" style="border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);padding:8px;font-family:var(--sans);font-size:14px"></textarea></label>
+      <span class="sub13">Please attach all receipts — they're listed below.</span>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div class="card-head" style="padding:20px 24px 0"><h2>Expenses this week</h2><span class="note" id="expCount">—</span></div>
+    <div class="scroll"><table class="table">
+      <thead><tr><th>Date</th><th>Category</th><th>Vendor</th><th>Client / purpose</th><th style="text-align:right">Amount</th><th>Receipt</th><th></th></tr></thead>
+      <tbody id="expRows"></tbody>
+    </table></div>
+  </div>
 </section>
 
 <!-- CONTACTS -->
 <section class="view" id="view-contacts" aria-labelledby="h-contacts">
-  <header class="head"><div class="head-left"><span class="eyebrow">412 contacts · 96 companies</span><h1 id="h-contacts">Company contact database</h1><span class="sub">GCs, developers and decision-makers across FL, TX, LA and GA. Every profile verified before it goes in.</span></div><div class="head-right"><input type="search" id="searchContacts" placeholder="Search people or companies" aria-label="Search contacts"><button class="btn primary" type="button">Add contact</button></div></header>
-  <div class="card" style="padding:0"><div class="scroll"><table class="table">
-    <thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Metro</th><th>LinkedIn</th><th>Last touch</th></tr></thead>
-    <tbody>
-      <tr><td>[Name]</td><td>Project Executive</td><td>[GC name]</td><td>Miami, FL</td><td><span class="tag ok">Verified</span></td><td class="mono">Oct 22</td></tr>
-      <tr><td>[Name]</td><td>Preconstruction Director</td><td>[GC name]</td><td>Dallas, TX</td><td><span class="tag ok">Verified</span></td><td class="mono">Oct 19</td></tr>
-      <tr><td>[Name]</td><td>VP Operations</td><td>[Developer]</td><td>Atlanta, GA</td><td><span class="tag">Pending</span></td><td class="mono">Oct 14</td></tr>
-    </tbody>
-  </table></div></div>
+  <header class="head">
+    <div class="head-left"><span class="eyebrow" id="conEyebrow">0 contacts</span><h1 id="h-contacts">Company contact database</h1><span class="sub">GCs, developers, subcontractors and the decision-makers at each, across FL, TX, LA and GA.</span></div>
+    <div class="head-right"><input type="search" id="searchContacts" placeholder="Search people or companies" aria-label="Search contacts"><button class="btn" type="button" id="conImportBtn" aria-expanded="false" aria-controls="conImportCard">Import file</button><button class="btn primary" type="button" id="addConBtn" aria-expanded="false" aria-controls="addConCard">Add contact</button></div>
+  </header>
+
+  <div class="card" id="conImportCard" hidden>
+    <div class="card-head"><h2>Import contacts</h2><span class="note">Spreadsheet, CSV or vCard</span></div>
+    <div class="importbox">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Choose a file</span><span class="sub13">.xlsx, .xls, .csv or .vcf (phone / Outlook / LinkedIn export). Columns are matched to name, title, company, metro, email, phone and LinkedIn by their headings; you review the match before anything is added.</span></div>
+        <label class="btn" style="display:inline-flex;align-items:center;cursor:pointer"><input type="file" id="conImportFile" accept=".xlsx,.xls,.csv,.vcf,.txt" style="position:absolute;width:1px;height:1px;opacity:0">Choose file</label>
+      </div>
+      <div id="conImportPreview" hidden></div>
+    </div>
+  </div>
+
+  <div class="card" id="addConCard" hidden>
+    <div class="card-head"><h2>New contact</h2></div>
+    <form id="conForm" class="oppform">
+      <label>Name<input id="cName" required></label>
+      <label>Title<input id="cTitle" placeholder="Project Executive"></label>
+      <label>Company<input id="cCompany" required></label>
+      <label>Metro<input id="cMetro" list="metroList"></label>
+      <label>Email<input id="cEmail" type="email"></label>
+      <label>Phone<input id="cPhone" type="tel"></label>
+      <label>LinkedIn URL<input id="cLinkedin" type="url" placeholder="https://www.linkedin.com/in/…"></label>
+      <label>Last touch<input id="cTouch" type="date"></label>
+      <label style="grid-column:span 2">Notes<input id="cNotes" placeholder="How you met, what they care about"></label>
+      <div class="oppform-actions"><button class="btn primary" type="submit">Add contact</button><button class="btn" type="button" id="cancelCon">Cancel</button></div>
+    </form>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div class="scroll"><table class="table">
+      <thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Metro</th><th>Email</th><th>Phone</th><th>LinkedIn</th><th>Last touch</th><th></th></tr></thead>
+      <tbody id="conRows"></tbody>
+    </table></div>
+    <div class="sub13" style="padding:14px 24px" id="conFoot"></div>
+  </div>
 </section>
 
 <!-- LEADS -->
@@ -1653,5 +1756,8 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   });
 })();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script src="portal.js"></script>
 </body>
 </html>
