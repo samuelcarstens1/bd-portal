@@ -629,6 +629,14 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 #view-foundations .ftp td input[type=text]{width:100%;min-height:36px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);padding:0 8px;font-family:var(--sans);font-size:13px}
 #view-foundations .ftp .due.past{color:var(--accent)}#view-foundations .ftp .due.done{color:var(--good)}
 
+.ptrack{position:relative;height:28px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:visible}
+.pfill{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:5px 0 0 5px;transition:width .3s}
+.pmark{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--navy);transform:translateX(-1px)}
+.pmark span{position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;color:var(--navy-ink)}
+.pphase{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:middle;margin-right:4px}
+#aopProgress .label{font-size:12px}
+
 /* Phone */
 @media (max-width:760px){
   .shell{flex-direction:column}
@@ -875,6 +883,22 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 <section class="view" id="view-foundations" aria-labelledby="h-foundations">
   <header class="head"><div class="head-left"><span class="eyebrow" id="ftpEyebrow">Annual operation plan</span><h1 id="h-foundations">Annual Operation Plan</h1><span class="sub">The 90-day promise made to IB Group, then the year it builds into: goals, long-term initiatives, and the reviews that measure them.</span></div><div class="head-right"><span class="pill" id="ftpPill">—</span></div></header>
 
+  <div class="card" id="aopProgress" style="gap:14px">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+      <div style="display:flex;flex-direction:column;gap:4px"><span class="label">First 90 days · progress vs. schedule</span><span class="sub13" id="aopSummary">—</span></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label for="startdate" class="label" style="font-size:11px">Start date</label><input type="date" id="startdate" value="2026-09-09" style="min-height:36px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:13px"><span id="daycount" class="mono sub13"></span></div>
+    </div>
+    <div class="ptrack" aria-label="Progress against schedule">
+      <div class="pfill" id="aopDone" style="width:0%"></div>
+      <div class="pmark" id="aopExpect" style="left:0%"><span>Should be here</span></div>
+      <div class="pphase" style="left:33.33%"></div><div class="pphase" style="left:66.66%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:14px" class="sub13">
+      <span>Day 1 · Foundation</span><span>Day 31 · Structure</span><span>Day 61 · Turnover</span><span>Day 90</span>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap" class="sub13"><span><span class="swatch" style="background:var(--accent)"></span> Commitments completed</span><span><span class="swatch" style="background:var(--navy)"></span> Where the calendar says you should be</span><span id="aopGap"></span></div>
+  </div>
+
   <div class="subtabs" role="tablist" aria-label="Plan sections">
     <button class="subtab" role="tab" type="button" data-sub="first90" id="tab-first90" aria-controls="panel-first90">First 90 Days</button>
     <button class="subtab" role="tab" type="button" data-sub="annual" id="tab-annual" aria-controls="panel-annual">Annual Goals &amp; Checklist</button>
@@ -886,49 +910,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
   <!-- ===== FIRST 90 DAYS ===== -->
   <div class="ftp-panel" id="panel-first90" role="tabpanel" aria-labelledby="tab-first90">
-<div class="titleblock">
-    <div class="titleblock-top">
-      <div>
-        <div class="label">Ramp Plan — Business Development Manager</div>
-        <h1>Foundation to Occupancy</h1>
-        <div class="sub">Strategic Accounts &amp; Data Centers · IB Group Worldwide, Inc.</div>
-        <div class="territory-tags" id="territory-tags"></div>
-      </div>
-      <div>
-        <div class="meta-grid">
-          <div class="meta-item"><dt>Employee</dt><dd>Samuel R. Carstens</dd></div>
-          <div class="meta-item"><dt>Base salary</dt><dd>$120,000 / yr</dd></div>
-          <div class="meta-item"><dt>Commission</dt><dd>$0.10 / labor hr</dd></div>
-          <div class="meta-item"><dt>Work arrangement</dt><dd>Hybrid — Coral Gables, FL</dd></div>
-          <div class="meta-item"><dt>Reports to</dt><dd>Executive Management</dd></div>
-          <div class="meta-item"><dt>Intro period</dt><dd>90 days (at-will)</dd></div>
-        </div>
-      </div>
-    </div>
-    <div class="titleblock-bottom">
-      <div class="startdate-row">
-        <label for="startdate">Start date</label>
-        <input type="date" id="startdate" value="2026-09-09">
-        <span id="daycount" class="mono"></span>
-      </div>
-      <div class="schedule-bar" id="schedulebar">
-        <div class="seg" data-days="30" id="seg1"><div class="fill"></div><span>Foundation · 1–30</span></div>
-        <div class="seg" data-days="30" id="seg2"><div class="fill"></div><span>Structure · 31–60</span></div>
-        <div class="seg" data-days="30" id="seg3"><div class="fill"></div><span>Turnover · 61–90</span></div>
-        <div class="seg" data-days="30" id="seg4" style="flex:0.6"><div class="fill"></div><span>Occupancy · 91+</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="intro">
-    <strong>What this is.</strong> A week-by-week execution schedule built directly from your September 8, 2026 employment proposal — Sections 2 (Primary Business Objective), 8 (Pipeline &amp; Reporting), 9 (Performance Expectations), 10 (Introductory Period), and 15 (Our Objective). Every task below is tagged with the section it satisfies. Set your actual start date above — the schedule bar and day-count recalculate automatically. Checkboxes save locally in this browser as you complete items.
-  </div>
-
-  <div class="update-banner">
-    <span class="label">Updated Sept 16, 2026 —</span> management redirected go-to-market away from the data center vertical named in §2A, toward the trades IB Group is actually equipped for: <strong>drywall, metal framing, and ACT (acoustical ceiling tile)</strong> on large-scale construction projects. Tasks below tagged <span class="ref redirect">redirected</span> replace the data-center-specific version of that section; §8, §9, and §10 apply exactly as written in the proposal.
-  </div>
-
-  <nav class="phase-nav">
+<nav class="phase-nav">
     <a href="#phase1" class="p1">Phase 1 <small>Foundation</small></a>
     <a href="#phase2" class="p2">Phase 2 <small>Structure</small></a>
     <a href="#phase3" class="p3">Turnover <small>Days 61–90</small></a>
@@ -1071,150 +1053,6 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </section>
 
   </footer>
-<!-- PIPELINE LOG -->
-  <section class="block">
-    <h2>Pipeline Log Template</h2>
-    <div class="desc">The exact 14 fields Section 8 calls for. Recreate this as your live CRM or spreadsheet — one row per opportunity, updated on the same cadence as your report to management.</div>
-    <div class="table-wrap">
-      <table>
-        <caption>Section 8 — Business Development Pipeline Fields</caption>
-        <thead>
-          <tr><th>Target co./client</th><th>Project / location</th><th>Stage</th><th>Owner/Dev.</th><th>GC</th><th>Decision-maker</th><th>Relationship status</th><th>Next action</th><th>Timeline</th></tr>
-        </thead>
-        <tbody>
-          <tr class="example">
-            <td>Example: Turner / AECOM Hunt JV</td>
-            <td>Kay Bailey Hutchison Convention Center expansion, Dallas, TX</td>
-            <td>Preconstruction</td>
-            <td>City of Dallas</td>
-            <td>Turner / AECOM Hunt (JV)</td>
-            <td>Drywall/framing package lead</td>
-            <td>1st intro call held</td>
-            <td>Send capabilities deck</td>
-            <td>Framing package bids expected 2026</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="font-size:.82rem;color:var(--ink-soft);margin-top:8px;">Also carry, per opportunity: project type, relevant subcontractors, contact information, meetings conducted, potential workforce requirements, and estimated opportunity size — the remaining fields Section 8 lists.</p>
-  </section>
-
-  <!-- DISCOVERY CALL FRAMEWORK -->
-  <section class="block" id="callframework">
-    <h2>Discovery Call Framework</h2>
-    <div class="desc">Straight from your boss's Sept 16, 2026 email on the Company Directory: a short first call to open the door, then a fuller discovery pass before you ever quote a rate. Use this alongside the Company Directory — validate phone/contact/email/services for each account before you call, since that data ages fast.</div>
-
-    <div class="update-banner">
-      <div class="label">First call objective</div>
-      <blockquote style="margin:8px 0 0;padding-left:12px;border-left:3px solid var(--accent);color:var(--ink-soft);font-style:italic;">"You do not need to answer every question during the first contact. The initial conversation should help you identify the correct decision-maker, understand the general need, and secure the next step."</blockquote>
-    </div>
-
-    <ul class="tasks" style="margin-top:16px;">
-      <li><input type="checkbox" data-id="call-1"><span class="task-text">Confirm you've reached the actual decision-maker (owner, PM, or estimator) — if not, get referred to them by name before you hang up</span><span class="ref">Boss email, Sep 2026</span></li>
-      <li><input type="checkbox" data-id="call-2"><span class="task-text">Introduce IB Group Worldwide and the specific trades you supply — drywall, metal framing, and ACT/acoustical ceilings — in one or two sentences</span><span class="ref">Boss email, Sep 2026</span></li>
-      <li><input type="checkbox" data-id="call-3"><span class="task-text">Ask about their general need: current subcontractor/labor situation, gaps, overflow, upcoming projects</span><span class="ref">Boss email, Sep 2026</span></li>
-      <li><input type="checkbox" data-id="call-4"><span class="task-text">Lock in one concrete next step before ending the call — a follow-up call, a project list, an email intro, a site meeting</span><span class="ref">Boss email, Sep 2026</span></li>
-      <li><input type="checkbox" data-id="call-5"><span class="task-text">Log the call immediately: contact name/title, date, what was discussed, next action, timeline — update the company's Verification status in the directory too</span><span class="ref">§8</span></li>
-      <li><input type="checkbox" data-id="call-6"><span class="task-text">Do not quote a rate or commit to labor pricing on this call — that only happens after the full discovery pass below</span><span class="ref">Boss email, Sep 2026</span></li>
-    </ul>
-
-    <div class="desc" style="margin-top:26px;">Once a real opportunity is confirmed, work through these four areas before submitting any rate. You won't have all of this after one call — that's expected — but nothing gets priced until it's filled in.</div>
-
-    <div class="call-grid">
-      <div class="call-card">
-        <div class="num">1 of 4</div>
-        <h3>Project Information</h3>
-        <ul>
-          <li>Project <strong>type, size, location, and duration</strong></li>
-          <li>Start date and schedule</li>
-          <li>Number of workers required</li>
-          <li>Required trades</li>
-          <li>Privately, publicly, or government funded?</li>
-          <li>Certifications, background checks, safety orientations, site-access conditions</li>
-        </ul>
-      </div>
-      <div class="call-card">
-        <div class="num">2 of 4</div>
-        <h3>Contractual &amp; Insurance</h3>
-        <ul>
-          <li>Approved vendor / subcontractor requirements</li>
-          <li>Workers' comp and general liability requirements</li>
-          <li>Is an OCIP or CCIP wrap-up policy in effect on this project?</li>
-        </ul>
-      </div>
-      <div class="call-card">
-        <div class="num">3 of 4</div>
-        <h3>Wage &amp; Labor Compliance</h3>
-        <ul>
-          <li>Labor classification per worker</li>
-          <li>Required base wage per trade</li>
-          <li>Davis-Bacon applicability</li>
-          <li>Fringe benefits</li>
-          <li>Certified payroll requirements</li>
-        </ul>
-        <div class="davisbacon"><strong>Public or government-funded?</strong> Don't assume your standard labor rates apply. Pull the applicable wage determination, worker classifications, and any Davis-Bacon/certified-payroll requirements before pricing anything.</div>
-      </div>
-      <div class="call-card">
-        <div class="num">4 of 4</div>
-        <h3>Billing &amp; Payment Terms</h3>
-        <ul>
-          <li>Payment method and terms</li>
-          <li>Hours recording/approval process, and who authorizes time</li>
-          <li>Billing frequency and documentation required</li>
-          <li>Expected payment timeline</li>
-          <li>Retainage, deductions, or penalties</li>
-        </ul>
-      </div>
-    </div>
-    <p style="font-size:.82rem;color:var(--ink-soft);margin-top:12px;">This is what lets IB Group calculate the real cost of the account — wages, payroll burden, insurance, compliance, admin, risk, and margin — before a rate goes to the client. Skipping straight to a number without these four areas is how a "won" account turns into a loss.</p>
-  </section>
-
-  <!-- MARKET INTEL -->
-  <section class="block">
-    <h2>Market Intelligence — Large-Scale Trade Targets</h2>
-    <div class="desc">Replaces the data-center-specific intel below with current activity matched to drywall, metal framing, and ACT — time-sensitive, territory-specific items worth building into the schedule above rather than discovering later.</div>
-    <div class="intel-grid">
-      <div class="intel-card">
-        <div class="when">Apr 12–15, 2027 · Grapevine, TX</div>
-        <h3>AWCI BUILD27</h3>
-        <p>The flagship convention for the wall-and-ceiling trade itself, at the Gaylord Texan — in-territory (Texas). BUILD26 already ran in March 2026, so this is your first shot at it; worth budgeting for now.</p>
-        <a href="https://www.awci.org/events/build-convention/" target="_blank" rel="noopener">awci.org</a>
-      </div>
-      <div class="intel-card">
-        <div class="when">Dallas, TX · $3.8B, preconstruction</div>
-        <h3>Kay Bailey Hutchison Convention Center expansion</h3>
-        <p>Turner / AECOM Hunt JV construction-manager award for a massive downtown Dallas expansion — a framing/drywall/ceilings package of real scale will come out of this as it moves through design.</p>
-        <a href="https://www.constructiondive.com/news/turner-aecom-hunt-dallas-convention-center/749909/" target="_blank" rel="noopener">constructiondive.com</a>
-      </div>
-      <div class="intel-card">
-        <div class="when">Atlanta &amp; Miami · finish-work window now</div>
-        <h3>1072 West Peachtree &amp; Waldorf Astoria Miami</h3>
-        <p>1072 West Peachtree (Atlanta) topped out and targets summer 2026 move-ins; Waldorf Astoria Miami has passed its 50th floor — both are the kind of towers where interior-finish packages get let while structure is still climbing.</p>
-        <a href="https://atlanta.urbanize.city/post/11-atl-development-stories-watch-2026" target="_blank" rel="noopener">urbanize.city</a>
-      </div>
-      <div class="intel-card">
-        <div class="when">FL / GA / TX · $1B+ each</div>
-        <h3>Hospital construction wave</h3>
-        <p>Sarasota Memorial (FL), Grady Health System / Fulton Co. (GA), and JPS Health Network (Fort Worth, TX) are each running $1B+ hospital or tower projects — healthcare interiors are heavy drywall/framing/ACT work by nature.</p>
-        <a href="https://www.beckershospitalreview.com/capital/8-hospital-projects-worth-1b-in-2026/" target="_blank" rel="noopener">beckershospitalreview.com</a>
-      </div>
-      <div class="intel-card">
-        <div class="when">New Orleans, LA</div>
-        <h3>Morial Convention Center improvements</h3>
-        <p>Multiple improvement projects underway at once, plus a wider Louisiana industrial construction surge driving regional labor demand toward ~20,500 workers by late 2026/early 2027 — a tight labor market that strengthens your staffing pitch even off these specific jobs.</p>
-        <a href="https://www.fox8live.com/2026/05/27/morial-convention-center-tackles-3-improvement-projects-once/" target="_blank" rel="noopener">fox8live.com</a>
-      </div>
-      <div class="intel-card">
-        <div class="when">Ongoing</div>
-        <h3>AGC / ABC state chapters</h3>
-        <p>Associated General Contractors and Associated Builders &amp; Contractors run active chapters in Florida, Georgia, Texas, and Louisiana — standing venues for the GC and subcontractor relationships Section 2B calls for.</p>
-        <a href="https://www.agc.org/connect/chapters" target="_blank" rel="noopener">agc.org/connect/chapters</a>
-      </div>
-    </div>
-    <p style="font-size:.82rem;color:var(--ink-soft);margin-top:10px;">Context: national forecasts put the 2026 construction labor shortfall at roughly 500,000 workers, with skilled trades — framing and finish crews included — named as the tightest. That scarcity is the core of the staffing pitch on every target above.</p>
-  </section>
-
-  
   </div>
 
   <!-- ===== ANNUAL GOALS & CHECKLIST ===== -->
@@ -1453,11 +1291,11 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   safeLoad();
 
   var startInput = document.getElementById("startdate");
-  startInput.value = state.startDate;
+  if(startInput) startInput.value = state.startDate;
 
   var territories = ["Florida","Texas","Louisiana","Georgia"];
   var tEl = document.getElementById("territory-tags");
-  territories.forEach(function(t){
+  if(tEl) territories.forEach(function(t){
     var span = document.createElement("span");
     span.className = "ttag";
     span.textContent = t;
@@ -1486,18 +1324,20 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   function render(){
     var start = new Date(state.startDate + "T00:00:00");
     if(isNaN(start.getTime())){ start = new Date(); }
+    if(dayCountEl===null){}
     var today = new Date();
     today.setHours(0,0,0,0);
     var msPerDay = 86400000;
     var dayNum = Math.floor((today - start)/msPerDay) + 1;
 
-    if(dayNum < 1){
+    if(!dayCountEl){} else if(dayNum < 1){
       dayCountEl.textContent = "starts in " + (1-dayNum) + " day(s)";
     } else {
       dayCountEl.textContent = "Day " + dayNum + (dayNum>90 ? " (post-introductory period)" : " of 90");
     }
 
     segs.forEach(function(seg){
+      if(!seg.el) return;
       var span = seg.end - seg.start + 1;
       var fillPct = 0;
       if(dayNum > seg.end){ fillPct = 100; seg.el.classList.add("done"); }
@@ -1507,9 +1347,9 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       if(fillDiv) fillDiv.style.width = fillPct + "%";
     });
 
-    var oldMarker = bar.querySelector(".marker");
+    var oldMarker = bar && bar.querySelector(".marker");
     if(oldMarker) oldMarker.remove();
-    if(dayNum >= 1 && dayNum <= 120){
+    if(bar && dayNum >= 1 && dayNum <= 120){
       var totalSpan = 120;
       var pct = (dayNum/totalSpan)*100;
       var marker = document.createElement("div");
@@ -1547,6 +1387,9 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     set("ftpPill",(dayNum>=1?"Day "+dayNum+" · ":"")+phase); set("ftpEyebrow","Annual operation plan · first 90 days: "+done+" of "+all.length+" commitments complete");
     set("ovDay",dayNum>=1?"Day "+dayNum:"—"); set("ovPhase",phase); set("ovDone",done+" / "+all.length);
     var pct=all.length?Math.round(done/all.length*100):0; var bar=document.getElementById("ovBar"); if(bar)bar.style.width=pct+"%"; set("ovPct",pct+"% of commitments complete"); set("ovPct2",done+" / "+all.length);
+    var exp=Math.max(0,Math.min(100,dayNum/90*100)); var fill=document.getElementById("aopDone"); if(fill)fill.style.width=pct+"%"; var mk=document.getElementById("aopExpect"); if(mk)mk.style.left=exp+"%";
+    set("aopSummary",done+" of "+all.length+" commitments complete ("+pct+"%) · "+(dayNum>=1?"day "+Math.min(dayNum,90)+" of 90 ("+Math.round(exp)+"% of the period elapsed)":"not started"));
+    var gap=pct-Math.round(exp); set("aopGap",dayNum<1?"":gap>=0?"▲ "+gap+" pts ahead of schedule":"▼ "+(-gap)+" pts behind schedule");
     [1,2,3,4].forEach(function(p){var ph=document.getElementById("phase"+p);if(!ph)return;var bx=ph.querySelectorAll("input[type=checkbox]"),c=0;bx.forEach(function(b){if(b.checked)c++});var el=document.getElementById("ovP"+p);if(el){el.textContent=c+"/"+bx.length}var f=document.getElementById("ovF"+p);if(f){f.style.width=(bx.length?Math.round(c/bx.length*100):0)+"%"}});
     document.querySelectorAll(".phase").forEach(function(phase){
       var boxes = phase.querySelectorAll('input[type="checkbox"]');
@@ -1571,13 +1414,13 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     });
   });
 
-  startInput.addEventListener("change", function(){
+  if(startInput) startInput.addEventListener("change", function(){
     state.startDate = startInput.value;
     safeSave();
     render();
   });
 
-  document.getElementById("resetbtn").addEventListener("click", function(){
+  var rb=document.getElementById("resetbtn"); if(rb) rb.addEventListener("click", function(){
     state.checks = {};
     document.querySelectorAll('ul.tasks input[type="checkbox"]').forEach(function(box){
       box.checked = false;
