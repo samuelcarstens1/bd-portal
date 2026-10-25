@@ -660,6 +660,40 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .thumb{width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--line);cursor:zoom-in}
 .ocrbar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}.ocrbar div{height:100%;background:var(--accent);transition:width .2s}
 
+.counter .acts{margin-top:4px}
+.photos{display:flex;flex-wrap:wrap;gap:10px}
+.photos figure{margin:0;position:relative;width:140px}
+.photos img{width:140px;height:110px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.photos figcaption{font-size:11px;color:var(--muted);margin-top:4px}
+.photos .rmp{position:absolute;top:4px;right:4px;background:var(--card);border:1px solid var(--line);border-radius:4px;cursor:pointer;font-size:12px;width:24px;height:24px}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+@media (max-width:900px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.kpi .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.kpi .nm{font-weight:600}
+.kpi .cnt{font-family:var(--mono);font-size:22px;font-weight:600}
+.kpi .cnt{white-space:nowrap}.kpi .cnt small{font-size:12px;color:var(--muted);font-weight:400}.kpi .top{flex-wrap:wrap}
+.kpi .bar{height:14px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.kpi .bar div{height:100%;background:var(--accent);transition:width .25s}
+.kpi .bar div.met{background:var(--good)}
+.kpi .ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.kpi input.tgt{width:90px;min-height:32px;border:1px solid var(--line);border-radius:4px;padding:0 8px;background:var(--bg);color:var(--fg);font-family:var(--mono)}
+.goalgrp{margin-top:18px}
+.goalgrp h3{font-size:1.05rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+.goal{display:grid;grid-template-columns:28px minmax(0,1fr) 150px 36px;gap:12px;align-items:center;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:6px;margin-bottom:6px;cursor:pointer}
+.goal:hover{border-color:var(--accent)}
+.goal .gt{font-weight:600}.goal .gs{font-size:12px;color:var(--muted)}
+.goal .gbar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}.goal .gbar div{height:100%;background:var(--accent)}
+.goal.done .gt{text-decoration:line-through;color:var(--muted)}
+.goal input[type=checkbox]{width:18px;height:18px}
+@media (max-width:640px){.goal{grid-template-columns:28px minmax(0,1fr) 36px}.goal .gbarwrap{display:none}}
+.gpage{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:22px 24px;display:flex;flex-direction:column;gap:18px}
+.gpage .back{align-self:flex-start}
+.phase .phase-head{cursor:pointer}
+.phase.collapsed > .week,.phase.collapsed > .closeout,.phase.collapsed > .phase-metaphor{display:none}
+.phase .phase-head h2::before{content:"▾ ";color:var(--muted);font-size:.8em}
+.phase.collapsed .phase-head h2::before{content:"▸ "}
+
 /* Phone */
 @media (max-width:760px){
   .shell{flex-direction:column}
@@ -728,20 +762,14 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   <div class="grid g4" aria-label="Key numbers">
     <a class="card tight tool" href="#pipeline" style="padding:20px 22px;gap:10px"><span class="label">Pipeline value</span><span class="big" id="ovTotal">—</span><span class="sub13" id="ovSub">—</span><span class="sub13" style="color:var(--accent);font-weight:600">See breakdown</span></a>
     <div class="card tight"><span class="label">Active leads</span><span class="big">38</span><span class="sub13">12 data center · 26 commercial</span></div>
-    <div class="card tight"><span class="label">Meetings this week</span><span class="big">9</span><span class="sub13">4 on site · 5 virtual</span></div>
+    <a class="card tight tool" href="#week" style="padding:20px 22px;gap:10px"><span class="label">Meetings this week</span><span class="big" id="ovMeet">—</span><span class="sub13" id="ovMeetSub">—</span></a>
     <div class="card tight dark"><span class="label">Salary ROI (to date)</span><span class="big" style="color:var(--accent-bright)">3.1×</span><span class="sub13" style="color:var(--navy-dim)">Gross margin placed ÷ cost of seat</span></div>
   </div>
 
   <div class="grid g2">
     <div class="card">
       <div class="card-head"><h2>Work week summary</h2><a class="link" href="#week">Open full week</a></div>
-      <div class="rows">
-        <div class="row"><span class="day">MON</span><span>Site walk with a data-center GC in Dallas; scoped drywall and ACT labor for Phase 2.</span></div>
-        <div class="row"><span class="day">TUE</span><span>Cold-call block: 42 dials, 6 conversations, 2 discovery meetings booked.</span></div>
-        <div class="row"><span class="day">WED</span><span>Proposal sent for framing crew, 14 heads, 10-week duration (Orlando).</span></div>
-        <div class="row"><span class="day">THU</span><span>Networking: ABC South Florida mixer — 11 new contacts added to database.</span></div>
-        <div class="row"><span class="day">FRI</span><span>Follow-ups and weekly report. Next week: Houston trip, 3 site visits.</span></div>
-      </div>
+      <div class="rows" id="ovWeekRows"></div><div class="sub13" id="ovWeekFoot">—</div>
     </div>
     <a class="card tool" href="#foundations" style="padding:24px;gap:16px">
       <div class="card-head"><h2>Annual operation plan</h2><span class="note mono" id="ovDay">—</span></div>
@@ -910,7 +938,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
   <div class="card" id="aopProgress" style="gap:14px">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
-      <div style="display:flex;flex-direction:column;gap:4px"><span class="label">First 90 days · progress vs. schedule</span><span class="sub13" id="aopSummary">—</span></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><span class="label">First 90 days · progress vs. schedule</span><span class="sub13" style="color:var(--accent);font-weight:600;cursor:pointer" id="aopOpen90">Open the 90-day checklist ›</span><span class="sub13" id="aopSummary">—</span></div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label for="startdate" class="label" style="font-size:11px">Start date</label><input type="date" id="startdate" value="2026-09-09" style="min-height:36px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:13px"><span id="daycount" class="mono sub13"></span></div>
     </div>
     <div class="ptrack" aria-label="Progress against schedule">
@@ -956,47 +984,47 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <div class="week">
       <h3>Week 1 — Systems &amp; Orientation</h3>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p1w1-1"><span class="task-text">Complete employment eligibility verification, onboarding paperwork, and sign the Confidentiality / Non-Solicitation / Restrictive Covenant agreements</span><span class="ref">§13</span><button class="rm" type="button" data-del="p1w1-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w1-2"><span class="task-text">Meet with the Executive Management Team to confirm reporting lines, initial priorities, and how "strategic accounts" get assigned to you</span><span class="ref">§1, §2B</span><button class="rm" type="button" data-del="p1w1-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w1-3"><span class="task-text">Confirm the hybrid cadence in practice — which meetings/events require in-person attendance at the Coral Gables office vs. the field</span><span class="ref">§4</span><button class="rm" type="button" data-del="p1w1-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w1-4"><span class="task-text">Build your pipeline tracker (CRM or spreadsheet) with all 14 fields called for in Section 8 — see the Pipeline Log template below — before you make a single call</span><span class="ref">§8</span><button class="rm" type="button" data-del="p1w1-4" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w1-5"><span class="task-text">Ask management, in writing, for the specific numeric objectives referenced at the close of Section 9 ("Management will establish and periodically review specific business development objectives") — get targets defined before you're measured against them</span><span class="ref">§9</span><button class="rm" type="button" data-del="p1w1-5" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w1-6"><span class="task-text">Request IB Group's current active client roster, any drywall/metal-framing/ACT crews or contracts already in motion, and the competitive landscape so you don't duplicate existing relationships</span><span class="ref">§2A, §2B</span><button class="rm" type="button" data-del="p1w1-6" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w1-7"><span class="task-text">Inventory your own existing network from Irongraad, Bayard, Dan Vos, and HuckFyn — cross-reference every GC, super, and PM contact against Florida, Texas, Louisiana, and Georgia</span><span class="ref">§2B, §3</span><button class="rm" type="button" data-del="p1w1-7" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w1-1"><span class="task-text">Complete employment eligibility verification, onboarding paperwork, and sign the Confidentiality / Non-Solicitation / Restrictive Covenant agreements</span><button class="rm" type="button" data-del="p1w1-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w1-2"><span class="task-text">Meet with the Executive Management Team to confirm reporting lines, initial priorities, and how "strategic accounts" get assigned to you</span><button class="rm" type="button" data-del="p1w1-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w1-3"><span class="task-text">Confirm the hybrid cadence in practice — which meetings/events require in-person attendance at the Coral Gables office vs. the field</span><button class="rm" type="button" data-del="p1w1-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w1-4"><span class="task-text">Build your pipeline tracker (CRM or spreadsheet) with all 14 fields called for in Section 8 — see the Pipeline Log template below — before you make a single call</span><button class="rm" type="button" data-del="p1w1-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w1-5"><span class="task-text">Ask management, in writing, for the specific numeric objectives referenced at the close of Section 9 ("Management will establish and periodically review specific business development objectives") — get targets defined before you're measured against them</span><button class="rm" type="button" data-del="p1w1-5" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w1-6"><span class="task-text">Request IB Group's current active client roster, any drywall/metal-framing/ACT crews or contracts already in motion, and the competitive landscape so you don't duplicate existing relationships</span><button class="rm" type="button" data-del="p1w1-6" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w1-7"><span class="task-text">Inventory your own existing network from Irongraad, Bayard, Dan Vos, and HuckFyn — cross-reference every GC, super, and PM contact against Florida, Texas, Louisiana, and Georgia</span><button class="rm" type="button" data-del="p1w1-7" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
 
     <div class="week">
-      <h3>Week 2 — Market Research: Large-Scale Projects <span class="ref redirect">§2A redirected</span></h3>
+      <h3>Week 2 — Market Research: Large-Scale Projects </h3>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p1w2-1"><span class="task-text">Start a standing research log of large-scale projects with heavy drywall / metal-framing / ACT scope — hospitals, hotels, mixed-use high-rises, convention centers, stadiums/entertainment districts, airports — across the four territory states</span><span class="ref redirect">§2A redirected</span><button class="rm" type="button" data-del="p1w2-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w2-2"><span class="task-text">Track named leads already identified: Waldorf Astoria Miami (past 50th floor) and 1 Southside Park (Miami), 1072 West Peachtree and Centennial Yards (Atlanta, both racing toward mid-2026 finish work), the $3.8B Kay Bailey Hutchison Convention Center expansion (Dallas), and the Morial Convention Center improvement projects (New Orleans)</span><span class="ref redirect">§2A redirected</span><button class="rm" type="button" data-del="p1w2-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w2-3"><span class="task-text">Track the $1B+ hospital construction wave hitting three of your four states: Sarasota Memorial (FL), Grady Health System / Fulton Co. (GA), and JPS Health Network (Fort Worth, TX)</span><span class="ref redirect">§2A redirected</span><button class="rm" type="button" data-del="p1w2-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w2-4"><span class="task-text">For each target, identify the GC <em>and</em> the drywall/interior-finish subcontractor already on the job — the sub is often the more direct buyer of your labor than the GC itself</span><span class="ref redirect">§2A redirected</span><button class="rm" type="button" data-del="p1w2-4" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w2-5"><span class="task-text">Identify who on each team owns workforce procurement and labor management for the framing/drywall/ceilings package specifically</span><span class="ref redirect">§2A redirected</span><button class="rm" type="button" data-del="p1w2-5" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w2-6"><span class="task-text">Look into AWCI (Association of the Wall and Ceiling Industry) membership and state AGC/ABC chapters in FL, GA, TX, and LA as ongoing relationship channels — flag AWCI's BUILD27 convention (Apr 12–15, 2027, Grapevine, TX) as a 2027 planning target</span><span class="ref redirect">§2A redirected</span><button class="rm" type="button" data-del="p1w2-6" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w2-1"><span class="task-text">Start a standing research log of large-scale projects with heavy drywall / metal-framing / ACT scope — hospitals, hotels, mixed-use high-rises, convention centers, stadiums/entertainment districts, airports — across the four territory states</span><button class="rm" type="button" data-del="p1w2-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w2-2"><span class="task-text">Track named leads already identified: Waldorf Astoria Miami (past 50th floor) and 1 Southside Park (Miami), 1072 West Peachtree and Centennial Yards (Atlanta, both racing toward mid-2026 finish work), the $3.8B Kay Bailey Hutchison Convention Center expansion (Dallas), and the Morial Convention Center improvement projects (New Orleans)</span><button class="rm" type="button" data-del="p1w2-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w2-3"><span class="task-text">Track the $1B+ hospital construction wave hitting three of your four states: Sarasota Memorial (FL), Grady Health System / Fulton Co. (GA), and JPS Health Network (Fort Worth, TX)</span><button class="rm" type="button" data-del="p1w2-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w2-4"><span class="task-text">For each target, identify the GC <em>and</em> the drywall/interior-finish subcontractor already on the job — the sub is often the more direct buyer of your labor than the GC itself</span><button class="rm" type="button" data-del="p1w2-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w2-5"><span class="task-text">Identify who on each team owns workforce procurement and labor management for the framing/drywall/ceilings package specifically</span><button class="rm" type="button" data-del="p1w2-5" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w2-6"><span class="task-text">Look into AWCI (Association of the Wall and Ceiling Industry) membership and state AGC/ABC chapters in FL, GA, TX, and LA as ongoing relationship channels — flag AWCI's BUILD27 convention (Apr 12–15, 2027, Grapevine, TX) as a 2027 planning target</span><button class="rm" type="button" data-del="p1w2-6" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
 
     <div class="week">
       <h3>Week 3 — Market Research: Strategic Accounts</h3>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p1w3-1"><span class="task-text">Build a target list of 20–30 strategic accounts across the territory — weight it toward drywall/metal-framing/ACT subcontractors and the GCs who hire them, independent of any single project</span><span class="ref">§2B</span><button class="rm" type="button" data-del="p1w3-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w3-2"><span class="task-text">Prioritize targets by realistic labor-hour volume and fit with IB Group's current workforce capabilities</span><span class="ref">§2B</span><button class="rm" type="button" data-del="p1w3-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w3-3"><span class="task-text">Identify the named executives/decision-makers at each priority target</span><span class="ref">§2B</span><button class="rm" type="button" data-del="p1w3-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w3-4"><span class="task-text">Draft an outreach template and a one-page capabilities/value-prop sheet built around drywall/metal-framing/ACT — get management's sign-off before it goes out under IB Group's name</span><span class="ref">§2B</span><button class="rm" type="button" data-del="p1w3-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w3-1"><span class="task-text">Build a target list of 20–30 strategic accounts across the territory — weight it toward drywall/metal-framing/ACT subcontractors and the GCs who hire them, independent of any single project</span><button class="rm" type="button" data-del="p1w3-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w3-2"><span class="task-text">Prioritize targets by realistic labor-hour volume and fit with IB Group's current workforce capabilities</span><button class="rm" type="button" data-del="p1w3-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w3-3"><span class="task-text">Identify the named executives/decision-makers at each priority target</span><button class="rm" type="button" data-del="p1w3-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w3-4"><span class="task-text">Draft an outreach template and a one-page capabilities/value-prop sheet built around drywall/metal-framing/ACT — get management's sign-off before it goes out under IB Group's name</span><button class="rm" type="button" data-del="p1w3-4" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
 
     <div class="week">
       <h3>Week 4 — First Outreach &amp; 30-Day Checkpoint</h3>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p1w4-1"><span class="task-text">Begin direct outreach to your first 10–15 highest-priority contacts across both tracks</span><span class="ref">§2A, §2B</span><button class="rm" type="button" data-del="p1w4-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w4-2"><span class="task-text">Get your first qualified meetings on the calendar</span><span class="ref">§9</span><button class="rm" type="button" data-del="p1w4-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w4-3"><span class="task-text">Attend at least one industry or networking event in-territory</span><span class="ref">§2A, §5</span><button class="rm" type="button" data-del="p1w4-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w4-4"><span class="task-text">Deliver your first formal pipeline report to management</span><span class="ref">§8</span><button class="rm" type="button" data-del="p1w4-4" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w4-5"><span class="task-text">Self-score against every Section 10 introductory-period criterion (see the Turnover phase packet below) and note gaps while there's still runway to close them</span><span class="ref">§10</span><button class="rm" type="button" data-del="p1w4-5" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p1w4-6"><span class="task-text">Hold a 30-day check-in with Executive Management: review the pipeline, confirm targets, and lock in territory priorities for Phase 2</span><span class="ref">§9, §10</span><button class="rm" type="button" data-del="p1w4-6" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w4-1"><span class="task-text">Begin direct outreach to your first 10–15 highest-priority contacts across both tracks</span><button class="rm" type="button" data-del="p1w4-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w4-2"><span class="task-text">Get your first qualified meetings on the calendar</span><button class="rm" type="button" data-del="p1w4-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w4-3"><span class="task-text">Attend at least one industry or networking event in-territory</span><button class="rm" type="button" data-del="p1w4-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w4-4"><span class="task-text">Deliver your first formal pipeline report to management</span><button class="rm" type="button" data-del="p1w4-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w4-5"><span class="task-text">Self-score against every Section 10 introductory-period criterion (see the Turnover phase packet below) and note gaps while there's still runway to close them</span><button class="rm" type="button" data-del="p1w4-5" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p1w4-6"><span class="task-text">Hold a 30-day check-in with Executive Management: review the pipeline, confirm targets, and lock in territory priorities for Phase 2</span><button class="rm" type="button" data-del="p1w4-6" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
     <div class="closeout"><span class="label">30-day exit test —</span> you should be able to hand management a live pipeline log, a research brief on both tracks, and a calendar with at least one qualified meeting already held.</div>
@@ -1016,21 +1044,21 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <div class="week">
       <h3>Weeks 5–6 — Volume &amp; Rhythm</h3>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p2w5-1"><span class="task-text">Grow the combined pipeline to 40+ tracked opportunities across both tracks</span><span class="ref">§8, §9</span><button class="rm" type="button" data-del="p2w5-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p2w5-2"><span class="task-text">Move first-touch contacts into second- and third-touch relationship building — calls, follow-ups, site visits</span><span class="ref">§2A, §2B</span><button class="rm" type="button" data-del="p2w5-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p2w5-3"><span class="task-text">Start attending project meetings and site visits wherever access allows</span><span class="ref">§2A</span><button class="rm" type="button" data-del="p2w5-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p2w5-4"><span class="task-text">Stand up a weekly written activity report to management (contacts made, meetings held/scheduled, opportunities added) — this is the paper trail Section 10 evaluates as "organizational discipline"</span><span class="ref">§8, §10</span><button class="rm" type="button" data-del="p2w5-4" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p2w5-5"><span class="task-text">Work every event you attend the same way: get every contact logged into the pipeline within 48 hours</span><span class="ref">§8</span><button class="rm" type="button" data-del="p2w5-5" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w5-1"><span class="task-text">Grow the combined pipeline to 40+ tracked opportunities across both tracks</span><button class="rm" type="button" data-del="p2w5-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w5-2"><span class="task-text">Move first-touch contacts into second- and third-touch relationship building — calls, follow-ups, site visits</span><button class="rm" type="button" data-del="p2w5-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w5-3"><span class="task-text">Start attending project meetings and site visits wherever access allows</span><button class="rm" type="button" data-del="p2w5-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w5-4"><span class="task-text">Stand up a weekly written activity report to management (contacts made, meetings held/scheduled, opportunities added) — this is the paper trail Section 10 evaluates as "organizational discipline"</span><button class="rm" type="button" data-del="p2w5-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w5-5"><span class="task-text">Work every event you attend the same way: get every contact logged into the pipeline within 48 hours</span><button class="rm" type="button" data-del="p2w5-5" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
 
     <div class="week">
       <h3>Weeks 7–8 — Depth &amp; First Bids</h3>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p2w7-1"><span class="task-text">Pursue your first RFP, bid invitation, or pricing opportunity</span><span class="ref">§9</span><button class="rm" type="button" data-del="p2w7-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p2w7-2"><span class="task-text">Deepen at least 3–5 strategic accounts specifically assigned by management — confirm what "materially contributes" to commission eligibility looks like on those accounts</span><span class="ref">§2B, §7</span><button class="rm" type="button" data-del="p2w7-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p2w7-3"><span class="task-text">Establish relationships on at least 5 pre-construction or early-framing-stage large-scale projects — before the drywall/framing/ceilings bid package goes out, per the proposal's own strategy</span><span class="ref redirect">§2A redirected</span><button class="rm" type="button" data-del="p2w7-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p2w7-4"><span class="task-text">Mid-phase check-in with management: review pipeline health and recalibrate the next 30 days' targets</span><span class="ref">§9</span><button class="rm" type="button" data-del="p2w7-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w7-1"><span class="task-text">Pursue your first RFP, bid invitation, or pricing opportunity</span><button class="rm" type="button" data-del="p2w7-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w7-2"><span class="task-text">Deepen at least 3–5 strategic accounts specifically assigned by management — confirm what "materially contributes" to commission eligibility looks like on those accounts</span><button class="rm" type="button" data-del="p2w7-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w7-3"><span class="task-text">Establish relationships on at least 5 pre-construction or early-framing-stage large-scale projects — before the drywall/framing/ceilings bid package goes out, per the proposal's own strategy</span><button class="rm" type="button" data-del="p2w7-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p2w7-4"><span class="task-text">Mid-phase check-in with management: review pipeline health and recalibrate the next 30 days' targets</span><button class="rm" type="button" data-del="p2w7-4" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
     <div class="closeout"><span class="label">60-day exit test —</span> a pipeline that's grown, not just refreshed; a standing weekly report management already expects; and at least one live bid or pricing opportunity in motion.</div>
@@ -1050,10 +1078,10 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <div class="week">
       <h3>Weeks 9–11 — Convert &amp; Document</h3>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p3w9-1"><span class="task-text">Push at least one relationship to a secured client account or signed workforce agreement</span><span class="ref">§9</span><button class="rm" type="button" data-del="p3w9-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w9-2"><span class="task-text">Start tracking labor hours generated and any revenue/gross profit attributable to accounts you originated</span><span class="ref">§9, §7</span><button class="rm" type="button" data-del="p3w9-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w9-3"><span class="task-text">Audit the full pipeline against every Section 8 field — nothing stale, nothing missing a next action or timeline</span><span class="ref">§8</span><button class="rm" type="button" data-del="p3w9-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w9-4"><span class="task-text">Request written feedback and next-quarter objectives from Executive Management ahead of the 90-day mark — don't let the introductory review be the first time you hear it</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w9-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w9-1"><span class="task-text">Push at least one relationship to a secured client account or signed workforce agreement</span><button class="rm" type="button" data-del="p3w9-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w9-2"><span class="task-text">Start tracking labor hours generated and any revenue/gross profit attributable to accounts you originated</span><button class="rm" type="button" data-del="p3w9-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w9-3"><span class="task-text">Audit the full pipeline against every Section 8 field — nothing stale, nothing missing a next action or timeline</span><button class="rm" type="button" data-del="p3w9-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w9-4"><span class="task-text">Request written feedback and next-quarter objectives from Executive Management ahead of the 90-day mark — don't let the introductory review be the first time you hear it</span><button class="rm" type="button" data-del="p3w9-4" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
 
@@ -1061,17 +1089,17 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       <h3>Week 12 — Introductory Period Review Packet</h3>
       <p style="font-size:.9rem;color:var(--ink-soft);margin:0 0 10px;">Section 10 lists exactly what management evaluates at day 90. Build one short section of evidence for each line before the review, not during it.</p>
       <ul class="tasks">
-        <li><input type="checkbox" data-id="p3w12-1"><span class="task-text">Market research &amp; target development — show the territory research log</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-1" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-2"><span class="task-text">§10 literally lists "data center project pipeline development" — with the redirect, satisfy it by showing your tracked large-scale drywall/framing/ACT project pipeline by stage instead</span><span class="ref redirect">§10 redirected</span><button class="rm" type="button" data-del="p3w12-2" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-3"><span class="task-text">Strategic account identification — show the 20–30 account target list and status</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-3" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-4"><span class="task-text">Decision-maker identification — show names/titles captured per account</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-4" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-5"><span class="task-text">Client outreach activity — show total contacts made, by week</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-5" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-6"><span class="task-text">Meetings and introductions generated — show the count and outcomes</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-6" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-7"><span class="task-text">Quality of business opportunities developed — show your best 3–5 with estimated opportunity size</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-7" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-8"><span class="task-text">Follow-up and organizational discipline — point to the weekly report cadence you've already been running</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-8" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-9"><span class="task-text">Travel and market engagement — show events attended and site visits completed</span><span class="ref">§5, §10</span><button class="rm" type="button" data-del="p3w12-9" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-10"><span class="task-text">Professional representation of IB Group Worldwide — be ready to speak to how you've introduced the company at events and meetings</span><span class="ref">§10</span><button class="rm" type="button" data-del="p3w12-10" aria-label="Delete item" title="Delete item">✕</button></li>
-        <li><input type="checkbox" data-id="p3w12-11"><span class="task-text">Confirm the review meeting is on the calendar proactively — go to it, don't wait for it to come to you</span><span class="ref">§10, §12</span><button class="rm" type="button" data-del="p3w12-11" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-1"><span class="task-text">Market research &amp; target development — show the territory research log</span><button class="rm" type="button" data-del="p3w12-1" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-2"><span class="task-text">§10 literally lists "data center project pipeline development" — with the redirect, satisfy it by showing your tracked large-scale drywall/framing/ACT project pipeline by stage instead</span><button class="rm" type="button" data-del="p3w12-2" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-3"><span class="task-text">Strategic account identification — show the 20–30 account target list and status</span><button class="rm" type="button" data-del="p3w12-3" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-4"><span class="task-text">Decision-maker identification — show names/titles captured per account</span><button class="rm" type="button" data-del="p3w12-4" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-5"><span class="task-text">Client outreach activity — show total contacts made, by week</span><button class="rm" type="button" data-del="p3w12-5" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-6"><span class="task-text">Meetings and introductions generated — show the count and outcomes</span><button class="rm" type="button" data-del="p3w12-6" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-7"><span class="task-text">Quality of business opportunities developed — show your best 3–5 with estimated opportunity size</span><button class="rm" type="button" data-del="p3w12-7" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-8"><span class="task-text">Follow-up and organizational discipline — point to the weekly report cadence you've already been running</span><button class="rm" type="button" data-del="p3w12-8" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-9"><span class="task-text">Travel and market engagement — show events attended and site visits completed</span><button class="rm" type="button" data-del="p3w12-9" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-10"><span class="task-text">Professional representation of IB Group Worldwide — be ready to speak to how you've introduced the company at events and meetings</span><button class="rm" type="button" data-del="p3w12-10" aria-label="Delete item" title="Delete item">✕</button></li>
+        <li><input type="checkbox" data-id="p3w12-11"><span class="task-text">Confirm the review meeting is on the calendar proactively — go to it, don't wait for it to come to you</span><button class="rm" type="button" data-del="p3w12-11" aria-label="Delete item" title="Delete item">✕</button></li>
       </ul>
     </div>
     <div class="closeout"><span class="label">90-day exit test —</span> a completed review packet mirroring Section 10 line for line, at least one secured account in motion, and a documented ask for next-quarter targets.</div>
@@ -1082,13 +1110,21 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
   <!-- ===== ANNUAL GOALS & CHECKLIST ===== -->
   <div class="ftp-panel" id="panel-annual" role="tabpanel" aria-labelledby="tab-annual" hidden>
+    <div id="goalsHome">
     <section class="block" style="margin-top:0">
-      <h2>Annual Goals</h2>
-      <div class="desc">The goals for the year beyond the introductory period. Add each one as a single checkable line; tick it when it's done. Saved in this browser until the shared database is connected.</div>
-      <form class="addline" id="goalForm"><label for="goalText" class="sr">New goal</label><input id="goalText" placeholder="e.g. Secure 3 recurring accounts in Dallas–Fort Worth" required><button class="btn primary" type="submit">Add goal</button></form>
-      <ul class="tasks custom" id="goalList"></ul>
-      <div class="empty" id="goalEmpty">No annual goals entered yet.</div>
+      <h2>Annual Goals &amp; Checklist</h2>
+      <div class="desc">Four groups: the goals any in-house BD lead at a drywall / framing / ACT labor company is measured on, IB Group–specific goals, the five large clients to sign, and the customers to win back. Click a goal to open its page and track progress.</div>
+      <div id="goalGroups"></div>
+      <form class="addline grid-add" id="goalForm" style="margin-top:18px">
+        <label>New goal<input id="goalText" required placeholder="What has to be true by year end"></label>
+        <label>Group<select id="goalGroup"><option value="industry">Industry-standard</option><option value="company">IB Group–specific</option><option value="clients">5 large clients to sign</option><option value="winback">Customers to win back</option></select></label>
+        <label>Target (number, optional)<input id="goalTarget" type="number" min="0" step="1" placeholder="e.g. 3"></label>
+        <label>Unit<input id="goalUnit" placeholder="accounts, meetings, $"></label>
+        <div class="oppform-actions"><button class="btn primary" type="submit">Add goal</button></div>
+      </form>
     </section>
+    </div>
+    <div id="goalPage" hidden></div>
 <!-- PHASE 4 -->
   <section class="phase" id="phase4" data-phase="4">
     <div class="phase-head">
@@ -1155,44 +1191,13 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   <!-- ===== PERFORMANCE & PROGRESS REVIEWS ===== -->
   <div class="ftp-panel" id="panel-reviews" role="tabpanel" aria-labelledby="tab-reviews" hidden>
     <section class="block" style="margin-top:0">
-      <h2>Review Calendar</h2>
-      <div class="desc">Dated from the start date on the First 90 Days tab: the 30-, 60- and 90-day check-ins from §9 and §10, then quarterly reviews for the rest of the year. Mark each one held and note the outcome.</div>
-      <div class="table-wrap"><table>
-        <caption>Check-ins and reviews</caption>
-        <thead><tr><th>Review</th><th>Due</th><th>Status</th><th>Held</th><th>Outcome / notes</th></tr></thead>
-        <tbody id="reviewRows"></tbody>
-      </table></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px">
+        <div><h2>KPI Tracker</h2><div class="desc" style="margin-bottom:0">The indicators an in-house business developer at a construction labor company is measured on. Press +1 as each one happens; the bar fills toward the target you set. Counts are for the current year.</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="kpiEdit">Edit targets</button><button class="btn" type="button" id="kpiAdd">Add KPI</button></div>
+      </div>
+      <div id="kpiList" class="kpis"></div>
+      <form id="kpiForm" class="addline grid-add" hidden style="margin-top:14px"><label>KPI name<input id="kpiName" required></label><label>Annual target<input id="kpiTarget" type="number" min="1" step="1" required></label><label>Unit<input id="kpiUnit" placeholder="meetings, $, hours"></label><div class="oppform-actions"><button class="btn primary" type="submit">Add</button><button class="btn" type="button" id="kpiCancel">Cancel</button></div></form>
     </section>
-<!-- KPI DASHBOARD -->
-  <section class="block">
-    <h2>KPI Self-Tracker</h2>
-    <div class="desc">The indicators listed in Section 9, with suggested self-imposed pacing so you have a number to manage to before management hands you one. Replace the "your target" column the moment real numbers come out of your Week 1 conversation — these are starting points, not company-issued quotas.</div>
-    <div class="table-wrap">
-      <table>
-        <caption>Section 9 — Key Performance Indicators</caption>
-        <thead>
-          <tr><th>KPI (as written in §9)</th><th class="num">30-day</th><th class="num">60-day</th><th class="num">90-day</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Qualified target accounts identified</td><td class="num">20–30</td><td class="num">40+</td><td class="num">60+</td></tr>
-          <tr><td>Data center &amp; strategic projects identified <span class="ref redirect" style="margin-left:4px;">redirected*</span></td><td class="num">15+</td><td class="num">30+</td><td class="num">50+</td></tr>
-          <tr><td>Decision-makers identified &amp; contacted</td><td class="num">15</td><td class="num">40</td><td class="num">70+</td></tr>
-          <tr><td>New relationships established</td><td class="num">5</td><td class="num">15</td><td class="num">30</td></tr>
-          <tr><td>Qualified meetings secured</td><td class="num">2–3</td><td class="num">8–10</td><td class="num">15+</td></tr>
-          <tr><td>Client &amp; project site visits completed</td><td class="num">1</td><td class="num">3</td><td class="num">6+</td></tr>
-          <tr><td>Active opportunities developed</td><td class="num">3</td><td class="num">10</td><td class="num">18+</td></tr>
-          <tr><td>Invitations to bid / RFPs / pricing received</td><td class="num">0–1</td><td class="num">1–2</td><td class="num">3+</td></tr>
-          <tr><td>New client accounts secured</td><td class="num">0</td><td class="num">0–1</td><td class="num">1+</td></tr>
-          <tr><td>Projects awarded</td><td class="num">0</td><td class="num">0</td><td class="num">0–1</td></tr>
-          <tr><td>Labor hours generated</td><td class="num">—</td><td class="num">first hrs</td><td class="num">tracked</td></tr>
-          <tr><td>Revenue &amp; gross profit generated</td><td class="num">—</td><td class="num">first $</td><td class="num">tracked</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="font-size:.78rem;color:var(--ink-soft);margin-top:6px;">* §9 names this KPI "data center and strategic projects identified." With the redirect, count large-scale drywall/framing/ACT project targets here instead of data centers.</p>
-  </section>
-
-  
   </div>
 
 <footer>
@@ -1204,16 +1209,36 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <!-- WEEK -->
 <section class="view" id="view-week" aria-labelledby="h-week">
-  <header class="head"><div class="head-left"><span class="eyebrow">Week 7 · Oct 19–23, 2026</span><h1 id="h-week">Work week summary</h1><span class="sub">Rolled up from the five daily reports. Sent to Juan Carlos every Friday.</span></div><div class="head-right"><button class="btn" type="button">Previous week</button><button class="btn primary" type="button">Export week to PDF</button></div></header>
-  <div class="grid g4">
-    <div class="card tight"><span class="label">Dials</span><span class="big">118</span></div>
-    <div class="card tight"><span class="label">Conversations</span><span class="big">24</span></div>
-    <div class="card tight"><span class="label">Meetings held</span><span class="big">9</span></div>
-    <div class="card tight"><span class="label">Proposals out</span><span class="big">2</span></div>
+  <header class="head">
+    <div class="head-left"><span class="eyebrow" id="wkEyebrow">—</span><h1 id="h-week">Work week summary</h1><span class="sub">Tap +1 as the week happens. Wins, photos and notes attach to the week; download it as a PDF for Juan Carlos on Friday.</span></div>
+    <div class="head-right"><button class="btn" type="button" id="wkPrev">‹ Week</button><button class="btn" type="button" id="wkNext">Week ›</button><button class="btn" type="button" id="wkNew">New week</button><button class="btn primary" type="button" id="wkDownload">Download week (PDF)</button></div>
+  </header>
+  <div class="sub13" id="wkMeta"></div>
+
+  <div class="grid g4" id="wkCounters">
+    <div class="card tight counter"><span class="label">Dials</span><span class="big" id="wkC-dials">0</span><div class="acts"><button class="sbtn go" data-inc="dials">+1</button><button class="sbtn quiet" data-dec="dials" aria-label="Minus one">−1</button></div></div>
+    <div class="card tight counter"><span class="label">Conversations</span><span class="big" id="wkC-convos">0</span><div class="acts"><button class="sbtn go" data-inc="convos">+1</button><button class="sbtn quiet" data-dec="convos" aria-label="Minus one">−1</button></div></div>
+    <div class="card tight counter"><span class="label">Meetings held</span><span class="big" id="wkC-meetings">0</span><div class="acts"><button class="sbtn go" data-inc="meetings">+1</button><button class="sbtn quiet" data-dec="meetings" aria-label="Minus one">−1</button></div></div>
+    <div class="card tight counter"><span class="label">Proposals</span><span class="big" id="wkC-proposals">0</span><div class="acts"><button class="sbtn go" data-inc="proposals">+1</button><button class="sbtn quiet" data-dec="proposals" aria-label="Minus one">−1</button></div></div>
   </div>
+
   <div class="grid g2">
-    <div class="card"><div class="card-head"><h2>Wins</h2></div><div class="rows"><div class="row"><span>Orlando framing proposal sent — 14 heads, 10 weeks.</span></div><div class="row"><span>Two Miami-Dade GC executives agreed to capacity meetings.</span></div><div class="row"><span>Dallas data-center Phase 2 scope confirmed in writing.</span></div></div></div>
-    <div class="card"><div class="card-head"><h2>Next week</h2></div><div class="rows"><div class="row"><span class="day">TUE</span><span>Houston: site visit 1 and 2.</span></div><div class="row"><span class="day">WED</span><span>Houston: site visit 3, client dinner.</span></div><div class="row"><span class="day">THU</span><span>Return; follow up on Orlando proposal.</span></div></div></div>
+    <div class="card">
+      <div class="card-head"><h2>Wins</h2><span class="note" id="wkWinCount">0</span></div>
+      <form id="winForm" class="addline" style="display:flex;gap:10px;flex-wrap:wrap"><label for="winText" class="sr">Win</label><input id="winText" required placeholder="What got won, and with whom" style="flex:1 1 240px;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)"><button class="btn primary" type="submit">Add a win</button></form>
+      <div class="rows" id="wkWins"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Next week &amp; notes</h2></div>
+      <label class="sub13" style="display:flex;flex-direction:column;gap:6px">Plan for next week<textarea id="wkNextPlan" rows="4" style="border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);padding:8px;font-family:var(--sans);font-size:14px" placeholder="Site visits, follow-ups, trips"></textarea></label>
+      <label class="sub13" style="display:flex;flex-direction:column;gap:6px">Notes for Juan Carlos<textarea id="wkNotes" rows="3" style="border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);padding:8px;font-family:var(--sans);font-size:14px" placeholder="Anything that needs a decision or approval"></textarea></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Photos &amp; attachments</h2><label class="btn" style="display:inline-flex;align-items:center;cursor:pointer;position:relative;overflow:hidden"><input type="file" id="wkPhoto" accept="image/*" multiple style="position:absolute;width:1px;height:1px;opacity:0">Attach photos</label></div>
+    <div class="sub13">Site visits, jobsite shots, event photos. They print into the week's PDF.</div>
+    <div class="photos" id="wkPhotos"></div>
   </div>
 </section>
 
@@ -1262,6 +1287,9 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       <label>Vendor<input id="eVendor" placeholder="Where"></label>
       <label id="eAmountLabel">Amount ($)<input id="eAmount" type="number" min="0" step="0.01" placeholder="0.00"></label>
       <label id="eMilesLabel" hidden>Miles<input id="eMiles" type="number" min="0" step="0.1" placeholder="0"></label>
+      <label id="eOdoStartLabel" hidden>Odometer start<input id="eOdoStart" type="number" min="0" step="1" placeholder="e.g. 41250"></label>
+      <label id="eOdoEndLabel" hidden>Odometer end<input id="eOdoEnd" type="number" min="0" step="1" placeholder="e.g. 41372"></label>
+      <label id="eTripLabel" hidden>Trip counter<span style="display:flex;gap:6px;align-items:center"><input id="eTrip" type="number" min="0" step="1" value="1" style="width:70px" aria-label="Trips"><button type="button" class="sbtn go" id="eTripPlus">+1 trip</button><span class="sub13">× miles each</span></span></label>
       <label>Client / purpose<input id="ePurpose" placeholder="Who it was for, which project"></label>
       <label style="grid-column:span 2">Notes<input id="eNotes" placeholder="Optional"></label>
       <div class="oppform-actions"><button class="btn primary" type="submit" id="expSubmit">Add to report</button><button class="btn" type="button" id="cancelExp">Cancel</button></div>
@@ -1565,21 +1593,12 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   }
   document.querySelectorAll('.subtab').forEach(function(b){ b.addEventListener('click',function(){showSub(b.dataset.sub); window.scrollTo(0,0);}); });
   document.querySelectorAll('[data-sub="annual"].p4').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); showSub('annual'); var t=$('phase4'); if(t)t.scrollIntoView(); }); });
-  var startTab='first90'; try{startTab=localStorage.getItem('bdp-aop-tab')||'first90'}catch(e){}
+  var startTab='annual'; try{startTab=localStorage.getItem('bdp-aop-tab')||'annual'}catch(e){}
   var hh=(location.hash||'').slice(1); if(/^phase[123]$|^callframework$/.test(hh))startTab='first90'; if(hh==='phase4')startTab='annual';
   showSub(startTab);
   window.aopShowSub=showSub;
 
-  // goals
-  function renderGoals(){
-    var ul=$('goalList'), em=$('goalEmpty'); if(!ul)return;
-    ul.innerHTML=S.goals.map(function(g,i){ return '<li class="'+(g.done?'checked':'')+'"><input type="checkbox" data-g="'+i+'" '+(g.done?'checked':'')+' aria-label="Done"><span class="task-text">'+esc(g.text)+'</span><span class="ref">'+esc(g.added)+'</span><button class="rm" type="button" data-rg="'+i+'" aria-label="Remove goal">✕</button></li>'; }).join('');
-    em.hidden=S.goals.length>0; renderSummary();
-  }
-  var gf=$('goalForm'); if(gf){ gf.addEventListener('submit',function(e){ e.preventDefault(); var t=$('goalText').value.trim(); if(!t)return; S.goals.push({text:t,done:false,added:new Date().toISOString().slice(0,10)}); save(); gf.reset(); renderGoals(); });
-    $('goalList').addEventListener('change',function(e){ var b=e.target.closest('input[data-g]'); if(!b)return; S.goals[+b.dataset.g].done=b.checked; save(); renderGoals(); });
-    $('goalList').addEventListener('click',function(e){ var b=e.target.closest('button[data-rg]'); if(!b)return; S.goals.splice(+b.dataset.rg,1); save(); renderGoals(); }); }
-
+  function renderGoals(){}
   // initiatives
   var stCls={'Not started':'','In motion':'in','Blocked':'blk','Complete':'done'};
   function renderInits(){
@@ -1609,7 +1628,6 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   function renderSummary(){
     var set=function(id,t){var e=$(id);if(e)e.textContent=t};
     var gd=S.goals.filter(function(g){return g.done}).length, im=S.inits.filter(function(x){return x.status==='In motion'}).length;
-    set('ovGoals',S.goals.length?gd+' / '+S.goals.length+' annual goals done':'No annual goals yet');
     set('ovInits',S.inits.length?im+' of '+S.inits.length+' initiatives in motion':'No initiatives yet');
   }
   renderGoals(); renderInits(); renderReviews();

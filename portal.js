@@ -266,3 +266,176 @@
   });
   renderExp();
 })();
+
+/* ===================== ANNUAL GOALS, KPI TRACKER, WORK WEEK, MILEAGE ===================== */
+(function(){
+  'use strict';
+  var $=function(id){return document.getElementById(id)};
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+  function load(k,def){ try{var v=JSON.parse(localStorage.getItem(k)); return v==null?def:v;}catch(e){return def} }
+  function save(k,v){ try{localStorage.setItem(k,JSON.stringify(v))}catch(e){ alert('Could not save — browser storage is full. Large photos are the usual cause.'); } }
+  function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function fmtD(s,o){ return new Date(s+'T12:00:00').toLocaleDateString('en-US',o||{month:'short',day:'numeric',year:'numeric'}); }
+  function set(id,t){var e=$(id);if(e)e.textContent=t}
+  function uid(){ return Math.random().toString(36).slice(2,9); }
+
+  /* ---------- First 90: collapsible phases, bar opens it ---------- */
+  document.querySelectorAll('#panel-first90 .phase').forEach(function(ph){ ph.classList.add('collapsed'); var hd=ph.querySelector('.phase-head'); if(hd) hd.addEventListener('click',function(e){ if(e.target.closest('input,button,a'))return; ph.classList.toggle('collapsed'); }); });
+  function open90(){ if(window.aopShowSub)window.aopShowSub('first90'); var p=$('panel-first90'); if(p)p.scrollIntoView({behavior:'smooth'}); }
+  var o90=$('aopOpen90'); if(o90) o90.addEventListener('click',open90);
+  var ptrack=document.querySelector('#aopProgress .ptrack'); if(ptrack){ ptrack.style.cursor='pointer'; ptrack.title='Open the 90-day checklist'; ptrack.addEventListener('click',open90); }
+  // phase nav links (#phase1..3) should expand that phase
+  document.querySelectorAll('#panel-first90 .phase-nav a').forEach(function(a){ a.addEventListener('click',function(){ var t=$(a.getAttribute('href').slice(1)); if(t)t.classList.remove('collapsed'); }); });
+
+  /* ---------- Annual goals ---------- */
+  var GROUPS={industry:'Industry-standard goals',company:'IB Group–specific goals',clients:'5 large clients to sign',winback:'Customers to win back'};
+  var DEFAULT_GOALS=[
+    {g:'industry',t:'Build and keep a qualified target list of GC and Division 9 subcontractor accounts across FL, TX, LA and GA',target:60,unit:'accounts',why:'The list is the territory. Nothing downstream happens without it.'},
+    {g:'industry',t:'Secure new client accounts with signed labor agreements',target:6,unit:'accounts',why:'The core output of the role per §9.'},
+    {g:'industry',t:'Place crews that generate billable labor hours',target:50000,unit:'hours',why:'Hours are what IB Group invoices and what commission is paid on.'},
+    {g:'industry',t:'Hold qualified meetings and site visits with decision-makers',target:100,unit:'meetings',why:'Meetings are the leading indicator for accounts.'},
+    {g:'industry',t:'Receive invitations to bid, RFPs or pricing requests',target:12,unit:'bids',why:'Proof the relationship has reached the buying stage.'},
+    {g:'industry',t:'Grow accounts into recurring, repeat business',target:3,unit:'accounts',why:'§15: sustainable and recurring business, not one-off placements.'},
+    {g:'industry',t:'Originate gross margin equal to 5× the fully loaded cost of the seat',target:5,unit:'× ROI',why:'The number the Salary ROI tab reports.'},
+    {g:'industry',t:'Deliver the weekly pipeline report and monthly performance report with no misses',target:52,unit:'reports',why:'§8 and §10 — organizational discipline is evaluated directly.'},
+    {g:'industry',t:'Join and actively work trade associations (AWCI, ABC and AGC chapters)',target:2,unit:'associations',why:'Standing venues for the GC and sub relationships §2B calls for.'},
+    {g:'company',t:'Land INTAL, Elite Mainframe or Global Drywall crews on at least one large-scale project in each territory state',target:4,unit:'states',why:'Proves the model travels beyond South Florida.'},
+    {g:'company',t:'Document the discovery-call → rate sheet → placement process so management can run it without me',target:1,unit:'playbook',why:'Turns a personal network into a company asset.'},
+    {g:'company',t:'Build a bench of pre-qualified drywall, framing and ACT crews ready to deploy within two weeks of award',target:1,unit:'bench',why:'Winning the account is worthless if the crew is not ready.'},
+    {g:'clients',t:'[Large client 1 — name it]',target:1,unit:'signed',why:''},
+    {g:'clients',t:'[Large client 2 — name it]',target:1,unit:'signed',why:''},
+    {g:'clients',t:'[Large client 3 — name it]',target:1,unit:'signed',why:''},
+    {g:'clients',t:'[Large client 4 — name it]',target:1,unit:'signed',why:''},
+    {g:'clients',t:'[Large client 5 — name it]',target:1,unit:'signed',why:''}
+  ];
+  var GS=load('bdp-goals',null);
+  if(!GS){ GS={goals:DEFAULT_GOALS.map(function(d){return {id:uid(),group:d.g,title:d.t,target:d.target,unit:d.unit,why:d.why,count:0,done:false,subs:[],log:[],created:today()}})}; save('bdp-goals',GS); }
+  function saveG(){ save('bdp-goals',GS); }
+  function pct(g){ return g.target?Math.min(100,Math.round((g.count||0)/g.target*100)):(g.done?100:0); }
+  function renderGoals(){
+    var el=$('goalGroups'); if(!el)return;
+    el.innerHTML=Object.keys(GROUPS).map(function(k){ var list=GS.goals.filter(function(g){return g.group===k});
+      return '<div class="goalgrp"><h3>'+esc(GROUPS[k])+' <span class="sub13">· '+list.filter(function(g){return g.done}).length+' of '+list.length+' complete</span></h3>'+(list.length?list.map(function(g){
+        return '<div class="goal'+(g.done?' done':'')+'" data-open="'+g.id+'" role="button" tabindex="0"><input type="checkbox" data-done="'+g.id+'" '+(g.done?'checked':'')+' aria-label="Complete"><div><div class="gt">'+esc(g.title)+'</div><div class="gs">'+(g.target?(g.count||0).toLocaleString()+' / '+g.target.toLocaleString()+' '+esc(g.unit||''):'')+(g.subs.length?' · '+g.subs.filter(function(s){return s.done}).length+'/'+g.subs.length+' steps':'')+'</div></div><div class="gbarwrap"><div class="gbar"><div style="width:'+pct(g)+'%"></div></div></div><span class="sub13">›</span></div>';
+      }).join(''):'<div class="empty">'+(k==='winback'?'Add the former customers you want back — one per line, with why they left if you know it.':'Nothing here yet.')+'</div>')+'</div>'; }).join('');
+    var done=GS.goals.filter(function(g){return g.done}).length; set('ovGoals',done+' / '+GS.goals.length+' annual goals done');
+  }
+  function openGoal(id){
+    var g=GS.goals.find(function(x){return x.id===id}); if(!g)return; var pg=$('goalPage'), home=$('goalsHome');
+    pg.innerHTML='<div class="gpage">'
+      +'<button class="btn back" type="button" data-gback>‹ All goals</button>'
+      +'<div><span class="label">'+esc(GROUPS[g.group])+'</span><input data-gf="title" value="'+esc(g.title)+'" style="width:100%;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:1.6rem;border:0;border-bottom:1px dashed var(--line);background:transparent;color:var(--fg);padding:4px 0" aria-label="Goal title"></div>'
+      +'<label class="sub13" style="display:flex;flex-direction:column;gap:6px">Why it matters<textarea data-gf="why" rows="2" style="border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);padding:8px;font-family:var(--sans);font-size:14px">'+esc(g.why||'')+'</textarea></label>'
+      +'<div class="kpi" style="padding:14px 16px"><div class="top"><span class="nm">Progress</span><span class="cnt">'+(g.count||0).toLocaleString()+' <small>/ '+(g.target||0).toLocaleString()+' '+esc(g.unit||'')+'</small></span></div><div class="bar"><div class="'+(pct(g)>=100?'met':'')+'" style="width:'+pct(g)+'%"></div></div><div class="ctl"><button class="sbtn go" data-ginc="1">+1</button><button class="sbtn quiet" data-ginc="-1">−1</button><span class="sub13" style="margin-left:6px">Add</span><input type="number" step="1" data-gadd style="width:90px;min-height:32px;border:1px solid var(--line);border-radius:4px;padding:0 8px;background:var(--bg);color:var(--fg);font-family:var(--mono)" placeholder="amount"><button class="sbtn" data-gaddgo>Add</button><span class="sub13" style="margin-left:auto">Target</span><input class="tgt" type="number" min="0" data-gf="target" value="'+esc(g.target||0)+'"><input class="tgt" data-gf="unit" value="'+esc(g.unit||'')+'" placeholder="unit"><label class="sub13" style="display:flex;align-items:center;gap:6px"><input type="checkbox" data-gf="done" '+(g.done?'checked':'')+'> Complete</label></div></div>'
+      +'<div><div class="card-head" style="margin-bottom:8px"><h2 style="font-size:16px">Steps</h2><span class="note">'+g.subs.filter(function(s){return s.done}).length+' / '+g.subs.length+'</span></div><ul class="tasks custom" style="margin-bottom:8px">'+g.subs.map(function(s,i){return '<li class="'+(s.done?'checked':'')+'"><input type="checkbox" data-sub="'+i+'" '+(s.done?'checked':'')+'><span class="task-text">'+esc(s.text)+'</span><button class="rm" type="button" data-subrm="'+i+'" aria-label="Remove step">✕</button></li>'}).join('')+'</ul><form data-subform class="addline"><input data-subtext required placeholder="Next concrete step" style="flex:1 1 240px"><button class="btn" type="submit">Add step</button></form></div>'
+      +'<div><div class="card-head" style="margin-bottom:8px"><h2 style="font-size:16px">Progress log</h2></div><form data-logform class="addline"><input data-logtext required placeholder="What moved today" style="flex:1 1 240px"><button class="btn" type="submit">Log</button></form><div class="rows">'+(g.log.length?g.log.slice().reverse().map(function(l){return '<div class="kv"><span>'+esc(l.text)+'</span><span class="v muted">'+esc(l.date)+'</span></div>'}).join(''):'<div class="sub13">No entries yet.</div>')+'</div></div>'
+      +'<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="sub13">Created '+esc(g.created)+'</span><button class="sbtn quiet" type="button" data-gdel>Delete goal</button></div>'
+      +'</div>';
+    home.hidden=true; pg.hidden=false; window.scrollTo(0,0);
+    var upd=function(){ saveG(); openGoal(id); renderGoals(); };
+    pg.querySelector('[data-gback]').onclick=function(){ pg.hidden=true; home.hidden=false; renderGoals(); };
+    pg.querySelectorAll('[data-gf]').forEach(function(inp){ inp.addEventListener('change',function(){ var f=inp.dataset.gf; if(f==='done'){ g.done=inp.checked; g.log.push({text:g.done?'Marked complete':'Reopened',date:today()}); } else if(f==='target') g.target=+inp.value||0; else g[f]=inp.value; upd(); }); });
+    pg.querySelectorAll('[data-ginc]').forEach(function(b){ b.onclick=function(){ g.count=Math.max(0,(g.count||0)+(+b.dataset.ginc)); g.log.push({text:(+b.dataset.ginc>0?'+1':'−1')+' '+(g.unit||''),date:today()}); if(g.target&&g.count>=g.target&&!g.done){g.done=true;g.log.push({text:'Target reached',date:today()});} upd(); }; });
+    pg.querySelector('[data-gaddgo]').onclick=function(){ var n=+pg.querySelector('[data-gadd]').value||0; if(!n)return; g.count=Math.max(0,(g.count||0)+n); g.log.push({text:'+'+n.toLocaleString()+' '+(g.unit||''),date:today()}); if(g.target&&g.count>=g.target&&!g.done){g.done=true;} upd(); };
+    pg.querySelector('[data-subform]').onsubmit=function(e){ e.preventDefault(); g.subs.push({text:pg.querySelector('[data-subtext]').value.trim(),done:false}); upd(); };
+    pg.querySelectorAll('[data-sub]').forEach(function(c){ c.onchange=function(){ g.subs[+c.dataset.sub].done=c.checked; upd(); }; });
+    pg.querySelectorAll('[data-subrm]').forEach(function(b){ b.onclick=function(){ g.subs.splice(+b.dataset.subrm,1); upd(); }; });
+    pg.querySelector('[data-logform]').onsubmit=function(e){ e.preventDefault(); g.log.push({text:pg.querySelector('[data-logtext]').value.trim(),date:today()}); upd(); };
+    pg.querySelector('[data-gdel]').onclick=function(){ var b=pg.querySelector('[data-gdel]'); if(!b.dataset.c){b.dataset.c='1';b.textContent='Delete this goal?';b.style.color='var(--accent)';return;} GS.goals=GS.goals.filter(function(x){return x.id!==id}); saveG(); pg.hidden=true; home.hidden=false; renderGoals(); };
+  }
+  var gg=$('goalGroups'); if(gg){
+    gg.addEventListener('click',function(e){ var c=e.target.closest('input[data-done]'); if(c){ e.stopPropagation(); var g=GS.goals.find(function(x){return x.id===c.dataset.done}); g.done=c.checked; g.log.push({text:g.done?'Marked complete':'Reopened',date:today()}); saveG(); renderGoals(); return; } var row=e.target.closest('[data-open]'); if(row)openGoal(row.dataset.open); });
+    gg.addEventListener('keydown',function(e){ if(e.key==='Enter'){ var row=e.target.closest('[data-open]'); if(row)openGoal(row.dataset.open); } });
+    $('goalForm').addEventListener('submit',function(e){ e.preventDefault(); GS.goals.push({id:uid(),group:$('goalGroup').value,title:$('goalText').value.trim(),target:+$('goalTarget').value||0,unit:$('goalUnit').value.trim(),why:'',count:0,done:false,subs:[],log:[],created:today()}); saveG(); $('goalForm').reset(); renderGoals(); });
+    renderGoals();
+  }
+
+  /* ---------- KPI tracker ---------- */
+  var DEFAULT_KPIS=[
+    {n:'Qualified target accounts identified',t:100,u:'accounts'},{n:'Decision-makers identified & contacted',t:200,u:'people'},{n:'New relationships established',t:60,u:'relationships'},
+    {n:'Qualified meetings secured',t:60,u:'meetings'},{n:'Client & project site visits',t:24,u:'visits'},{n:'Active opportunities developed',t:50,u:'opportunities'},
+    {n:'Invitations to bid / RFPs / pricing received',t:12,u:'bids'},{n:'New client accounts secured',t:6,u:'accounts'},{n:'Projects awarded',t:4,u:'projects'},
+    {n:'Labor hours generated',t:50000,u:'hours'},{n:'Revenue generated',t:2500000,u:'$'},{n:'Industry events attended',t:12,u:'events'}
+  ];
+  var KP=load('bdp-kpis',null); if(!KP){ KP={year:new Date().getFullYear(),items:DEFAULT_KPIS.map(function(d){return {id:uid(),name:d.n,target:d.t,unit:d.u,count:0}})}; save('bdp-kpis',KP); }
+  var kpiEditing=false;
+  function fmtN(n,u){ return u==='$'?'$'+(+n||0).toLocaleString():(+n||0).toLocaleString(); }
+  function renderK(){
+    var el=$('kpiList'); if(!el)return;
+    el.innerHTML=KP.items.map(function(k,i){ var p=k.target?Math.min(100,Math.round(k.count/k.target*100)):0; var big=k.unit==='$'||k.unit==='hours';
+      return '<div class="kpi"><div class="top"><span class="nm">'+esc(k.name)+'</span><span class="cnt">'+fmtN(k.count,k.unit)+' <small>/ '+fmtN(k.target,k.unit)+(k.unit==='$'?'':' '+esc(k.unit))+' · '+p+'%</small></span></div><div class="bar"><div class="'+(p>=100?'met':'')+'" style="width:'+p+'%"></div></div><div class="ctl">'
+        +(big?'<input type="number" min="0" step="1" data-kadd="'+i+'" style="width:110px;min-height:32px;border:1px solid var(--line);border-radius:4px;padding:0 8px;background:var(--bg);color:var(--fg);font-family:var(--mono)" placeholder="amount"><button class="sbtn go" data-kaddgo="'+i+'">Add</button>':'<button class="sbtn go" data-kinc="'+i+'" data-n="1">+1</button><button class="sbtn quiet" data-kinc="'+i+'" data-n="-1">−1</button>')
+        +(kpiEditing?'<span class="sub13" style="margin-left:auto">Target</span><input class="tgt" type="number" min="0" data-kt="'+i+'" value="'+k.target+'"><button class="sbtn quiet" data-krm="'+i+'" aria-label="Remove KPI">✕</button>':'')+'</div></div>'; }).join('');
+    set('kpiEdit',kpiEditing?'Done editing':'Edit targets');
+  }
+  var kl=$('kpiList'); if(kl){
+    kl.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return;
+      if(b.dataset.kinc!=null){ var k=KP.items[+b.dataset.kinc]; k.count=Math.max(0,k.count+(+b.dataset.n)); }
+      else if(b.dataset.kaddgo!=null){ var inp=kl.querySelector('input[data-kadd="'+b.dataset.kaddgo+'"]'); var n=+inp.value||0; if(!n)return; KP.items[+b.dataset.kaddgo].count=Math.max(0,KP.items[+b.dataset.kaddgo].count+n); }
+      else if(b.dataset.krm!=null){ KP.items.splice(+b.dataset.krm,1); }
+      else return; save('bdp-kpis',KP); renderK(); });
+    kl.addEventListener('change',function(e){ var t=e.target.closest('input[data-kt]'); if(!t)return; KP.items[+t.dataset.kt].target=+t.value||0; save('bdp-kpis',KP); renderK(); });
+    $('kpiEdit').addEventListener('click',function(){ kpiEditing=!kpiEditing; renderK(); });
+    $('kpiAdd').addEventListener('click',function(){ $('kpiForm').hidden=!$('kpiForm').hidden; if(!$('kpiForm').hidden)$('kpiName').focus(); });
+    $('kpiCancel').addEventListener('click',function(){ $('kpiForm').hidden=true; $('kpiForm').reset(); });
+    $('kpiForm').addEventListener('submit',function(e){ e.preventDefault(); KP.items.push({id:uid(),name:$('kpiName').value.trim(),target:+$('kpiTarget').value||0,unit:$('kpiUnit').value.trim()||'',count:0}); save('bdp-kpis',KP); $('kpiForm').reset(); $('kpiForm').hidden=true; renderK(); });
+    renderK();
+  }
+
+  /* ---------- Work week summary ---------- */
+  var WK=load('bdp-weeks',{weeks:{}});
+  function weekEndingOf(dstr){ var d=new Date(dstr+'T12:00:00'); var dow=(d.getDay()+6)%7; d.setDate(d.getDate()+(6-dow)); return d.toISOString().slice(0,10); }
+  function addDays(s,n){ var d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+  var cur=weekEndingOf(today());
+  function wk(create){ var w=WK.weeks[cur]; if(!w&&create){ w=WK.weeks[cur]={counters:{dials:0,convos:0,meetings:0,proposals:0},wins:[],plan:'',notes:'',photos:[],created:today()}; } return w||{counters:{dials:0,convos:0,meetings:0,proposals:0},wins:[],plan:'',notes:'',photos:[],created:null}; }
+  function saveW(){ save('bdp-weeks',WK); }
+  function renderW(){
+    if(!$('wkCounters'))return; var w=wk(false), start=addDays(cur,-6);
+    set('wkEyebrow','Week of '+fmtD(start,{month:'short',day:'numeric'})+' – '+fmtD(cur)); set('wkMeta',w.created?('Week created '+fmtD(w.created)+(cur===weekEndingOf(today())?' · current week':'')):'This week has no entries yet — the first +1 or win creates it.');
+    ['dials','convos','meetings','proposals'].forEach(function(k){ set('wkC-'+k,w.counters[k]||0); });
+    set('wkWinCount',w.wins.length+' win'+(w.wins.length===1?'':'s'));
+    $('wkWins').innerHTML=w.wins.length?w.wins.map(function(x,i){return '<div class="kv"><span>'+esc(x.text)+'</span><span style="display:flex;gap:8px;align-items:center"><span class="v muted">'+esc(x.date)+'</span><button class="rm" type="button" data-winrm="'+i+'" aria-label="Remove win">✕</button></span></div>'}).join(''):'<div class="sub13">No wins logged yet this week.</div>';
+    $('wkNextPlan').value=w.plan||''; $('wkNotes').value=w.notes||'';
+    $('wkPhotos').innerHTML=w.photos.length?w.photos.map(function(p,i){return '<figure><img src="'+p.src+'" alt="'+esc(p.name)+'"><button class="rmp" type="button" data-prm="'+i+'" aria-label="Remove photo">✕</button><figcaption>'+esc(p.name)+' · '+esc(p.date)+'</figcaption></figure>'}).join(''):'<div class="sub13">No photos attached.</div>';
+    // overview
+    var tw=WK.weeks[weekEndingOf(today())]||wk(false);
+    var ov=$('ovWeekRows'); if(ov){ ov.innerHTML='<div class="kv"><span>Dials</span><span class="v">'+(tw.counters.dials||0)+'</span></div><div class="kv"><span>Conversations</span><span class="v">'+(tw.counters.convos||0)+'</span></div><div class="kv"><span>Meetings held</span><span class="v">'+(tw.counters.meetings||0)+'</span></div><div class="kv"><span>Proposals</span><span class="v">'+(tw.counters.proposals||0)+'</span></div>'+(tw.wins.length?'<div class="kv"><span>Wins</span><span class="v">'+tw.wins.length+'</span></div>':''); set('ovWeekFoot',tw.wins.length?('Latest win: '+tw.wins[tw.wins.length-1].text):'Tap +1 on the Work Week tab as the week happens.'); }
+    set('ovMeet',String(tw.counters.meetings||0)); set('ovMeetSub',(tw.counters.proposals||0)+' proposals · '+tw.wins.length+' wins');
+  }
+  if($('wkCounters')){
+    $('wkCounters').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; var w=wk(true); if(b.dataset.inc){w.counters[b.dataset.inc]=(w.counters[b.dataset.inc]||0)+1;} else if(b.dataset.dec){w.counters[b.dataset.dec]=Math.max(0,(w.counters[b.dataset.dec]||0)-1);} saveW(); renderW(); });
+    $('winForm').addEventListener('submit',function(e){ e.preventDefault(); wk(true).wins.push({text:$('winText').value.trim(),date:today()}); saveW(); $('winForm').reset(); renderW(); });
+    $('wkWins').addEventListener('click',function(e){ var b=e.target.closest('button[data-winrm]'); if(!b)return; wk(true).wins.splice(+b.dataset.winrm,1); saveW(); renderW(); });
+    $('wkNextPlan').addEventListener('change',function(){ wk(true).plan=$('wkNextPlan').value; saveW(); renderW(); });
+    $('wkNotes').addEventListener('change',function(){ wk(true).notes=$('wkNotes').value; saveW(); renderW(); });
+    $('wkPrev').addEventListener('click',function(){ cur=addDays(cur,-7); renderW(); });
+    $('wkNext').addEventListener('click',function(){ cur=addDays(cur,7); renderW(); });
+    $('wkNew').addEventListener('click',function(){ var keys=Object.keys(WK.weeks).sort(); var latest=keys.length?keys[keys.length-1]:weekEndingOf(today()); var next=WK.weeks[latest]?addDays(latest,7):latest; cur=next; var w=wk(true); w.created=today(); saveW(); renderW(); window.scrollTo(0,0); });
+    $('wkPhotos').addEventListener('click',function(e){ var b=e.target.closest('button[data-prm]'); if(!b)return; wk(true).photos.splice(+b.dataset.prm,1); saveW(); renderW(); });
+    $('wkPhoto').addEventListener('change',function(){ var files=[].slice.call($('wkPhoto').files); var w=wk(true); var left=files.length; files.forEach(function(f){ var img=new Image(), url=URL.createObjectURL(f); img.onload=function(){ var s=Math.min(1,1000/Math.max(img.width,img.height)); var c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); w.photos.push({src:c.toDataURL('image/jpeg',0.72),name:f.name,date:today()}); if(--left===0){ saveW(); renderW(); } }; img.src=url; }); $('wkPhoto').value=''; });
+    $('wkDownload').addEventListener('click',function(){
+      var w=wk(false), start=addDays(cur,-6); var win=window.open('','_blank'); if(!win){ alert('Allow pop-ups for this site to download the PDF.'); return; }
+      var css='body{margin:0;padding:32px;font-family:"IBM Plex Sans",system-ui,sans-serif;color:#1B1F27;background:#fff} .mono{font-family:"IBM Plex Mono",monospace} h1{font-size:28px;margin:0 0 4px} .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5B6270} .sub{color:#5B6270;margin-bottom:20px} .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px} .tile{border:1px solid #E3DFD5;border-radius:10px;padding:14px 16px} .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:#5B6270} .big{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600} h2{font-size:16px;margin:18px 0 8px} .kv{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #EDE9E0;font-size:14px} .kv:last-child{border-bottom:1px solid #EDE9E0} .muted{color:#5B6270;font-family:"IBM Plex Mono",monospace;font-size:12px} p{white-space:pre-wrap;font-size:14px;line-height:1.55;margin:0} .photos{display:flex;flex-wrap:wrap;gap:10px} .photos figure{margin:0;width:220px;break-inside:avoid} .photos img{width:220px;height:165px;object-fit:cover;border-radius:6px;border:1px solid #E3DFD5} figcaption{font-size:11px;color:#5B6270;margin-top:4px} .head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:3px solid #16233A;padding-bottom:14px;margin-bottom:18px} .brand{font-weight:700} .foot{margin-top:28px;font-size:11px;color:#5B6270;border-top:1px solid #EDE9E0;padding-top:10px} @media print{body{padding:0} @page{margin:18mm}}';
+      var html='<!doctype html><html><head><meta charset="utf-8"><title>Work Week Summary — week ending '+cur+'</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style>'+css+'</style></head><body>'
+        +'<div class="head"><div><div class="eyebrow">IB Group Worldwide · BD Progress Portal</div><h1>Work Week Summary</h1><div class="sub" style="margin:0">Samuel R. Carstens — Strategic Accounts &amp; Data Centers · FL · TX · LA · GA</div></div><div style="text-align:right"><div class="eyebrow">Week ending</div><div class="mono" style="font-size:18px;font-weight:600">'+fmtD(cur)+'</div><div class="muted">'+fmtD(start,{month:'short',day:'numeric'})+' – '+fmtD(cur,{month:'short',day:'numeric'})+(w.created?' · created '+fmtD(w.created):'')+'</div></div></div>'
+        +'<div class="grid"><div class="tile"><div class="label">Dials</div><div class="big">'+(w.counters.dials||0)+'</div></div><div class="tile"><div class="label">Conversations</div><div class="big">'+(w.counters.convos||0)+'</div></div><div class="tile"><div class="label">Meetings held</div><div class="big">'+(w.counters.meetings||0)+'</div></div><div class="tile"><div class="label">Proposals</div><div class="big">'+(w.counters.proposals||0)+'</div></div></div>'
+        +'<h2>Wins ('+w.wins.length+')</h2>'+(w.wins.length?w.wins.map(function(x){return '<div class="kv"><span>'+esc(x.text)+'</span><span class="muted">'+esc(x.date)+'</span></div>'}).join(''):'<p class="muted">None logged.</p>')
+        +'<h2>Plan for next week</h2><p>'+(esc(w.plan)||'<span class="muted">—</span>')+'</p><h2>Notes</h2><p>'+(esc(w.notes)||'<span class="muted">—</span>')+'</p>'
+        +(w.photos.length?'<h2>Photos ('+w.photos.length+')</h2><div class="photos">'+w.photos.map(function(p){return '<figure><img src="'+p.src+'"><figcaption>'+esc(p.name)+' · '+esc(p.date)+'</figcaption></figure>'}).join('')+'</div>':'')
+        +'<div class="foot">Generated '+fmtD(today())+' from the BD Progress Portal. In the print dialog choose "Save as PDF".</div>'
+        +'<script>window.addEventListener("load",function(){setTimeout(function(){window.print()},600)})<\/script></body></html>';
+      win.document.open(); win.document.write(html); win.document.close();
+    });
+    renderW();
+  }
+
+  /* ---------- Mileage counter in expense form ---------- */
+  var eCat=$('eCat'); if(eCat){
+    var showMi=function(){ var mi=eCat.value==='Miles Driven'; ['eOdoStartLabel','eOdoEndLabel','eTripLabel'].forEach(function(id){ if($(id))$(id).hidden=!mi; }); };
+    eCat.addEventListener('change',showMi); showMi();
+    var odo=function(){ var a=+$('eOdoStart').value, b=+$('eOdoEnd').value; if(b>a&&a>0){ $('eMiles').value=((b-a)*(+$('eTrip').value||1)).toFixed(1); } };
+    $('eOdoStart').addEventListener('input',odo); $('eOdoEnd').addEventListener('input',odo); $('eTrip').addEventListener('input',odo);
+    $('eTripPlus').addEventListener('click',function(){ $('eTrip').value=(+$('eTrip').value||0)+1; odo(); if(!$('eOdoEnd').value&&$('eMiles').dataset.base){ $('eMiles').value=((+$('eMiles').dataset.base)*(+$('eTrip').value)).toFixed(1); } });
+    $('eMiles').addEventListener('input',function(){ if(!$('eOdoEnd').value) $('eMiles').dataset.base=$('eMiles').value; });
+  }
+})();
