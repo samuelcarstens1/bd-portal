@@ -230,7 +230,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </header>
 
   <div class="grid g4" aria-label="Key numbers">
-    <a class="card tight tool" href="#pipeline" style="padding:20px 22px;gap:10px"><span class="label">Pipeline value</span><span class="big">$4.2M</span><span class="delta">▲ $610K vs last week</span><span class="sub13">Weighted $1.6M · 38 opportunities · <span style="color:var(--accent);font-weight:600">See breakdown</span></span></a>
+    <a class="card tight tool" href="#pipeline" style="padding:20px 22px;gap:10px"><span class="label">Pipeline value</span><span class="big" id="ovTotal">—</span><span class="sub13" id="ovSub">—</span><span class="sub13" style="color:var(--accent);font-weight:600">See breakdown</span></a>
     <div class="card tight"><span class="label">Active leads</span><span class="big">38</span><span class="sub13">12 data center · 26 commercial</span></div>
     <div class="card tight"><span class="label">Meetings this week</span><span class="big">9</span><span class="sub13">4 on site · 5 virtual</span></div>
     <div class="card tight dark"><span class="label">Salary ROI (to date)</span><span class="big" style="color:var(--accent-bright)">3.1×</span><span class="sub13" style="color:var(--navy-dim)">Gross margin placed ÷ cost of seat</span></div>
@@ -304,10 +304,10 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </header>
 
   <div class="grid g4">
-    <div class="card tight"><span class="label">Total pipeline</span><span class="big">$4.2M</span><span class="delta">▲ $610K vs last week</span></div>
-    <div class="card tight"><span class="label">Weighted pipeline</span><span class="big">$1.6M</span><span class="sub13">Stage probability applied</span></div>
-    <div class="card tight"><span class="label">Won this quarter</span><span class="big">$480K</span><span class="sub13">3 crews placed</span></div>
-    <div class="card tight dark"><span class="label">Avg. opportunity</span><span class="big" style="color:var(--accent-bright)">$110K</span><span class="sub13" style="color:var(--navy-dim)">Median crew: 12 heads · 9 weeks</span></div>
+    <div class="card tight"><span class="label">Total pipeline</span><span class="big" id="kTotal">—</span><span class="sub13" id="kTotalSub">Open opportunities</span></div>
+    <div class="card tight"><span class="label">Weighted pipeline</span><span class="big" id="kWeighted">—</span><span class="sub13">Stage probability applied</span></div>
+    <div class="card tight"><span class="label" id="kWonLabel">Won this quarter</span><span class="big" id="kWon">—</span><span class="sub13" id="kWonSub">—</span></div>
+    <div class="card tight dark"><span class="label">Avg. opportunity</span><span class="big" style="color:var(--accent-bright)" id="kAvg">—</span><span class="sub13" style="color:var(--navy-dim)" id="kAvgSub">Across all opportunities brought in</span></div>
   </div>
 
   <div class="card">
@@ -330,16 +330,9 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <div class="card-head" style="padding:20px 24px 0"><h2>Opportunities</h2><span class="note">Sorted by weighted value</span></div>
     <div class="scroll"><table class="table">
       <thead><tr><th>Project</th><th>GC</th><th>Metro</th><th>Trade</th><th>Stage</th><th style="text-align:right">Heads</th><th style="text-align:right">Weeks</th><th style="text-align:right">Value</th><th style="text-align:right">Weighted</th><th>Next step</th></tr></thead>
-      <tbody>
-        <tr><td>Hyperscale campus, Bldg 2</td><td>[GC name]</td><td>Dallas</td><td>Drywall / framing</td><td><span class="tag ok">Verbal yes</span></td><td class="mono" style="text-align:right">24</td><td class="mono" style="text-align:right">14</td><td class="mono" style="text-align:right">$310K</td><td class="mono" style="text-align:right">$264K</td><td>Contract review Tue</td></tr>
-        <tr><td>Orlando framing scope</td><td>[GC name]</td><td>Orlando</td><td>Framing</td><td><span class="tag ok">Proposal sent</span></td><td class="mono" style="text-align:right">14</td><td class="mono" style="text-align:right">10</td><td class="mono" style="text-align:right">$180K</td><td class="mono" style="text-align:right">$108K</td><td>Follow up Thu</td></tr>
-        <tr><td>Houston data-center shell</td><td>[GC name]</td><td>Houston</td><td>Drywall / ACT</td><td><span class="tag">Meeting set</span></td><td class="mono" style="text-align:right">18</td><td class="mono" style="text-align:right">12</td><td class="mono" style="text-align:right">$240K</td><td class="mono" style="text-align:right">$96K</td><td>Site visit Tue–Thu</td></tr>
-        <tr><td>Miami-Dade mixed-use tower</td><td>[GC name]</td><td>Miami</td><td>ACT</td><td><span class="tag">Meeting set</span></td><td class="mono" style="text-align:right">10</td><td class="mono" style="text-align:right">16</td><td class="mono" style="text-align:right">$190K</td><td class="mono" style="text-align:right">$76K</td><td>Capacity meeting next week</td></tr>
-        <tr><td>Hospital expansion</td><td>[GC name]</td><td>Atlanta</td><td>Insulation</td><td><span class="tag">Qualified</span></td><td class="mono" style="text-align:right">8</td><td class="mono" style="text-align:right">8</td><td class="mono" style="text-align:right">$95K</td><td class="mono" style="text-align:right">$24K</td><td>Send capabilities deck</td></tr>
-        <tr><td>Logistics hub</td><td>[GC name]</td><td>Houston</td><td>Drywall</td><td><span class="tag">New</span></td><td class="mono" style="text-align:right">12</td><td class="mono" style="text-align:right">9</td><td class="mono" style="text-align:right">$130K</td><td class="mono" style="text-align:right">$13K</td><td>Identify precon lead</td></tr>
-      </tbody>
+      <tbody id="oppRows"></tbody>
     </table></div>
-    <div class="sub13" style="padding:14px 24px">Showing 6 of 38 · full list loads when the pipeline is connected</div>
+    <div class="sub13" style="padding:14px 24px" id="oppFoot"></div>
   </div>
 </section>
 
@@ -509,6 +502,54 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 </div>
 
 <script>
+/* ---------- PIPELINE DATA ----------
+   One row per opportunity ever brought in. Sample rows for now; this list is what gets replaced by live data.
+   stage: New | Qualified | Meeting set | Proposal sent | Verbal yes | Won | Lost
+   value: expected contract revenue to IB Group, in dollars
+   opened / closed: YYYY-MM-DD (closed only for Won / Lost)              */
+var STAGE_PROB={ 'New':0.10, 'Qualified':0.25, 'Meeting set':0.40, 'Proposal sent':0.60, 'Verbal yes':0.85, 'Won':1, 'Lost':0 };
+var OPPS=[
+  {project:'Hyperscale campus, Bldg 2', gc:'[GC name]', metro:'Dallas', trade:'Drywall / framing', stage:'Verbal yes', heads:24, weeks:14, value:310000, opened:'2026-09-22', next:'Contract review Tue'},
+  {project:'Orlando framing scope', gc:'[GC name]', metro:'Orlando', trade:'Framing', stage:'Proposal sent', heads:14, weeks:10, value:180000, opened:'2026-10-06', next:'Follow up Thu'},
+  {project:'Houston data-center shell', gc:'[GC name]', metro:'Houston', trade:'Drywall / ACT', stage:'Meeting set', heads:18, weeks:12, value:240000, opened:'2026-10-13', next:'Site visit Tue–Thu'},
+  {project:'Miami-Dade mixed-use tower', gc:'[GC name]', metro:'Miami', trade:'ACT', stage:'Meeting set', heads:10, weeks:16, value:190000, opened:'2026-10-22', next:'Capacity meeting next week'},
+  {project:'Hospital expansion', gc:'[GC name]', metro:'Atlanta', trade:'Insulation', stage:'Qualified', heads:8, weeks:8, value:95000, opened:'2026-10-14', next:'Send capabilities deck'},
+  {project:'Logistics hub', gc:'[GC name]', metro:'Houston', trade:'Drywall', stage:'New', heads:12, weeks:9, value:130000, opened:'2026-10-20', next:'Identify precon lead'},
+  {project:'Fort Lauderdale office fit-out', gc:'[GC name]', metro:'Miami', trade:'Drywall / ACT', stage:'Won', heads:9, weeks:6, value:72000, opened:'2026-09-15', closed:'2026-10-09', next:'Crew on site'},
+  {project:'Doral warehouse interiors', gc:'[GC name]', metro:'Miami', trade:'Framing', stage:'Won', heads:6, weeks:5, value:41000, opened:'2026-09-29', closed:'2026-10-17', next:'Crew on site'},
+  {project:'Tampa retail shell', gc:'[GC name]', metro:'Tampa', trade:'Drywall', stage:'Lost', heads:7, weeks:6, value:58000, opened:'2026-09-18', closed:'2026-10-02', next:'Lost on rate'}
+];
+
+(function(){
+  function money(n){ if(n>=1e6)return '$'+(n/1e6).toFixed(n>=1e7?0:1)+'M'; if(n>=1e3)return '$'+Math.round(n/1e3)+'K'; return '$'+Math.round(n); }
+  function quarterOf(d){ return {y:d.getFullYear(), q:Math.floor(d.getMonth()/3)+1}; }
+  var now=new Date(), cq=quarterOf(now);
+  var open=OPPS.filter(function(o){return o.stage!=='Won'&&o.stage!=='Lost'});
+  var total=open.reduce(function(s,o){return s+o.value},0);
+  var weighted=open.reduce(function(s,o){return s+o.value*(STAGE_PROB[o.stage]||0)},0);
+  var wonQ=OPPS.filter(function(o){ if(o.stage!=='Won'||!o.closed)return false; var q=quarterOf(new Date(o.closed+'T12:00:00')); return q.y===cq.y&&q.q===cq.q; });
+  var won=wonQ.reduce(function(s,o){return s+o.value},0);
+  var avg=OPPS.length?OPPS.reduce(function(s,o){return s+o.value},0)/OPPS.length:0;
+  var set=function(id,t){var e=document.getElementById(id);if(e)e.textContent=t};
+  set('kTotal',money(total)); set('kTotalSub',open.length+' open opportunit'+(open.length===1?'y':'ies'));
+  set('kWeighted',money(weighted));
+  set('kWonLabel','Won · Q'+cq.q+' '+cq.y); set('kWon',money(won)); set('kWonSub',wonQ.length+' opportunit'+(wonQ.length===1?'y':'ies')+' closed won');
+  set('kAvg',money(avg)); set('kAvgSub','Across '+OPPS.length+' opportunities brought in');
+  set('ovTotal',money(total)); set('ovSub','Weighted '+money(weighted)+' · '+open.length+' open');
+  var order=['Verbal yes','Proposal sent','Meeting set','Qualified','New','Won','Lost'];
+  var rows=OPPS.slice().sort(function(a,b){ var wa=a.value*(STAGE_PROB[a.stage]||0), wb=b.value*(STAGE_PROB[b.stage]||0); if(a.stage==='Won'||a.stage==='Lost'||b.stage==='Won'||b.stage==='Lost')return order.indexOf(a.stage)-order.indexOf(b.stage)||wb-wa; return wb-wa; });
+  var tb=document.getElementById('oppRows'); if(tb){
+    tb.innerHTML=rows.map(function(o){
+      var w=o.value*(STAGE_PROB[o.stage]||0), cls=(o.stage==='Won'||o.stage==='Verbal yes'||o.stage==='Proposal sent')?'tag ok':'tag';
+      var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+      return '<tr><td>'+esc(o.project)+'</td><td>'+esc(o.gc)+'</td><td>'+esc(o.metro)+'</td><td>'+esc(o.trade)+'</td><td><span class="'+cls+'">'+esc(o.stage)+'</span></td>'+
+        '<td class="mono" style="text-align:right">'+o.heads+'</td><td class="mono" style="text-align:right">'+o.weeks+'</td>'+
+        '<td class="mono" style="text-align:right">'+money(o.value)+'</td><td class="mono" style="text-align:right">'+(o.stage==='Lost'?'—':money(w))+'</td><td>'+esc(o.next)+'</td></tr>';
+    }).join('');
+  }
+  set('oppFoot',OPPS.length+' opportunities · '+open.length+' open · '+OPPS.filter(function(o){return o.stage==='Won'}).length+' won · '+OPPS.filter(function(o){return o.stage==='Lost'}).length+' lost · sample data');
+})();
+
 (function(){
   var views=['overview','pipeline','reports','foundations','week','roi','expenses','contacts','leads','flow','research'];
   var side=document.getElementById('side'), menuBtn=document.getElementById('menuBtn');
