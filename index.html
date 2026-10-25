@@ -153,6 +153,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .table th{text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line)}
 .table td{padding:12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
 .scroll{overflow-x:auto}
+.empty{border:1px dashed var(--line);border-radius:8px;padding:28px 20px;text-align:center;color:var(--muted);font-size:14px}
 .funnel{display:flex;flex-direction:column;gap:10px}
 .frow{display:grid;grid-template-columns:120px minmax(0,1fr) 80px 70px;gap:12px;align-items:center}
 .fname{font-size:13px;font-weight:600}
@@ -311,37 +312,17 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
   <div class="card">
     <div class="card-head"><h2>By stage</h2><span class="note">Value · count · probability</span></div>
-    <div class="funnel">
-      <div class="frow"><span class="fname">New</span><div class="ftrack"><div class="fbar" style="width:100%;background:var(--s3)"></div></div><span class="fval mono">$1,240K</span><span class="fmeta mono">11 · 10%</span></div>
-      <div class="frow"><span class="fname">Qualified</span><div class="ftrack"><div class="fbar" style="width:77%;background:var(--s2)"></div></div><span class="fval mono">$960K</span><span class="fmeta mono">9 · 25%</span></div>
-      <div class="frow"><span class="fname">Meeting set</span><div class="ftrack"><div class="fbar" style="width:60%;background:var(--s1)"></div></div><span class="fval mono">$740K</span><span class="fmeta mono">8 · 40%</span></div>
-      <div class="frow"><span class="fname">Proposal sent</span><div class="ftrack"><div class="fbar" style="width:56%;background:var(--s4)"></div></div><span class="fval mono">$690K</span><span class="fmeta mono">6 · 60%</span></div>
-      <div class="frow"><span class="fname">Verbal yes</span><div class="ftrack"><div class="fbar" style="width:46%;background:var(--s5)"></div></div><span class="fval mono">$570K</span><span class="fmeta mono">4 · 85%</span></div>
-    </div>
-    <p class="sub13" style="margin:0;max-width:70ch">Weighted value = each stage's total × its probability. Won work leaves the pipeline and moves to Salary ROI.</p>
+    <div class="empty">Stage breakdown will appear here once pipeline data is connected.</div>
   </div>
 
   <div class="grid g2">
     <div class="card">
       <div class="card-head"><h2>By metro</h2><span class="note">Total · weighted</span></div>
-      <div class="rows">
-        <div class="kv"><span>Miami / South Florida</span><span class="v">$1,380K <span class="muted">· $520K</span></span></div>
-        <div class="kv"><span>Dallas – Fort Worth</span><span class="v">$1,120K <span class="muted">· $470K</span></span></div>
-        <div class="kv"><span>Houston</span><span class="v">$640K <span class="muted">· $210K</span></span></div>
-        <div class="kv"><span>Orlando / Tampa</span><span class="v">$560K <span class="muted">· $240K</span></span></div>
-        <div class="kv"><span>Atlanta</span><span class="v">$340K <span class="muted">· $110K</span></span></div>
-        <div class="kv"><span>Louisiana</span><span class="v">$160K <span class="muted">· $50K</span></span></div>
-      </div>
+      <div class="empty">Metro breakdown will appear here once pipeline data is connected.</div>
     </div>
     <div class="card">
       <div class="card-head"><h2>By trade</h2><span class="note">Which company fulfills it</span></div>
-      <div class="rows">
-        <div class="kv"><span>Drywall &amp; metal framing <span class="muted">· INTAL</span></span><span class="v">$1,980K</span></div>
-        <div class="kv"><span>Acoustical ceilings <span class="muted">· Elite Mainframe</span></span><span class="v">$1,060K</span></div>
-        <div class="kv"><span>Insulation <span class="muted">· Global Drywall</span></span><span class="v">$620K</span></div>
-        <div class="kv"><span>General labor / cleanup</span><span class="v">$540K</span></div>
-      </div>
-      <div class="chips"><span class="chip">Data center 42%</span><span class="chip">Commercial 38%</span><span class="chip">Healthcare 12%</span><span class="chip">Other 8%</span></div>
+      <div class="empty">Trade breakdown will appear here once pipeline data is connected.</div>
     </div>
   </div>
 
