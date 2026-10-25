@@ -172,7 +172,7 @@
     set('kExpTotal',wk.length?money(g):'—'); set('kExpSub',wk.length+' expense'+(wk.length===1?'':'s')+' · '+wk.filter(function(e){return e.receipt}).length+' with receipts');
     set('kExpT',money(sum('TRANSPORTATION'))); set('kExpL',money(sum('LODGING & MEALS'))); set('kExpM',money(sum('MISCELLANEOUS')));
     var rows=wk.map(function(e){e._i=EXP.indexOf(e);return e}).sort(function(a,b){return a.date.localeCompare(b.date)});
-    $('expRows').innerHTML=rows.length?rows.map(function(e){ return '<tr><td class="mono">'+fmtD(e.date)+'</td><td>'+esc(e.cat)+(e.cat==='Miles Driven'?' <span class="sub13">('+(+e.miles||0)+' mi)</span>':'')+'</td><td>'+esc(e.vendor)+'</td><td>'+esc(e.purpose)+(e.notes?'<br><span class="sub13">'+esc(e.notes)+'</span>':'')+'</td><td class="mono" style="text-align:right">'+money(amountOf(e))+'</td><td>'+(e.receipt?'<img class="thumb" src="'+e.receipt+'" alt="Receipt" data-zoom="'+e._i+'">':'<span class="tag">Missing</span>')+'</td><td><button class="sbtn quiet" data-dele="'+e._i+'" aria-label="Remove expense">✕</button></td></tr>'; }).join('')
+    $('expRows').innerHTML=rows.length?rows.map(function(e){ return '<tr><td class="mono">'+fmtD(e.date)+'</td><td>'+esc(e.cat)+(e.cat==='Miles Driven'?' <span class="sub13">('+(+e.miles||0)+' mi)</span>':'')+'</td><td>'+esc(e.vendor)+'</td><td>'+esc(e.purpose)+(e.notes?'<br><span class="sub13">'+esc(e.notes)+'</span>':'')+'</td><td class="mono" style="text-align:right">'+money(amountOf(e))+'</td><td>'+(e.receipt?'<img class="thumb" src="'+e.receipt+'" alt="Receipt" data-zoom="'+e._i+'">':'<span class="tag">Missing</span>')+'</td><td><div class="acts"><button class="sbtn go" data-edite="'+e._i+'">Edit</button><button class="sbtn quiet" data-dele="'+e._i+'" aria-label="Remove expense">✕</button></div></td></tr>'; }).join('')
       :'<tr><td colspan="7"><div class="empty" style="margin:16px 0">No expenses this week. Click "Add expense" and upload the receipt.</div></td></tr>';
     set('expCount',rows.length+' item'+(rows.length===1?'':'s'));
     // Overview card: current month
@@ -194,13 +194,16 @@
     $('expRate').addEventListener('change',function(){EXPMETA.rate=+$('expRate').value||0;saveExp();renderExp()});
     $('expAdv').addEventListener('change',function(){EXPMETA.weeks[curWeek]=EXPMETA.weeks[curWeek]||{};EXPMETA.weeks[curWeek].adv=+$('expAdv').value||0;saveExp();renderExp()});
     $('expComments').addEventListener('change',function(){EXPMETA.weeks[curWeek]=EXPMETA.weeks[curWeek]||{};EXPMETA.weeks[curWeek].comments=$('expComments').value;saveExp()});
-    $('expRows').addEventListener('click',function(e){ var b=e.target.closest('button[data-dele]'); if(b){ if(!b.dataset.confirm){b.dataset.confirm='1';b.textContent='Remove?';b.style.color='var(--accent)';return;} EXP.splice(+b.dataset.dele,1); saveExp(); renderExp(); return; }
+    $('expRows').addEventListener('click',function(e){
+      var ed=e.target.closest('button[data-edite]'); if(ed){ var x=EXP[+ed.dataset.edite]; if(!x)return; resetExpForm(); editIdx=+ed.dataset.edite; $('expFormTitle').textContent='Edit expense'; $('expSubmit').textContent='Save changes'; $('eDate').value=x.date; $('eCat').value=x.cat; $('eCat').dispatchEvent(new Event('change')); $('eVendor').value=x.vendor||''; $('eAmount').value=x.amount||''; $('eMiles').value=x.miles||''; $('ePurpose').value=x.purpose||''; $('eNotes').value=x.notes||''; pendingReceipt=x.receipt||null; if(x.receipt){ $('receiptPreview').src=x.receipt; $('receiptPreviewWrap').hidden=false; $('receiptText').textContent=''; } toggle(addExpBtn,addExpCard,true); addExpCard.scrollIntoView({behavior:'smooth'}); $('eVendor').focus(); return; }
+      var b=e.target.closest('button[data-dele]'); if(b){ if(!b.dataset.confirm){b.dataset.confirm='1';b.textContent='Remove?';b.style.color='var(--accent)';return;} EXP.splice(+b.dataset.dele,1); saveExp(); renderExp(); return; }
       var im=e.target.closest('img[data-zoom]'); if(im){ var w=window.open(); if(w){ w.document.write('<img src="'+im.src+'" style="max-width:100%">'); } } });
     $('expGrid').addEventListener('click',function(e){ var td=e.target.closest('td.hit'); if(!td)return; toggle(addExpBtn,addExpCard,true); $('eDate').value=td.dataset.date; $('eCat').value=td.dataset.cat; $('eCat').dispatchEvent(new Event('change')); $('eVendor').focus(); });
-    var pendingReceipt=null;
-    function resetExpForm(){ expForm.reset(); pendingReceipt=null; $('receiptPreviewWrap').hidden=true; $('receiptStatus').hidden=true; $('eMilesLabel').hidden=true; $('eAmountLabel').hidden=false; }
+    var pendingReceipt=null, editIdx=-1;
+    function resetExpForm(){ expForm.reset(); pendingReceipt=null; editIdx=-1; $('expFormTitle').textContent='New expense'; $('expSubmit').textContent='Add to report'; $('receiptPreviewWrap').hidden=true; $('receiptStatus').hidden=true; $('eMilesLabel').hidden=true; $('eAmountLabel').hidden=false; }
     expForm.addEventListener('submit',function(e){ e.preventDefault();
-      EXP.push({date:$('eDate').value,cat:$('eCat').value,vendor:$('eVendor').value.trim(),amount:+$('eAmount').value||0,miles:+$('eMiles').value||0,purpose:$('ePurpose').value.trim(),notes:$('eNotes').value.trim(),receipt:pendingReceipt,added:today()});
+      var rec={date:$('eDate').value,cat:$('eCat').value,vendor:$('eVendor').value.trim(),amount:+$('eAmount').value||0,miles:+$('eMiles').value||0,purpose:$('ePurpose').value.trim(),notes:$('eNotes').value.trim(),receipt:pendingReceipt,added:today()};
+      if(editIdx>=0&&EXP[editIdx]){ rec.added=EXP[editIdx].added; rec.edited=today(); EXP[editIdx]=rec; } else EXP.push(rec);
       saveExp(); curWeek=weekEndingOf($('eDate').value); resetExpForm(); toggle(addExpBtn,addExpCard,false); renderExp(); });
 
     // ---- receipt OCR

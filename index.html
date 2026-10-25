@@ -1243,7 +1243,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </header>
 
   <div class="card" id="addExpCard" hidden>
-    <div class="card-head"><h2>New expense</h2><span class="note">Receipt first, then check the fields</span></div>
+    <div class="card-head"><h2 id="expFormTitle">New expense</h2><span class="note">Receipt first, then check the fields</span></div>
     <div class="importbox">
       <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
         <div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Upload a receipt</span><span class="sub13">Photo or screenshot (JPG, PNG). The page reads it and fills vendor, date, amount and a suggested category. Always check before submitting.</span></div>
@@ -1264,7 +1264,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       <label id="eMilesLabel" hidden>Miles<input id="eMiles" type="number" min="0" step="0.1" placeholder="0"></label>
       <label>Client / purpose<input id="ePurpose" placeholder="Who it was for, which project"></label>
       <label style="grid-column:span 2">Notes<input id="eNotes" placeholder="Optional"></label>
-      <div class="oppform-actions"><button class="btn primary" type="submit">Add to report</button><button class="btn" type="button" id="cancelExp">Cancel</button></div>
+      <div class="oppform-actions"><button class="btn primary" type="submit" id="expSubmit">Add to report</button><button class="btn" type="button" id="cancelExp">Cancel</button></div>
     </form>
   </div>
 
