@@ -6,7 +6,7 @@
 <style>img{max-width:100%}[hidden]{display:none!important}</style>
 <title>BD Progress Portal</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: fixed navy sidebar + fluid paper-white content; one view visible at a time, switched by hash token. */
 :root{
@@ -176,6 +176,435 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .kv .muted{color:var(--muted);font-family:var(--sans)}
 @media (max-width:640px){.frow{grid-template-columns:90px minmax(0,1fr) 70px}.fmeta{display:none}}
 
+
+/* ---- Foundation to Occupancy (ported from the ramp-plan artifact) ---- */
+:root{--navy-wash:#E4ECF3;--navy-ink:#2E5F8A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--navy-wash:#1C2A38;--navy-ink:#8FB6DB}}
+:root[data-theme="dark"]{--navy-wash:#1C2A38;--navy-ink:#8FB6DB}
+#view-foundations .ftp{font-family:"Source Sans 3",var(--sans);font-size:16px;line-height:1.55;max-width:960px}
+#view-foundations .ftp h1,#view-foundations .ftp h2,#view-foundations .ftp h3{font-family:"Barlow Condensed",var(--sans);font-weight:700}
+#view-foundations .ftp .wrap{max-width:none;margin:0}
+#view-foundations .ftp .titleblock{margin-top:0}
+#view-foundations .ftp .schedule-bar .seg{flex:1 1 0 !important;min-width:0}
+#view-foundations .ftp .schedule-bar .seg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+#view-foundations .ftp h1, #view-foundations .ftp h2, #view-foundations .ftp h3{
+    font-family:"Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
+    font-weight:700;
+    text-wrap:balance;
+    margin:0;
+  }
+#view-foundations .ftp .wrap{max-width:920px;margin:0 auto;}
+#view-foundations .ftp .mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+#view-foundations .ftp .label{
+    font-family:"Barlow Condensed", sans-serif;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    font-size:.72rem;
+    color:var(--muted);
+  }
+#view-foundations .ftp /* ---------- Title block ---------- */
+  .titleblock{
+    margin-top:28px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:var(--card);
+    box-shadow:0 1px 2px rgba(22,35,47,.06), 0 4px 14px rgba(22,35,47,.05);
+    overflow:hidden;
+  }
+#view-foundations .ftp .titleblock-top{
+    display:grid;
+    grid-template-columns: 1.4fr 1fr;
+    border-bottom:1px solid var(--line);
+  }
+#view-foundations .ftp .titleblock-top > div{padding:20px 22px;}
+#view-foundations .ftp .titleblock-top > div:first-child{border-right:1px solid var(--line);}
+#view-foundations .ftp .titleblock h1{font-size:2.15rem;line-height:1.05;}
+#view-foundations .ftp .titleblock .sub{color:var(--muted);margin-top:6px;font-size:1.02rem;}
+#view-foundations .ftp .meta-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 18px;
+  }
+#view-foundations .ftp .meta-grid dt{grid-column:1;font-family:"Barlow Condensed";letter-spacing:.06em;text-transform:uppercase;font-size:.68rem;color:var(--muted);}
+#view-foundations .ftp .meta-item{display:flex;flex-direction:column;gap:2px;}
+#view-foundations .ftp .meta-item dt{font-family:"Barlow Condensed";letter-spacing:.06em;text-transform:uppercase;font-size:.68rem;color:var(--muted);}
+#view-foundations .ftp .meta-item dd{margin:0;font-family:"IBM Plex Mono";font-size:.92rem;}
+#view-foundations .ftp .territory-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+#view-foundations .ftp .ttag{
+    font-family:"IBM Plex Mono";
+    font-size:.72rem;
+    padding:2px 7px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    color:var(--muted);
+  }
+#view-foundations .ftp .titleblock-bottom{padding:16px 22px 20px;}
+#view-foundations .ftp .startdate-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+#view-foundations .ftp .startdate-row label{font-family:"Barlow Condensed";letter-spacing:.06em;text-transform:uppercase;font-size:.72rem;color:var(--muted);}
+#view-foundations .ftp .startdate-row input[type="date"]{
+    font-family:"IBM Plex Mono";
+    font-size:.92rem;
+    background:var(--bg);
+    color:var(--fg);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:5px 8px;
+  }
+#view-foundations .ftp #daycount{
+    font-family:"IBM Plex Mono";
+    font-size:.92rem;
+    color:var(--navy-ink);
+  }
+#view-foundations .ftp .schedule-bar{
+    display:flex;
+    height:30px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    overflow:hidden;
+    position:relative;
+  }
+#view-foundations .ftp .schedule-bar .seg{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:"Barlow Condensed";
+    font-weight:600;
+    letter-spacing:.05em;
+    font-size:.72rem;
+    text-transform:uppercase;
+    color:var(--muted);
+    border-right:1px solid var(--line);
+    background:var(--bg);
+    overflow:hidden;
+  }
+#view-foundations .ftp .schedule-bar .seg:last-child{border-right:none;}
+#view-foundations .ftp .schedule-bar .seg .fill{
+    position:absolute;
+    inset:0 auto 0 0;
+    width:0%;
+    background:var(--navy-wash);
+    transition:width .3s ease;
+  }
+#view-foundations .ftp .schedule-bar .seg.done .fill{background:var(--good-wash);}
+#view-foundations .ftp .schedule-bar .seg span{position:relative;z-index:1;}
+#view-foundations .ftp .schedule-bar .marker{
+    position:absolute;
+    top:-4px;bottom:-4px;
+    width:2px;
+    background:var(--accent);
+  }
+#view-foundations .ftp .schedule-bar .marker::after{
+    content:"TODAY";
+    position:absolute;
+    top:-16px;left:50%;
+    transform:translateX(-50%);
+    font-family:"IBM Plex Mono";
+    font-size:.6rem;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+#view-foundations .ftp /* ---------- Intro ---------- */
+  .intro{
+    margin-top:22px;
+    padding:16px 20px;
+    background:var(--navy-wash);
+    border-left:3px solid var(--navy-ink);
+    border-radius:2px;
+    font-size:.98rem;
+  }
+#view-foundations .ftp .intro strong{color:var(--navy-ink);}
+#view-foundations .ftp /* ---------- Phase nav ---------- */
+  .phase-nav{
+    display:flex;
+    gap:8px;
+    margin:26px 0 0;
+    flex-wrap:wrap;
+  }
+#view-foundations .ftp .phase-nav a{
+    flex:1 1 150px;
+    text-align:center;
+    text-decoration:none;
+    color:var(--fg);
+    font-family:"Barlow Condensed";
+    font-weight:600;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    font-size:.82rem;
+    padding:10px 8px;
+    border:1px solid var(--line);
+    border-bottom:3px solid var(--line);
+    background:var(--card);
+    border-radius:2px 2px 0 0;
+  }
+#view-foundations .ftp .phase-nav a small{display:block;font-family:"IBM Plex Mono";font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:.72rem;margin-top:2px;}
+#view-foundations .ftp .phase-nav a.p1{border-bottom-color:var(--navy-ink);}
+#view-foundations .ftp .phase-nav a.p2{border-bottom-color:var(--accent);}
+#view-foundations .ftp .phase-nav a.p3{border-bottom-color:var(--good);}
+#view-foundations .ftp .phase-nav a.p4{border-bottom-color:var(--muted);}
+#view-foundations .ftp /* ---------- Phase sections ---------- */
+  .phase{
+    scroll-margin-top:16px;
+    margin-top:6px;
+    border:1px solid var(--line);
+    border-top:none;
+    background:var(--card);
+    box-shadow:0 1px 2px rgba(22,35,47,.06), 0 4px 14px rgba(22,35,47,.05);
+  }
+#view-foundations .ftp .phase-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:18px 22px 14px;
+    border-bottom:1px solid var(--line);
+  }
+#view-foundations .ftp .phase-head h2{font-size:1.55rem;}
+#view-foundations .ftp .phase-head .range{font-family:"IBM Plex Mono";color:var(--muted);font-size:.88rem;}
+#view-foundations .ftp .phase-progress{
+    font-family:"IBM Plex Mono";
+    font-size:.82rem;
+    padding:3px 9px;
+    border-radius:2px;
+    background:var(--bg);
+    color:var(--muted);
+    white-space:nowrap;
+  }
+#view-foundations .ftp .phase-metaphor{
+    padding:10px 22px;
+    font-size:.85rem;
+    color:var(--muted);
+    font-style:italic;
+    border-bottom:1px solid var(--line);
+  }
+#view-foundations .ftp .week{padding:16px 22px 4px;}
+#view-foundations .ftp .week h3{
+    font-size:1.05rem;
+    color:var(--fg);
+    margin-bottom:10px;
+    padding-bottom:6px;
+    border-bottom:1px dashed var(--line);
+  }
+#view-foundations .ftp ul.tasks{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;gap:2px;}
+#view-foundations .ftp ul.tasks li{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:7px 6px;
+    border-radius:2px;
+  }
+#view-foundations .ftp ul.tasks li:hover{background:var(--bg);}
+#view-foundations .ftp ul.tasks input[type="checkbox"]{
+    appearance:none;
+    width:18px;height:18px;
+    border:1.5px solid var(--line);
+    border-radius:3px;
+    margin-top:2px;
+    flex:0 0 auto;
+    cursor:pointer;
+    position:relative;
+    background:var(--card);
+  }
+#view-foundations .ftp ul.tasks input[type="checkbox"]:checked{
+    background:var(--good);
+    border-color:var(--good);
+  }
+#view-foundations .ftp ul.tasks input[type="checkbox"]:checked::after{
+    content:"";
+    position:absolute;
+    left:5px;top:1px;
+    width:5px;height:10px;
+    border:solid white;
+    border-width:0 2px 2px 0;
+    transform:rotate(40deg);
+  }
+#view-foundations .ftp ul.tasks .task-text{flex:1;font-size:.96rem;}
+#view-foundations .ftp ul.tasks li.checked .task-text{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+#view-foundations .ftp .ref{
+    font-family:"IBM Plex Mono";
+    font-size:.68rem;
+    color:var(--navy-ink);
+    background:var(--navy-wash);
+    padding:1px 6px;
+    border-radius:2px;
+    white-space:nowrap;
+    margin-top:1px;
+  }
+#view-foundations .ftp .ref.redirect{ color:var(--accent); background:var(--accent-wash); }
+#view-foundations .ftp .update-banner{
+    margin-top:14px;
+    padding:14px 18px;
+    background:var(--accent-wash);
+    border-left:3px solid var(--accent);
+    border-radius:2px;
+    font-size:.92rem;
+  }
+#view-foundations .ftp .update-banner .label{ color:var(--accent); }
+#view-foundations .ftp .closeout{
+    margin:0 22px 20px;
+    padding:14px 16px;
+    background:var(--accent-wash);
+    border-left:3px solid var(--accent);
+    border-radius:2px;
+    font-size:.92rem;
+  }
+#view-foundations .ftp .closeout .label{color:var(--accent);}
+#view-foundations .ftp /* ---------- KPI table ---------- */
+  section.block{margin-top:34px;}
+#view-foundations .ftp section.block > h2{font-size:1.7rem;margin-bottom:4px;}
+#view-foundations .ftp section.block > .desc{color:var(--muted);font-size:.92rem;margin-bottom:14px;max-width:65ch;}
+#view-foundations .ftp .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:2px;background:var(--card);box-shadow:0 1px 2px rgba(22,35,47,.06), 0 4px 14px rgba(22,35,47,.05);}
+#view-foundations .ftp table{border-collapse:collapse;width:100%;min-width:640px;font-size:.88rem;}
+#view-foundations .ftp table caption{caption-side:top;text-align:left;padding:12px 14px 0;font-family:"Barlow Condensed";text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;color:var(--muted);}
+#view-foundations .ftp th, #view-foundations .ftp td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+#view-foundations .ftp thead th{
+    font-family:"Barlow Condensed";
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-size:.72rem;
+    color:var(--muted);
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+#view-foundations .ftp tbody tr:last-child td{border-bottom:none;}
+#view-foundations .ftp td.num, #view-foundations .ftp th.num{font-family:"IBM Plex Mono";text-align:right;}
+#view-foundations .ftp tr.example td{background:var(--navy-wash);font-style:italic;color:var(--muted);}
+#view-foundations .ftp tr.example td:first-child::before{
+    content:"EXAMPLE";
+    display:inline-block;
+    font-family:"IBM Plex Mono";
+    font-style:normal;
+    font-size:.62rem;
+    letter-spacing:.05em;
+    color:var(--navy-ink);
+    background:var(--card);
+    border:1px solid var(--navy-ink);
+    padding:0 4px;
+    border-radius:2px;
+    margin-right:6px;
+  }
+#view-foundations .ftp /* ---------- Discovery call framework ---------- */
+  .call-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-top:14px;}
+#view-foundations .ftp .call-card{border:1px solid var(--line);background:var(--card);border-radius:2px;padding:14px 16px;box-shadow:0 1px 2px rgba(22,35,47,.06), 0 4px 14px rgba(22,35,47,.05);}
+#view-foundations .ftp .call-card .num{font-family:"IBM Plex Mono";font-size:.78rem;color:var(--accent);}
+#view-foundations .ftp .call-card h3{font-size:1.05rem;margin:4px 0 8px;}
+#view-foundations .ftp .call-card ul{margin:0;padding-left:18px;font-size:.86rem;color:var(--muted);}
+#view-foundations .ftp .call-card ul li{margin-bottom:6px;}
+#view-foundations .ftp .call-card ul li strong{color:var(--fg);}
+#view-foundations .ftp .davisbacon{margin-top:12px;padding:10px 12px;background:var(--accent-wash);border-left:3px solid var(--accent);border-radius:2px;font-size:.82rem;color:var(--accent);}
+#view-foundations .ftp /* ---------- Market intel ---------- */
+  .intel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+#view-foundations .ftp .intel-card{
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:2px;
+    padding:14px 16px;
+    box-shadow:0 1px 2px rgba(22,35,47,.06), 0 4px 14px rgba(22,35,47,.05);
+  }
+#view-foundations .ftp .intel-card .when{font-family:"IBM Plex Mono";font-size:.78rem;color:var(--accent);}
+#view-foundations .ftp .intel-card h3{font-size:1.05rem;margin-top:4px;}
+#view-foundations .ftp .intel-card p{font-size:.86rem;color:var(--muted);margin:6px 0 0;}
+#view-foundations .ftp .intel-card a{color:var(--navy-ink);font-size:.8rem;}
+#view-foundations .ftp .intel-card p strong{color:var(--fg);}
+#view-foundations .ftp .options-list{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:10px;}
+#view-foundations .ftp .options-list li{padding:11px 14px;border:1px solid var(--line);border-radius:2px;background:var(--bg);font-size:.9rem;}
+#view-foundations .ftp .options-list li strong{font-family:"Barlow Condensed";text-transform:uppercase;letter-spacing:.04em;font-size:.76rem;color:var(--navy-ink);display:block;margin-bottom:3px;}
+#view-foundations .ftp .msg-template{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:16px 18px;
+    font-family:"IBM Plex Mono";
+    font-size:.82rem;
+    line-height:1.7;
+    white-space:pre-wrap;
+    color:var(--fg);
+  }
+#view-foundations .ftp .msg-template .fill{color:var(--accent);background:var(--accent-wash);padding:0 3px;border-radius:2px;}
+#view-foundations .ftp /* ---------- Funnel ---------- */
+  .funnel{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0;
+    margin-top:10px;
+  }
+#view-foundations .ftp .funnel .step{
+    flex:1 1 140px;
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:12px 10px;
+    text-align:center;
+    font-family:"Barlow Condensed";
+    font-weight:600;
+    letter-spacing:.02em;
+    font-size:.86rem;
+    position:relative;
+    margin-right:14px;
+  }
+#view-foundations .ftp .funnel .step:last-child{margin-right:0;}
+#view-foundations .ftp .funnel .step::after{
+    content:"→";
+    position:absolute;
+    right:-16px;top:50%;
+    transform:translateY(-50%);
+    color:var(--muted);
+    font-size:1rem;
+  }
+#view-foundations .ftp .funnel .step:last-child::after{content:"";}
+#view-foundations .ftp .objective-box{
+    margin-top:16px;
+    padding:20px 22px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:2px;
+    box-shadow:0 1px 2px rgba(22,35,47,.06), 0 4px 14px rgba(22,35,47,.05);
+  }
+#view-foundations .ftp .objective-box blockquote{
+    margin:8px 0 0;
+    padding-left:14px;
+    border-left:3px solid var(--accent);
+    color:var(--muted);
+    font-size:.92rem;
+  }
+#view-foundations .ftp footer{
+    margin-top:44px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    font-size:.78rem;
+    color:var(--muted);
+  }
+#view-foundations .ftp footer button{
+    font-family:"IBM Plex Mono";
+    font-size:.75rem;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:4px 9px;
+    border-radius:2px;
+    cursor:pointer;
+  }
+#view-foundations .ftp footer button:hover{color:var(--fg);border-color:var(--muted);}
+@media (max-width:640px){#view-foundations .ftp .titleblock-top{grid-template-columns:1fr;}
+#view-foundations .ftp .titleblock-top > div:first-child{border-right:none;border-bottom:1px solid var(--line);}
+#view-foundations .ftp .meta-grid{grid-template-columns:1fr 1fr;}
+#view-foundations .ftp .phase-nav a{flex:1 1 44%;}
+#view-foundations .ftp .funnel .step::after{display:none;}
+#view-foundations .ftp .funnel{flex-direction:column;}
+#view-foundations .ftp .funnel .step{margin-right:0;margin-bottom:8px;}}
+
+
 /* Phone */
 @media (max-width:760px){
   .shell{flex-direction:column}
@@ -210,7 +639,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <a href="#overview" data-view="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>Overview</a>
     <a href="#pipeline" data-view="pipeline"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M6 10h12M8 15h8M10 20h4"/></svg>Pipeline</a>
     <a href="#reports" data-view="reports"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h7"/></svg>Daily Reports</a>
-    <a href="#foundations" data-view="foundations"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>Foundations to Occupancy</a>
+    <a href="#foundations" data-view="foundations"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>Foundation to Occupancy</a>
     <a href="#week" data-view="week"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Work Week Summary</a>
     <a href="#roi" data-view="roi"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Salary ROI</a>
     <a href="#expenses" data-view="expenses"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>Expense Report</a>
@@ -259,18 +688,21 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
         <div class="row"><span class="day">FRI</span><span>Follow-ups and weekly report. Next week: Houston trip, 3 site visits.</span></div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-head"><h2>Foundations to occupancy</h2><span class="note">Tracked projects by build stage</span></div>
-      <div class="stages">
-        <div class="stage"><div class="bar" style="background:var(--s1)"></div><span class="label">Foundation</span><span class="n">6</span></div>
-        <div class="stage"><div class="bar" style="background:var(--s2)"></div><span class="label">Structure</span><span class="n">9</span></div>
-        <div class="stage"><div class="bar" style="background:var(--s3)"></div><span class="label">Envelope</span><span class="n">7</span></div>
-        <div class="stage"><div class="bar" style="background:var(--s4)"></div><span class="label">Interiors</span><span class="n">11</span></div>
-        <div class="stage"><div class="bar" style="background:var(--s5)"></div><span class="label">Occupancy</span><span class="n">4</span></div>
+    <a class="card tool" href="#foundations" style="padding:24px;gap:16px">
+      <div class="card-head"><h2>Foundation to occupancy</h2><span class="note mono" id="ovDay">—</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span class="label" id="ovPhase">—</span>
+        <div class="ftrack" style="height:12px"><div class="fbar" id="ovBar" style="width:0%;background:var(--accent)"></div></div>
+        <span class="sub13" id="ovPct">—</span>
       </div>
-      <p class="sub13" style="margin:0;font-size:14px;line-height:1.55">Interiors is where INTAL, Elite Mainframe and Global Drywall enter a job. Projects in Foundation and Structure today are the labor opportunities 4–9 months out.</p>
-      <div class="chips"><span class="chip">37 projects tracked</span><span class="chip">14 entering Interiors by Q1</span></div>
-    </div>
+      <div class="stages" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        <div class="stage"><div class="ftrack" style="height:8px"><div class="fbar" id="ovF1" style="width:0%;background:var(--s1)"></div></div><span class="label">Foundation</span><span class="n mono" id="ovP1" style="font-size:18px">—</span></div>
+        <div class="stage"><div class="ftrack" style="height:8px"><div class="fbar" id="ovF2" style="width:0%;background:var(--s2)"></div></div><span class="label">Structure</span><span class="n mono" id="ovP2" style="font-size:18px">—</span></div>
+        <div class="stage"><div class="ftrack" style="height:8px"><div class="fbar" id="ovF3" style="width:0%;background:var(--s4)"></div></div><span class="label">Turnover</span><span class="n mono" id="ovP3" style="font-size:18px">—</span></div>
+        <div class="stage"><div class="ftrack" style="height:8px"><div class="fbar" id="ovF4" style="width:0%;background:var(--s5)"></div></div><span class="label">Occupancy</span><span class="n mono" id="ovP4" style="font-size:18px">—</span></div>
+      </div>
+      <span class="sub13">Commitments from the Sept 8 employment proposal, checked off week by week. <span style="color:var(--accent);font-weight:600">Open the plan</span></span>
+    </a>
   </div>
 
   <div class="grid g3">
@@ -417,27 +849,412 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <!-- FOUNDATIONS -->
 <section class="view" id="view-foundations" aria-labelledby="h-foundations">
-  <header class="head"><div class="head-left"><span class="eyebrow">Project pipeline · 37 tracked</span><h1 id="h-foundations">Foundations to occupancy</h1><span class="sub">Every tracked project placed on the build timeline, so labor demand is visible months before the call comes.</span></div><div class="head-right"><span class="pill"><span class="dot"></span>Sample data</span></div></header>
-  <div class="card">
-    <div class="stages">
-      <div class="stage"><div class="bar" style="background:var(--s1)"></div><span class="label">Foundation</span><span class="n">6</span><span class="sub13">Labor need in 6–9 mo</span></div>
-      <div class="stage"><div class="bar" style="background:var(--s2)"></div><span class="label">Structure</span><span class="n">9</span><span class="sub13">4–6 mo</span></div>
-      <div class="stage"><div class="bar" style="background:var(--s3)"></div><span class="label">Envelope</span><span class="n">7</span><span class="sub13">2–4 mo</span></div>
-      <div class="stage"><div class="bar" style="background:var(--s4)"></div><span class="label">Interiors</span><span class="n">11</span><span class="sub13">Crews on site now</span></div>
-      <div class="stage"><div class="bar" style="background:var(--s5)"></div><span class="label">Occupancy</span><span class="n">4</span><span class="sub13">Closeout · reference</span></div>
+  <header class="head"><div class="head-left"><span class="eyebrow" id="ftpEyebrow">90-day ramp plan</span><h1 id="h-foundations">Foundation to Occupancy</h1><span class="sub">The promise made to IB Group for the first 90 days, broken into weeks. Check items off as they're done; the bar and counts update.</span></div><div class="head-right"><span class="pill" id="ftpPill">—</span></div></header>
+  <div class="ftp"><div class="wrap">
+<div class="titleblock">
+    <div class="titleblock-top">
+      <div>
+        <div class="label">Ramp Plan — Business Development Manager</div>
+        <h1>Foundation to Occupancy</h1>
+        <div class="sub">Strategic Accounts &amp; Data Centers · IB Group Worldwide, Inc.</div>
+        <div class="territory-tags" id="territory-tags"></div>
+      </div>
+      <div>
+        <div class="meta-grid">
+          <div class="meta-item"><dt>Employee</dt><dd>Samuel R. Carstens</dd></div>
+          <div class="meta-item"><dt>Base salary</dt><dd>$120,000 / yr</dd></div>
+          <div class="meta-item"><dt>Commission</dt><dd>$0.10 / labor hr</dd></div>
+          <div class="meta-item"><dt>Work arrangement</dt><dd>Hybrid — Coral Gables, FL</dd></div>
+          <div class="meta-item"><dt>Reports to</dt><dd>Executive Management</dd></div>
+          <div class="meta-item"><dt>Intro period</dt><dd>90 days (at-will)</dd></div>
+        </div>
+      </div>
+    </div>
+    <div class="titleblock-bottom">
+      <div class="startdate-row">
+        <label for="startdate">Start date</label>
+        <input type="date" id="startdate" value="2026-09-09">
+        <span id="daycount" class="mono"></span>
+      </div>
+      <div class="schedule-bar" id="schedulebar">
+        <div class="seg" data-days="30" id="seg1"><div class="fill"></div><span>Foundation · 1–30</span></div>
+        <div class="seg" data-days="30" id="seg2"><div class="fill"></div><span>Structure · 31–60</span></div>
+        <div class="seg" data-days="30" id="seg3"><div class="fill"></div><span>Turnover · 61–90</span></div>
+        <div class="seg" data-days="30" id="seg4" style="flex:0.6"><div class="fill"></div><span>Occupancy · 91+</span></div>
+      </div>
     </div>
   </div>
-  <div class="card" style="padding:0">
-    <div class="scroll"><table class="table">
-      <thead><tr><th>Project</th><th>Metro</th><th>GC</th><th>Stage</th><th>Interiors start</th><th>Our status</th></tr></thead>
-      <tbody>
-        <tr><td>Hyperscale campus, Bldg 2</td><td>Dallas, TX</td><td>[GC name]</td><td>Structure</td><td class="mono">Mar 2027</td><td><span class="tag ok">Proposal</span></td></tr>
-        <tr><td>Mixed-use tower</td><td>Miami, FL</td><td>[GC name]</td><td>Envelope</td><td class="mono">Jan 2027</td><td><span class="tag">Meeting set</span></td></tr>
-        <tr><td>Logistics hub</td><td>Houston, TX</td><td>[GC name]</td><td>Foundation</td><td class="mono">Jun 2027</td><td><span class="tag">Tracking</span></td></tr>
-        <tr><td>Hospital expansion</td><td>Atlanta, GA</td><td>[GC name]</td><td>Interiors</td><td class="mono">Now</td><td><span class="tag ok">Crew placed</span></td></tr>
-      </tbody>
-    </table></div>
+
+  <div class="intro">
+    <strong>What this is.</strong> A week-by-week execution schedule built directly from your September 8, 2026 employment proposal — Sections 2 (Primary Business Objective), 8 (Pipeline &amp; Reporting), 9 (Performance Expectations), 10 (Introductory Period), and 15 (Our Objective). Every task below is tagged with the section it satisfies. Set your actual start date above — the schedule bar and day-count recalculate automatically. Checkboxes save locally in this browser as you complete items.
   </div>
+
+  <div class="update-banner">
+    <span class="label">Updated Sept 16, 2026 —</span> management redirected go-to-market away from the data center vertical named in §2A, toward the trades IB Group is actually equipped for: <strong>drywall, metal framing, and ACT (acoustical ceiling tile)</strong> on large-scale construction projects. Tasks below tagged <span class="ref redirect">redirected</span> replace the data-center-specific version of that section; §8, §9, and §10 apply exactly as written in the proposal.
+  </div>
+
+  <nav class="phase-nav">
+    <a href="#phase1" class="p1">Phase 1 <small>Foundation</small></a>
+    <a href="#phase2" class="p2">Phase 2 <small>Structure</small></a>
+    <a href="#phase3" class="p3">Turnover <small>Days 61–90</small></a>
+    <a href="#phase4" class="p4">Occupancy <small>Day 91+</small></a>
+  </nav>
+
+  <!-- PHASE 1 -->
+  <section class="phase" id="phase1" data-phase="1">
+    <div class="phase-head">
+      <div>
+        <h2>Phase 1 — Foundation</h2>
+        <div class="range mono" data-range="1-30"></div>
+      </div>
+      <div class="phase-progress" data-progress-for="phase1">0 / 0 complete</div>
+    </div>
+    <div class="phase-metaphor">Before a crew ever pours concrete, the site is surveyed, staked, and the drawings are checked against the spec. Days 1–30 are that survey — of the org, the territory, and the pipeline system you'll run for the next year.</div>
+
+    <div class="week">
+      <h3>Week 1 — Systems &amp; Orientation</h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p1w1-1"><span class="task-text">Complete employment eligibility verification, onboarding paperwork, and sign the Confidentiality / Non-Solicitation / Restrictive Covenant agreements</span><span class="ref">§13</span></li>
+        <li><input type="checkbox" data-id="p1w1-2"><span class="task-text">Meet with the Executive Management Team to confirm reporting lines, initial priorities, and how "strategic accounts" get assigned to you</span><span class="ref">§1, §2B</span></li>
+        <li><input type="checkbox" data-id="p1w1-3"><span class="task-text">Confirm the hybrid cadence in practice — which meetings/events require in-person attendance at the Coral Gables office vs. the field</span><span class="ref">§4</span></li>
+        <li><input type="checkbox" data-id="p1w1-4"><span class="task-text">Build your pipeline tracker (CRM or spreadsheet) with all 14 fields called for in Section 8 — see the Pipeline Log template below — before you make a single call</span><span class="ref">§8</span></li>
+        <li><input type="checkbox" data-id="p1w1-5"><span class="task-text">Ask management, in writing, for the specific numeric objectives referenced at the close of Section 9 ("Management will establish and periodically review specific business development objectives") — get targets defined before you're measured against them</span><span class="ref">§9</span></li>
+        <li><input type="checkbox" data-id="p1w1-6"><span class="task-text">Request IB Group's current active client roster, any drywall/metal-framing/ACT crews or contracts already in motion, and the competitive landscape so you don't duplicate existing relationships</span><span class="ref">§2A, §2B</span></li>
+        <li><input type="checkbox" data-id="p1w1-7"><span class="task-text">Inventory your own existing network from Irongraad, Bayard, Dan Vos, and HuckFyn — cross-reference every GC, super, and PM contact against Florida, Texas, Louisiana, and Georgia</span><span class="ref">§2B, §3</span></li>
+      </ul>
+    </div>
+
+    <div class="week">
+      <h3>Week 2 — Market Research: Large-Scale Projects <span class="ref redirect">§2A redirected</span></h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p1w2-1"><span class="task-text">Start a standing research log of large-scale projects with heavy drywall / metal-framing / ACT scope — hospitals, hotels, mixed-use high-rises, convention centers, stadiums/entertainment districts, airports — across the four territory states</span><span class="ref redirect">§2A redirected</span></li>
+        <li><input type="checkbox" data-id="p1w2-2"><span class="task-text">Track named leads already identified: Waldorf Astoria Miami (past 50th floor) and 1 Southside Park (Miami), 1072 West Peachtree and Centennial Yards (Atlanta, both racing toward mid-2026 finish work), the $3.8B Kay Bailey Hutchison Convention Center expansion (Dallas), and the Morial Convention Center improvement projects (New Orleans)</span><span class="ref redirect">§2A redirected</span></li>
+        <li><input type="checkbox" data-id="p1w2-3"><span class="task-text">Track the $1B+ hospital construction wave hitting three of your four states: Sarasota Memorial (FL), Grady Health System / Fulton Co. (GA), and JPS Health Network (Fort Worth, TX)</span><span class="ref redirect">§2A redirected</span></li>
+        <li><input type="checkbox" data-id="p1w2-4"><span class="task-text">For each target, identify the GC <em>and</em> the drywall/interior-finish subcontractor already on the job — the sub is often the more direct buyer of your labor than the GC itself</span><span class="ref redirect">§2A redirected</span></li>
+        <li><input type="checkbox" data-id="p1w2-5"><span class="task-text">Identify who on each team owns workforce procurement and labor management for the framing/drywall/ceilings package specifically</span><span class="ref redirect">§2A redirected</span></li>
+        <li><input type="checkbox" data-id="p1w2-6"><span class="task-text">Look into AWCI (Association of the Wall and Ceiling Industry) membership and state AGC/ABC chapters in FL, GA, TX, and LA as ongoing relationship channels — flag AWCI's BUILD27 convention (Apr 12–15, 2027, Grapevine, TX) as a 2027 planning target</span><span class="ref redirect">§2A redirected</span></li>
+      </ul>
+    </div>
+
+    <div class="week">
+      <h3>Week 3 — Market Research: Strategic Accounts</h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p1w3-1"><span class="task-text">Build a target list of 20–30 strategic accounts across the territory — weight it toward drywall/metal-framing/ACT subcontractors and the GCs who hire them, independent of any single project</span><span class="ref">§2B</span></li>
+        <li><input type="checkbox" data-id="p1w3-2"><span class="task-text">Prioritize targets by realistic labor-hour volume and fit with IB Group's current workforce capabilities</span><span class="ref">§2B</span></li>
+        <li><input type="checkbox" data-id="p1w3-3"><span class="task-text">Identify the named executives/decision-makers at each priority target</span><span class="ref">§2B</span></li>
+        <li><input type="checkbox" data-id="p1w3-4"><span class="task-text">Draft an outreach template and a one-page capabilities/value-prop sheet built around drywall/metal-framing/ACT — get management's sign-off before it goes out under IB Group's name</span><span class="ref">§2B</span></li>
+      </ul>
+    </div>
+
+    <div class="week">
+      <h3>Week 4 — First Outreach &amp; 30-Day Checkpoint</h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p1w4-1"><span class="task-text">Begin direct outreach to your first 10–15 highest-priority contacts across both tracks</span><span class="ref">§2A, §2B</span></li>
+        <li><input type="checkbox" data-id="p1w4-2"><span class="task-text">Get your first qualified meetings on the calendar</span><span class="ref">§9</span></li>
+        <li><input type="checkbox" data-id="p1w4-3"><span class="task-text">Attend at least one industry or networking event in-territory</span><span class="ref">§2A, §5</span></li>
+        <li><input type="checkbox" data-id="p1w4-4"><span class="task-text">Deliver your first formal pipeline report to management</span><span class="ref">§8</span></li>
+        <li><input type="checkbox" data-id="p1w4-5"><span class="task-text">Self-score against every Section 10 introductory-period criterion (see the Turnover phase packet below) and note gaps while there's still runway to close them</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p1w4-6"><span class="task-text">Hold a 30-day check-in with Executive Management: review the pipeline, confirm targets, and lock in territory priorities for Phase 2</span><span class="ref">§9, §10</span></li>
+      </ul>
+    </div>
+    <div class="closeout"><span class="label">30-day exit test —</span> you should be able to hand management a live pipeline log, a research brief on both tracks, and a calendar with at least one qualified meeting already held.</div>
+  </section>
+
+  <!-- PHASE 2 -->
+  <section class="phase" id="phase2" data-phase="2">
+    <div class="phase-head">
+      <div>
+        <h2>Phase 2 — Structure</h2>
+        <div class="range mono" data-range="31-60"></div>
+      </div>
+      <div class="phase-progress" data-progress-for="phase2">0 / 0 complete</div>
+    </div>
+    <div class="phase-metaphor">The survey is done — now the frame goes up. Days 31–60 are about volume and repetition: more contacts, more meetings, and the reporting rhythm that will carry you through the rest of the year.</div>
+
+    <div class="week">
+      <h3>Weeks 5–6 — Volume &amp; Rhythm</h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p2w5-1"><span class="task-text">Grow the combined pipeline to 40+ tracked opportunities across both tracks</span><span class="ref">§8, §9</span></li>
+        <li><input type="checkbox" data-id="p2w5-2"><span class="task-text">Move first-touch contacts into second- and third-touch relationship building — calls, follow-ups, site visits</span><span class="ref">§2A, §2B</span></li>
+        <li><input type="checkbox" data-id="p2w5-3"><span class="task-text">Start attending project meetings and site visits wherever access allows</span><span class="ref">§2A</span></li>
+        <li><input type="checkbox" data-id="p2w5-4"><span class="task-text">Stand up a weekly written activity report to management (contacts made, meetings held/scheduled, opportunities added) — this is the paper trail Section 10 evaluates as "organizational discipline"</span><span class="ref">§8, §10</span></li>
+        <li><input type="checkbox" data-id="p2w5-5"><span class="task-text">Work every event you attend the same way: get every contact logged into the pipeline within 48 hours</span><span class="ref">§8</span></li>
+      </ul>
+    </div>
+
+    <div class="week">
+      <h3>Weeks 7–8 — Depth &amp; First Bids</h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p2w7-1"><span class="task-text">Pursue your first RFP, bid invitation, or pricing opportunity</span><span class="ref">§9</span></li>
+        <li><input type="checkbox" data-id="p2w7-2"><span class="task-text">Deepen at least 3–5 strategic accounts specifically assigned by management — confirm what "materially contributes" to commission eligibility looks like on those accounts</span><span class="ref">§2B, §7</span></li>
+        <li><input type="checkbox" data-id="p2w7-3"><span class="task-text">Establish relationships on at least 5 pre-construction or early-framing-stage large-scale projects — before the drywall/framing/ceilings bid package goes out, per the proposal's own strategy</span><span class="ref redirect">§2A redirected</span></li>
+        <li><input type="checkbox" data-id="p2w7-4"><span class="task-text">Mid-phase check-in with management: review pipeline health and recalibrate the next 30 days' targets</span><span class="ref">§9</span></li>
+      </ul>
+    </div>
+    <div class="closeout"><span class="label">60-day exit test —</span> a pipeline that's grown, not just refreshed; a standing weekly report management already expects; and at least one live bid or pricing opportunity in motion.</div>
+  </section>
+
+  <!-- PHASE 3 -->
+  <section class="phase" id="phase3" data-phase="3">
+    <div class="phase-head">
+      <div>
+        <h2>Phase 3 — Turnover</h2>
+        <div class="range mono" data-range="61-90"></div>
+      </div>
+      <div class="phase-progress" data-progress-for="phase3">0 / 0 complete</div>
+    </div>
+    <div class="phase-metaphor">Turnover is when a building moves from construction to occupancy — punch list closed, systems commissioned, keys handed over. Days 61–90 close out your introductory period the same way: nothing left half-documented when the review happens.</div>
+
+    <div class="week">
+      <h3>Weeks 9–11 — Convert &amp; Document</h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p3w9-1"><span class="task-text">Push at least one relationship to a secured client account or signed workforce agreement</span><span class="ref">§9</span></li>
+        <li><input type="checkbox" data-id="p3w9-2"><span class="task-text">Start tracking labor hours generated and any revenue/gross profit attributable to accounts you originated</span><span class="ref">§9, §7</span></li>
+        <li><input type="checkbox" data-id="p3w9-3"><span class="task-text">Audit the full pipeline against every Section 8 field — nothing stale, nothing missing a next action or timeline</span><span class="ref">§8</span></li>
+        <li><input type="checkbox" data-id="p3w9-4"><span class="task-text">Request written feedback and next-quarter objectives from Executive Management ahead of the 90-day mark — don't let the introductory review be the first time you hear it</span><span class="ref">§10</span></li>
+      </ul>
+    </div>
+
+    <div class="week">
+      <h3>Week 12 — Introductory Period Review Packet</h3>
+      <p style="font-size:.9rem;color:var(--ink-soft);margin:0 0 10px;">Section 10 lists exactly what management evaluates at day 90. Build one short section of evidence for each line before the review, not during it.</p>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p3w12-1"><span class="task-text">Market research &amp; target development — show the territory research log</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-2"><span class="task-text">§10 literally lists "data center project pipeline development" — with the redirect, satisfy it by showing your tracked large-scale drywall/framing/ACT project pipeline by stage instead</span><span class="ref redirect">§10 redirected</span></li>
+        <li><input type="checkbox" data-id="p3w12-3"><span class="task-text">Strategic account identification — show the 20–30 account target list and status</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-4"><span class="task-text">Decision-maker identification — show names/titles captured per account</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-5"><span class="task-text">Client outreach activity — show total contacts made, by week</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-6"><span class="task-text">Meetings and introductions generated — show the count and outcomes</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-7"><span class="task-text">Quality of business opportunities developed — show your best 3–5 with estimated opportunity size</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-8"><span class="task-text">Follow-up and organizational discipline — point to the weekly report cadence you've already been running</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-9"><span class="task-text">Travel and market engagement — show events attended and site visits completed</span><span class="ref">§5, §10</span></li>
+        <li><input type="checkbox" data-id="p3w12-10"><span class="task-text">Professional representation of IB Group Worldwide — be ready to speak to how you've introduced the company at events and meetings</span><span class="ref">§10</span></li>
+        <li><input type="checkbox" data-id="p3w12-11"><span class="task-text">Confirm the review meeting is on the calendar proactively — go to it, don't wait for it to come to you</span><span class="ref">§10, §12</span></li>
+      </ul>
+    </div>
+    <div class="closeout"><span class="label">90-day exit test —</span> a completed review packet mirroring Section 10 line for line, at least one secured account in motion, and a documented ask for next-quarter targets.</div>
+  </section>
+
+  <!-- PHASE 4 -->
+  <section class="phase" id="phase4" data-phase="4">
+    <div class="phase-head">
+      <div>
+        <h2>Phase 4 — Occupancy</h2>
+        <div class="range mono" data-range="91+"></div>
+      </div>
+      <div class="phase-progress" data-progress-for="phase4">0 / 0 complete</div>
+    </div>
+    <div class="phase-metaphor">Occupancy is the building doing what it was built for. From day 91 on, the job stops being about setting up the system and starts being about running the full account-development cycle on repeat, at increasing scale.</div>
+
+    <div class="week">
+      <h3>Day 91 and Beyond — Sustained Operations</h3>
+      <ul class="tasks">
+        <li><input type="checkbox" data-id="p4-1"><span class="task-text">Run every account through the full funnel printed on page 2 of the proposal: Identify the Opportunity → Identify the Decision-Makers → Establish the Relationship → Develop the Opportunity → Secure the Client → Grow the Account</span><span class="ref">§2B</span></li>
+        <li><input type="checkbox" data-id="p4-2"><span class="task-text">Set quarterly numeric targets with management for each Section 9 KPI — accounts identified, meetings secured, RFPs received, accounts secured, labor hours, revenue/GP</span><span class="ref">§9</span></li>
+        <li><input type="checkbox" data-id="p4-3"><span class="task-text">Plan travel and budget toward AWCI's BUILD27 convention (April 12–15, 2027, Grapevine, TX) as an annual flagship trade relationship event</span><span class="ref redirect">§2A redirected, §5</span></li>
+        <li><input type="checkbox" data-id="p4-4"><span class="task-text">Formalize a monthly written pipeline/performance report as the standing cadence with management</span><span class="ref">§8</span></li>
+        <li><input type="checkbox" data-id="p4-5"><span class="task-text">Shift a growing share of your time from new-account sourcing to growing secured accounts into recurring, repeat business</span><span class="ref">§2B, §15</span></li>
+        <li><input type="checkbox" data-id="p4-6"><span class="task-text">Revisit territory prioritization quarterly — the proposal explicitly reserves IB Group's right to expand or reprioritize markets</span><span class="ref">§3</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FUNNEL / OBJECTIVE -->
+  <section class="block">
+    <h2>The Funnel You're Running</h2>
+    <div class="desc">Printed directly on page 2 of the proposal — the operating model behind every phase above.</div>
+    <div class="funnel">
+      <div class="step">Identify the<br>Opportunity</div>
+      <div class="step">Identify the<br>Decision-Makers</div>
+      <div class="step">Establish the<br>Relationship</div>
+      <div class="step">Develop the<br>Opportunity</div>
+      <div class="step">Secure the<br>Client</div>
+      <div class="step">Grow the<br>Account</div>
+    </div>
+    <div class="objective-box">
+      <div class="label">Section 15 — Our Objective</div>
+      <blockquote>"The objective of this position is to systematically identify markets and projects where significant workforce demand exists, establish relationships with the companies controlling those opportunities, and convert those relationships into sustainable and recurring business for IB Group Worldwide."</blockquote>
+      <p style="font-size:.9rem;color:var(--ink-soft);margin-top:10px;">Every checklist above is that sentence broken into weeks. The proposal names data centers as the strategic priority, but Section 15 itself is explicit that the broader mandate is IB Group's client base across the whole construction industry — which is exactly the room management's redirect toward drywall, metal framing, and ACT on large-scale projects moves into.</p>
+    </div>
+  </section>
+
+  <!-- KPI DASHBOARD -->
+  <section class="block">
+    <h2>KPI Self-Tracker</h2>
+    <div class="desc">The indicators listed in Section 9, with suggested self-imposed pacing so you have a number to manage to before management hands you one. Replace the "your target" column the moment real numbers come out of your Week 1 conversation — these are starting points, not company-issued quotas.</div>
+    <div class="table-wrap">
+      <table>
+        <caption>Section 9 — Key Performance Indicators</caption>
+        <thead>
+          <tr><th>KPI (as written in §9)</th><th class="num">30-day</th><th class="num">60-day</th><th class="num">90-day</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Qualified target accounts identified</td><td class="num">20–30</td><td class="num">40+</td><td class="num">60+</td></tr>
+          <tr><td>Data center &amp; strategic projects identified <span class="ref redirect" style="margin-left:4px;">redirected*</span></td><td class="num">15+</td><td class="num">30+</td><td class="num">50+</td></tr>
+          <tr><td>Decision-makers identified &amp; contacted</td><td class="num">15</td><td class="num">40</td><td class="num">70+</td></tr>
+          <tr><td>New relationships established</td><td class="num">5</td><td class="num">15</td><td class="num">30</td></tr>
+          <tr><td>Qualified meetings secured</td><td class="num">2–3</td><td class="num">8–10</td><td class="num">15+</td></tr>
+          <tr><td>Client &amp; project site visits completed</td><td class="num">1</td><td class="num">3</td><td class="num">6+</td></tr>
+          <tr><td>Active opportunities developed</td><td class="num">3</td><td class="num">10</td><td class="num">18+</td></tr>
+          <tr><td>Invitations to bid / RFPs / pricing received</td><td class="num">0–1</td><td class="num">1–2</td><td class="num">3+</td></tr>
+          <tr><td>New client accounts secured</td><td class="num">0</td><td class="num">0–1</td><td class="num">1+</td></tr>
+          <tr><td>Projects awarded</td><td class="num">0</td><td class="num">0</td><td class="num">0–1</td></tr>
+          <tr><td>Labor hours generated</td><td class="num">—</td><td class="num">first hrs</td><td class="num">tracked</td></tr>
+          <tr><td>Revenue &amp; gross profit generated</td><td class="num">—</td><td class="num">first $</td><td class="num">tracked</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.78rem;color:var(--ink-soft);margin-top:6px;">* §9 names this KPI "data center and strategic projects identified." With the redirect, count large-scale drywall/framing/ACT project targets here instead of data centers.</p>
+  </section>
+
+  <!-- PIPELINE LOG -->
+  <section class="block">
+    <h2>Pipeline Log Template</h2>
+    <div class="desc">The exact 14 fields Section 8 calls for. Recreate this as your live CRM or spreadsheet — one row per opportunity, updated on the same cadence as your report to management.</div>
+    <div class="table-wrap">
+      <table>
+        <caption>Section 8 — Business Development Pipeline Fields</caption>
+        <thead>
+          <tr><th>Target co./client</th><th>Project / location</th><th>Stage</th><th>Owner/Dev.</th><th>GC</th><th>Decision-maker</th><th>Relationship status</th><th>Next action</th><th>Timeline</th></tr>
+        </thead>
+        <tbody>
+          <tr class="example">
+            <td>Example: Turner / AECOM Hunt JV</td>
+            <td>Kay Bailey Hutchison Convention Center expansion, Dallas, TX</td>
+            <td>Preconstruction</td>
+            <td>City of Dallas</td>
+            <td>Turner / AECOM Hunt (JV)</td>
+            <td>Drywall/framing package lead</td>
+            <td>1st intro call held</td>
+            <td>Send capabilities deck</td>
+            <td>Framing package bids expected 2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.82rem;color:var(--ink-soft);margin-top:8px;">Also carry, per opportunity: project type, relevant subcontractors, contact information, meetings conducted, potential workforce requirements, and estimated opportunity size — the remaining fields Section 8 lists.</p>
+  </section>
+
+  <!-- DISCOVERY CALL FRAMEWORK -->
+  <section class="block" id="callframework">
+    <h2>Discovery Call Framework</h2>
+    <div class="desc">Straight from your boss's Sept 16, 2026 email on the Company Directory: a short first call to open the door, then a fuller discovery pass before you ever quote a rate. Use this alongside the Company Directory — validate phone/contact/email/services for each account before you call, since that data ages fast.</div>
+
+    <div class="update-banner">
+      <div class="label">First call objective</div>
+      <blockquote style="margin:8px 0 0;padding-left:12px;border-left:3px solid var(--accent);color:var(--ink-soft);font-style:italic;">"You do not need to answer every question during the first contact. The initial conversation should help you identify the correct decision-maker, understand the general need, and secure the next step."</blockquote>
+    </div>
+
+    <ul class="tasks" style="margin-top:16px;">
+      <li><input type="checkbox" data-id="call-1"><span class="task-text">Confirm you've reached the actual decision-maker (owner, PM, or estimator) — if not, get referred to them by name before you hang up</span><span class="ref">Boss email, Sep 2026</span></li>
+      <li><input type="checkbox" data-id="call-2"><span class="task-text">Introduce IB Group Worldwide and the specific trades you supply — drywall, metal framing, and ACT/acoustical ceilings — in one or two sentences</span><span class="ref">Boss email, Sep 2026</span></li>
+      <li><input type="checkbox" data-id="call-3"><span class="task-text">Ask about their general need: current subcontractor/labor situation, gaps, overflow, upcoming projects</span><span class="ref">Boss email, Sep 2026</span></li>
+      <li><input type="checkbox" data-id="call-4"><span class="task-text">Lock in one concrete next step before ending the call — a follow-up call, a project list, an email intro, a site meeting</span><span class="ref">Boss email, Sep 2026</span></li>
+      <li><input type="checkbox" data-id="call-5"><span class="task-text">Log the call immediately: contact name/title, date, what was discussed, next action, timeline — update the company's Verification status in the directory too</span><span class="ref">§8</span></li>
+      <li><input type="checkbox" data-id="call-6"><span class="task-text">Do not quote a rate or commit to labor pricing on this call — that only happens after the full discovery pass below</span><span class="ref">Boss email, Sep 2026</span></li>
+    </ul>
+
+    <div class="desc" style="margin-top:26px;">Once a real opportunity is confirmed, work through these four areas before submitting any rate. You won't have all of this after one call — that's expected — but nothing gets priced until it's filled in.</div>
+
+    <div class="call-grid">
+      <div class="call-card">
+        <div class="num">1 of 4</div>
+        <h3>Project Information</h3>
+        <ul>
+          <li>Project <strong>type, size, location, and duration</strong></li>
+          <li>Start date and schedule</li>
+          <li>Number of workers required</li>
+          <li>Required trades</li>
+          <li>Privately, publicly, or government funded?</li>
+          <li>Certifications, background checks, safety orientations, site-access conditions</li>
+        </ul>
+      </div>
+      <div class="call-card">
+        <div class="num">2 of 4</div>
+        <h3>Contractual &amp; Insurance</h3>
+        <ul>
+          <li>Approved vendor / subcontractor requirements</li>
+          <li>Workers' comp and general liability requirements</li>
+          <li>Is an OCIP or CCIP wrap-up policy in effect on this project?</li>
+        </ul>
+      </div>
+      <div class="call-card">
+        <div class="num">3 of 4</div>
+        <h3>Wage &amp; Labor Compliance</h3>
+        <ul>
+          <li>Labor classification per worker</li>
+          <li>Required base wage per trade</li>
+          <li>Davis-Bacon applicability</li>
+          <li>Fringe benefits</li>
+          <li>Certified payroll requirements</li>
+        </ul>
+        <div class="davisbacon"><strong>Public or government-funded?</strong> Don't assume your standard labor rates apply. Pull the applicable wage determination, worker classifications, and any Davis-Bacon/certified-payroll requirements before pricing anything.</div>
+      </div>
+      <div class="call-card">
+        <div class="num">4 of 4</div>
+        <h3>Billing &amp; Payment Terms</h3>
+        <ul>
+          <li>Payment method and terms</li>
+          <li>Hours recording/approval process, and who authorizes time</li>
+          <li>Billing frequency and documentation required</li>
+          <li>Expected payment timeline</li>
+          <li>Retainage, deductions, or penalties</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-size:.82rem;color:var(--ink-soft);margin-top:12px;">This is what lets IB Group calculate the real cost of the account — wages, payroll burden, insurance, compliance, admin, risk, and margin — before a rate goes to the client. Skipping straight to a number without these four areas is how a "won" account turns into a loss.</p>
+  </section>
+
+  <!-- MARKET INTEL -->
+  <section class="block">
+    <h2>Market Intelligence — Large-Scale Trade Targets</h2>
+    <div class="desc">Replaces the data-center-specific intel below with current activity matched to drywall, metal framing, and ACT — time-sensitive, territory-specific items worth building into the schedule above rather than discovering later.</div>
+    <div class="intel-grid">
+      <div class="intel-card">
+        <div class="when">Apr 12–15, 2027 · Grapevine, TX</div>
+        <h3>AWCI BUILD27</h3>
+        <p>The flagship convention for the wall-and-ceiling trade itself, at the Gaylord Texan — in-territory (Texas). BUILD26 already ran in March 2026, so this is your first shot at it; worth budgeting for now.</p>
+        <a href="https://www.awci.org/events/build-convention/" target="_blank" rel="noopener">awci.org</a>
+      </div>
+      <div class="intel-card">
+        <div class="when">Dallas, TX · $3.8B, preconstruction</div>
+        <h3>Kay Bailey Hutchison Convention Center expansion</h3>
+        <p>Turner / AECOM Hunt JV construction-manager award for a massive downtown Dallas expansion — a framing/drywall/ceilings package of real scale will come out of this as it moves through design.</p>
+        <a href="https://www.constructiondive.com/news/turner-aecom-hunt-dallas-convention-center/749909/" target="_blank" rel="noopener">constructiondive.com</a>
+      </div>
+      <div class="intel-card">
+        <div class="when">Atlanta &amp; Miami · finish-work window now</div>
+        <h3>1072 West Peachtree &amp; Waldorf Astoria Miami</h3>
+        <p>1072 West Peachtree (Atlanta) topped out and targets summer 2026 move-ins; Waldorf Astoria Miami has passed its 50th floor — both are the kind of towers where interior-finish packages get let while structure is still climbing.</p>
+        <a href="https://atlanta.urbanize.city/post/11-atl-development-stories-watch-2026" target="_blank" rel="noopener">urbanize.city</a>
+      </div>
+      <div class="intel-card">
+        <div class="when">FL / GA / TX · $1B+ each</div>
+        <h3>Hospital construction wave</h3>
+        <p>Sarasota Memorial (FL), Grady Health System / Fulton Co. (GA), and JPS Health Network (Fort Worth, TX) are each running $1B+ hospital or tower projects — healthcare interiors are heavy drywall/framing/ACT work by nature.</p>
+        <a href="https://www.beckershospitalreview.com/capital/8-hospital-projects-worth-1b-in-2026/" target="_blank" rel="noopener">beckershospitalreview.com</a>
+      </div>
+      <div class="intel-card">
+        <div class="when">New Orleans, LA</div>
+        <h3>Morial Convention Center improvements</h3>
+        <p>Multiple improvement projects underway at once, plus a wider Louisiana industrial construction surge driving regional labor demand toward ~20,500 workers by late 2026/early 2027 — a tight labor market that strengthens your staffing pitch even off these specific jobs.</p>
+        <a href="https://www.fox8live.com/2026/05/27/morial-convention-center-tackles-3-improvement-projects-once/" target="_blank" rel="noopener">fox8live.com</a>
+      </div>
+      <div class="intel-card">
+        <div class="when">Ongoing</div>
+        <h3>AGC / ABC state chapters</h3>
+        <p>Associated General Contractors and Associated Builders &amp; Contractors run active chapters in Florida, Georgia, Texas, and Louisiana — standing venues for the GC and subcontractor relationships Section 2B calls for.</p>
+        <a href="https://www.agc.org/connect/chapters" target="_blank" rel="noopener">agc.org/connect/chapters</a>
+      </div>
+    </div>
+    <p style="font-size:.82rem;color:var(--ink-soft);margin-top:10px;">Context: national forecasts put the 2026 construction labor shortfall at roughly 500,000 workers, with skilled trades — framing and finish crews included — named as the tightest. That scarcity is the core of the staffing pitch on every target above.</p>
+  </section>
+
+  <footer>
+    <span>Built from the September 8, 2026 IB Group Worldwide employment proposal; updated Sept 16, 2026 for management's redirect to drywall/metal-framing/ACT. Progress saves in this browser until the shared database is connected.</span>
+    <button id="resetbtn" type="button">Clear all checkmarks</button>
+  </footer>
+  </div></div>
 </section>
 
 <!-- WEEK -->
@@ -528,6 +1345,169 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 </main>
 </div>
 
+<script>
+/* ---------- FOUNDATION TO OCCUPANCY (ramp-plan checklist, ported from the artifact) ---------- */
+(function(){
+  "use strict";
+  var STORE_KEY = "ib-ramp-plan-v1";
+  var state = { startDate: "2026-09-09", checks: {} };
+
+  function safeLoad(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && typeof parsed === "object"){
+          if(parsed.startDate) state.startDate = parsed.startDate;
+          if(parsed.checks) state.checks = parsed.checks;
+        }
+      }
+    }catch(e){ /* storage unavailable — fall back to in-memory defaults */ }
+  }
+  function safeSave(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ /* ignore */ }
+  }
+
+  safeLoad();
+
+  var startInput = document.getElementById("startdate");
+  startInput.value = state.startDate;
+
+  var territories = ["Florida","Texas","Louisiana","Georgia"];
+  var tEl = document.getElementById("territory-tags");
+  territories.forEach(function(t){
+    var span = document.createElement("span");
+    span.className = "ttag";
+    span.textContent = t;
+    tEl.appendChild(span);
+  });
+
+  var dayCountEl = document.getElementById("daycount");
+  var segs = [
+    {el: document.getElementById("seg1"), start:1, end:30},
+    {el: document.getElementById("seg2"), start:31, end:60},
+    {el: document.getElementById("seg3"), start:61, end:90},
+    {el: document.getElementById("seg4"), start:91, end:120}
+  ];
+  var bar = document.getElementById("schedulebar");
+  var ranges = document.querySelectorAll("[data-range]");
+
+  function fmt(d){
+    return d.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+  }
+  function addDays(date, n){
+    var d = new Date(date.getTime());
+    d.setDate(d.getDate()+n);
+    return d;
+  }
+
+  function render(){
+    var start = new Date(state.startDate + "T00:00:00");
+    if(isNaN(start.getTime())){ start = new Date(); }
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var msPerDay = 86400000;
+    var dayNum = Math.floor((today - start)/msPerDay) + 1;
+
+    if(dayNum < 1){
+      dayCountEl.textContent = "starts in " + (1-dayNum) + " day(s)";
+    } else {
+      dayCountEl.textContent = "Day " + dayNum + (dayNum>90 ? " (post-introductory period)" : " of 90");
+    }
+
+    segs.forEach(function(seg){
+      var span = seg.end - seg.start + 1;
+      var fillPct = 0;
+      if(dayNum > seg.end){ fillPct = 100; seg.el.classList.add("done"); }
+      else if(dayNum >= seg.start){ fillPct = ((dayNum-seg.start+1)/span)*100; seg.el.classList.remove("done"); }
+      else { seg.el.classList.remove("done"); }
+      var fillDiv = seg.el.querySelector(".fill");
+      if(fillDiv) fillDiv.style.width = fillPct + "%";
+    });
+
+    var oldMarker = bar.querySelector(".marker");
+    if(oldMarker) oldMarker.remove();
+    if(dayNum >= 1 && dayNum <= 120){
+      var totalSpan = 120;
+      var pct = (dayNum/totalSpan)*100;
+      var marker = document.createElement("div");
+      marker.className = "marker";
+      marker.style.left = pct + "%";
+      bar.appendChild(marker);
+    }
+
+    ranges.forEach(function(el){
+      var key = el.getAttribute("data-range");
+      var parts, s, e, label;
+      if(key === "91+"){
+        s = 91; e = null;
+      } else {
+        parts = key.split("-"); s = parseInt(parts[0],10); e = parseInt(parts[1],10);
+      }
+      var sDate = addDays(start, s-1);
+      if(e){
+        var eDate = addDays(start, e-1);
+        label = fmt(sDate) + " – " + fmt(eDate);
+      } else {
+        label = fmt(sDate) + " onward";
+      }
+      el.textContent = label;
+    });
+
+    updateProgress();
+  }
+
+  function updateProgress(){
+    var all=document.querySelectorAll("#view-foundations ul.tasks input[type=checkbox]"),done=0;all.forEach(function(b){if(b.checked)done++});
+    var start=new Date(state.startDate+"T00:00:00"),dayNum=Math.floor((new Date().setHours(0,0,0,0)-start)/86400000)+1;
+    var phase=dayNum<1?"Not started":dayNum<=30?"Phase 1 · Foundation":dayNum<=60?"Phase 2 · Structure":dayNum<=90?"Phase 3 · Turnover":"Phase 4 · Occupancy";
+    var set=function(id,t){var e=document.getElementById(id);if(e)e.textContent=t};
+    set("ftpPill",(dayNum>=1?"Day "+dayNum+" · ":"")+phase); set("ftpEyebrow","90-day ramp plan · "+done+" of "+all.length+" commitments complete");
+    set("ovDay",dayNum>=1?"Day "+dayNum:"—"); set("ovPhase",phase); set("ovDone",done+" / "+all.length);
+    var pct=all.length?Math.round(done/all.length*100):0; var bar=document.getElementById("ovBar"); if(bar)bar.style.width=pct+"%"; set("ovPct",pct+"% of commitments complete");
+    [1,2,3,4].forEach(function(p){var ph=document.getElementById("phase"+p);if(!ph)return;var bx=ph.querySelectorAll("input[type=checkbox]"),c=0;bx.forEach(function(b){if(b.checked)c++});var el=document.getElementById("ovP"+p);if(el){el.textContent=c+"/"+bx.length}var f=document.getElementById("ovF"+p);if(f){f.style.width=(bx.length?Math.round(c/bx.length*100):0)+"%"}});
+    document.querySelectorAll(".phase").forEach(function(phase){
+      var boxes = phase.querySelectorAll('input[type="checkbox"]');
+      var checked = 0;
+      boxes.forEach(function(b){ if(b.checked) checked++; });
+      var badge = phase.querySelector("[data-progress-for]");
+      if(badge) badge.textContent = checked + " / " + boxes.length + " complete";
+    });
+  }
+
+  document.querySelectorAll('ul.tasks input[type="checkbox"]').forEach(function(box){
+    var id = box.getAttribute("data-id");
+    if(state.checks[id]){
+      box.checked = true;
+      box.closest("li").classList.add("checked");
+    }
+    box.addEventListener("change", function(){
+      state.checks[id] = box.checked;
+      box.closest("li").classList.toggle("checked", box.checked);
+      safeSave();
+      updateProgress();
+    });
+  });
+
+  startInput.addEventListener("change", function(){
+    state.startDate = startInput.value;
+    safeSave();
+    render();
+  });
+
+  document.getElementById("resetbtn").addEventListener("click", function(){
+    state.checks = {};
+    document.querySelectorAll('ul.tasks input[type="checkbox"]').forEach(function(box){
+      box.checked = false;
+      box.closest("li").classList.remove("checked");
+    });
+    safeSave();
+    updateProgress();
+  });
+
+  render();
+})();
+</script>
 <script>
 /* ---------- PIPELINE ----------
    Opportunities are entered on the Pipeline page and saved in this browser (localStorage key "bdp-opps").
@@ -647,13 +1627,14 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   var side=document.getElementById('side'), menuBtn=document.getElementById('menuBtn');
   function show(){
     var h=(location.hash||'#overview').slice(1);
-    if(views.indexOf(h)<0)h='overview';
+    if(views.indexOf(h)<0){ var t=document.getElementById(h), v=t&&t.closest&&t.closest('.view'); if(v){ h=v.id.replace('view-',''); } else h='overview'; }
+    var anchor=(location.hash||'').slice(1)!==h?document.getElementById((location.hash||'').slice(1)):null;
     views.forEach(function(v){document.getElementById('view-'+v).classList.toggle('active',v===h)});
     document.querySelectorAll('#nav a').forEach(function(a){
       if(a.dataset.view===h)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
     });
     side.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');
-    window.scrollTo(0,0);
+    if(anchor)anchor.scrollIntoView(); else window.scrollTo(0,0);
     try{localStorage.setItem('bdp-view',h)}catch(e){}
   }
   window.addEventListener('hashchange',show);
