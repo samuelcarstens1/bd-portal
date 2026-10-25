@@ -154,6 +154,18 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .table td{padding:12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
 .scroll{overflow-x:auto}
 .empty{border:1px dashed var(--line);border-radius:8px;padding:28px 20px;text-align:center;color:var(--muted);font-size:14px}
+.oppform{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.oppform label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.oppform input,.oppform select{min-height:44px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-weight:400;letter-spacing:0;text-transform:none;font-size:14px}
+.oppform-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap}
+@media (max-width:1100px){.oppform{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.oppform{grid-template-columns:1fr}}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.sbtn{min-height:32px;padding:0 10px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.sbtn.go{border-color:var(--accent);color:var(--accent)}
+.sbtn.go:hover{background:var(--accent);color:#fff}
+.sbtn.win{border-color:var(--good);color:var(--good)}
+.sbtn.quiet{color:var(--muted)}
 .funnel{display:flex;flex-direction:column;gap:10px}
 .frow{display:grid;grid-template-columns:120px minmax(0,1fr) 80px 70px;gap:12px;align-items:center}
 .fname{font-size:13px;font-weight:600}
@@ -296,12 +308,27 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 <section class="view" id="view-pipeline" aria-labelledby="h-pipeline">
   <header class="head">
     <div class="head-left">
-      <span class="eyebrow">38 opportunities · as of Fri Oct 23</span>
+      <span class="eyebrow" id="pipeEyebrow">0 opportunities</span>
       <h1 id="h-pipeline">Pipeline</h1>
-      <span class="sub">Every open labor opportunity, valued at expected contract revenue to IB Group. Weighted value applies each stage's close probability.</span>
+      <span class="sub">Every labor opportunity brought in, valued at expected contract revenue to IB Group. New opportunities wait below until you qualify them; qualified ones feed the breakdowns.</span>
     </div>
-    <div class="head-right"><span class="pill"><span class="dot"></span>Sample data</span><button class="btn primary" type="button">Export pipeline</button></div>
+    <div class="head-right"><button class="btn primary" type="button" id="addOppBtn" aria-expanded="false" aria-controls="addOppCard">Add opportunity</button></div>
   </header>
+
+  <div class="card" id="addOppCard" hidden>
+    <div class="card-head"><h2>New opportunity</h2><span class="note">Enters at the New stage</span></div>
+    <form id="oppForm" class="oppform">
+      <label>Project<input id="fProject" required placeholder="e.g. Hyperscale campus, Bldg 2"></label>
+      <label>General contractor<input id="fGc" required placeholder="Company name"></label>
+      <label>Metro<input id="fMetro" required list="metroList" placeholder="Miami, Dallas…"><datalist id="metroList"><option value="Miami"><option value="Fort Lauderdale"><option value="West Palm Beach"><option value="Orlando"><option value="Tampa"><option value="Jacksonville"><option value="Dallas – Fort Worth"><option value="Houston"><option value="Austin"><option value="San Antonio"><option value="Atlanta"><option value="New Orleans"><option value="Baton Rouge"></datalist></label>
+      <label>Trade<select id="fTrade"><option>Drywall &amp; metal framing</option><option>Acoustical ceilings</option><option>Insulation</option><option>Drywall / ACT combined</option><option>General labor</option><option>Other</option></select></label>
+      <label>Heads<input id="fHeads" type="number" min="1" step="1" required placeholder="12"></label>
+      <label>Weeks<input id="fWeeks" type="number" min="1" step="1" required placeholder="10"></label>
+      <label>Value ($)<input id="fValue" type="number" min="0" step="1000" required placeholder="180000"></label>
+      <label>Next step<input id="fNext" placeholder="Follow up Thursday"></label>
+      <div class="oppform-actions"><button class="btn primary" type="submit">Add to pipeline</button><button class="btn" type="button" id="cancelOpp">Cancel</button></div>
+    </form>
+  </div>
 
   <div class="grid g4">
     <div class="card tight"><span class="label">Total pipeline</span><span class="big" id="kTotal">—</span><span class="sub13" id="kTotalSub">Open opportunities</span></div>
@@ -311,25 +338,25 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </div>
 
   <div class="card">
-    <div class="card-head"><h2>By stage</h2><span class="note">Value · count · probability</span></div>
-    <div class="empty">Stage breakdown will appear here once pipeline data is connected.</div>
+    <div class="card-head"><h2>By stage</h2><span class="note">Qualified opportunities · value · count · probability</span></div>
+    <div id="byStage"><div class="empty">Qualify an opportunity below and it appears here.</div></div>
   </div>
 
   <div class="grid g2">
     <div class="card">
       <div class="card-head"><h2>By metro</h2><span class="note">Total · weighted</span></div>
-      <div class="empty">Metro breakdown will appear here once pipeline data is connected.</div>
+      <div id="byMetro"><div class="empty">Qualified opportunities by metro.</div></div>
     </div>
     <div class="card">
-      <div class="card-head"><h2>By trade</h2><span class="note">Which company fulfills it</span></div>
-      <div class="empty">Trade breakdown will appear here once pipeline data is connected.</div>
+      <div class="card-head"><h2>By trade</h2><span class="note">Total · weighted</span></div>
+      <div id="byTrade"><div class="empty">Qualified opportunities by trade.</div></div>
     </div>
   </div>
 
   <div class="card" style="padding:0">
-    <div class="card-head" style="padding:20px 24px 0"><h2>Opportunities</h2><span class="note">Sorted by weighted value</span></div>
+    <div class="card-head" style="padding:20px 24px 0"><h2>Opportunities</h2><span class="note">New first, then by weighted value</span></div>
     <div class="scroll"><table class="table">
-      <thead><tr><th>Project</th><th>GC</th><th>Metro</th><th>Trade</th><th>Stage</th><th style="text-align:right">Heads</th><th style="text-align:right">Weeks</th><th style="text-align:right">Value</th><th style="text-align:right">Weighted</th><th>Next step</th></tr></thead>
+      <thead><tr><th>Project</th><th>GC</th><th>Metro</th><th>Trade</th><th>Stage</th><th style="text-align:right">Heads</th><th style="text-align:right">Weeks</th><th style="text-align:right">Value</th><th style="text-align:right">Weighted</th><th>Next step</th><th>Action</th></tr></thead>
       <tbody id="oppRows"></tbody>
     </table></div>
     <div class="sub13" style="padding:14px 24px" id="oppFoot"></div>
@@ -502,52 +529,117 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 </div>
 
 <script>
-/* ---------- PIPELINE DATA ----------
-   One row per opportunity ever brought in. Sample rows for now; this list is what gets replaced by live data.
-   stage: New | Qualified | Meeting set | Proposal sent | Verbal yes | Won | Lost
-   value: expected contract revenue to IB Group, in dollars
-   opened / closed: YYYY-MM-DD (closed only for Won / Lost)              */
+/* ---------- PIPELINE ----------
+   Opportunities are entered on the Pipeline page and saved in this browser (localStorage key "bdp-opps").
+   Nothing is pre-filled. A later step will move this list to a shared database so your boss sees the same data.
+   Stages: New -> Qualified -> Meeting set -> Proposal sent -> Verbal yes -> Won | Lost
+   Only Qualified and later (not New, not Won/Lost) count in the By stage / By metro / By trade breakdowns. */
+var STAGES=['New','Qualified','Meeting set','Proposal sent','Verbal yes'];
 var STAGE_PROB={ 'New':0.10, 'Qualified':0.25, 'Meeting set':0.40, 'Proposal sent':0.60, 'Verbal yes':0.85, 'Won':1, 'Lost':0 };
-var OPPS=[
-  {project:'Hyperscale campus, Bldg 2', gc:'[GC name]', metro:'Dallas', trade:'Drywall / framing', stage:'Verbal yes', heads:24, weeks:14, value:310000, opened:'2026-09-22', next:'Contract review Tue'},
-  {project:'Orlando framing scope', gc:'[GC name]', metro:'Orlando', trade:'Framing', stage:'Proposal sent', heads:14, weeks:10, value:180000, opened:'2026-10-06', next:'Follow up Thu'},
-  {project:'Houston data-center shell', gc:'[GC name]', metro:'Houston', trade:'Drywall / ACT', stage:'Meeting set', heads:18, weeks:12, value:240000, opened:'2026-10-13', next:'Site visit Tue–Thu'},
-  {project:'Miami-Dade mixed-use tower', gc:'[GC name]', metro:'Miami', trade:'ACT', stage:'Meeting set', heads:10, weeks:16, value:190000, opened:'2026-10-22', next:'Capacity meeting next week'},
-  {project:'Hospital expansion', gc:'[GC name]', metro:'Atlanta', trade:'Insulation', stage:'Qualified', heads:8, weeks:8, value:95000, opened:'2026-10-14', next:'Send capabilities deck'},
-  {project:'Logistics hub', gc:'[GC name]', metro:'Houston', trade:'Drywall', stage:'New', heads:12, weeks:9, value:130000, opened:'2026-10-20', next:'Identify precon lead'},
-  {project:'Fort Lauderdale office fit-out', gc:'[GC name]', metro:'Miami', trade:'Drywall / ACT', stage:'Won', heads:9, weeks:6, value:72000, opened:'2026-09-15', closed:'2026-10-09', next:'Crew on site'},
-  {project:'Doral warehouse interiors', gc:'[GC name]', metro:'Miami', trade:'Framing', stage:'Won', heads:6, weeks:5, value:41000, opened:'2026-09-29', closed:'2026-10-17', next:'Crew on site'},
-  {project:'Tampa retail shell', gc:'[GC name]', metro:'Tampa', trade:'Drywall', stage:'Lost', heads:7, weeks:6, value:58000, opened:'2026-09-18', closed:'2026-10-02', next:'Lost on rate'}
-];
+var STAGE_COLOR={ 'Qualified':'var(--s3)', 'Meeting set':'var(--s2)', 'Proposal sent':'var(--s1)', 'Verbal yes':'var(--s4)' };
+var OPPS=[];
+try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isArray(saved))OPPS=saved; }catch(e){}
 
 (function(){
+  var $=function(id){return document.getElementById(id)};
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
   function money(n){ if(n>=1e6)return '$'+(n/1e6).toFixed(n>=1e7?0:1)+'M'; if(n>=1e3)return '$'+Math.round(n/1e3)+'K'; return '$'+Math.round(n); }
   function quarterOf(d){ return {y:d.getFullYear(), q:Math.floor(d.getMonth()/3)+1}; }
-  var now=new Date(), cq=quarterOf(now);
-  var open=OPPS.filter(function(o){return o.stage!=='Won'&&o.stage!=='Lost'});
-  var total=open.reduce(function(s,o){return s+o.value},0);
-  var weighted=open.reduce(function(s,o){return s+o.value*(STAGE_PROB[o.stage]||0)},0);
-  var wonQ=OPPS.filter(function(o){ if(o.stage!=='Won'||!o.closed)return false; var q=quarterOf(new Date(o.closed+'T12:00:00')); return q.y===cq.y&&q.q===cq.q; });
-  var won=wonQ.reduce(function(s,o){return s+o.value},0);
-  var avg=OPPS.length?OPPS.reduce(function(s,o){return s+o.value},0)/OPPS.length:0;
-  var set=function(id,t){var e=document.getElementById(id);if(e)e.textContent=t};
-  set('kTotal',money(total)); set('kTotalSub',open.length+' open opportunit'+(open.length===1?'y':'ies'));
-  set('kWeighted',money(weighted));
-  set('kWonLabel','Won · Q'+cq.q+' '+cq.y); set('kWon',money(won)); set('kWonSub',wonQ.length+' opportunit'+(wonQ.length===1?'y':'ies')+' closed won');
-  set('kAvg',money(avg)); set('kAvgSub','Across '+OPPS.length+' opportunities brought in');
-  set('ovTotal',money(total)); set('ovSub','Weighted '+money(weighted)+' · '+open.length+' open');
-  var order=['Verbal yes','Proposal sent','Meeting set','Qualified','New','Won','Lost'];
-  var rows=OPPS.slice().sort(function(a,b){ var wa=a.value*(STAGE_PROB[a.stage]||0), wb=b.value*(STAGE_PROB[b.stage]||0); if(a.stage==='Won'||a.stage==='Lost'||b.stage==='Won'||b.stage==='Lost')return order.indexOf(a.stage)-order.indexOf(b.stage)||wb-wa; return wb-wa; });
-  var tb=document.getElementById('oppRows'); if(tb){
-    tb.innerHTML=rows.map(function(o){
-      var w=o.value*(STAGE_PROB[o.stage]||0), cls=(o.stage==='Won'||o.stage==='Verbal yes'||o.stage==='Proposal sent')?'tag ok':'tag';
-      var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
-      return '<tr><td>'+esc(o.project)+'</td><td>'+esc(o.gc)+'</td><td>'+esc(o.metro)+'</td><td>'+esc(o.trade)+'</td><td><span class="'+cls+'">'+esc(o.stage)+'</span></td>'+
-        '<td class="mono" style="text-align:right">'+o.heads+'</td><td class="mono" style="text-align:right">'+o.weeks+'</td>'+
-        '<td class="mono" style="text-align:right">'+money(o.value)+'</td><td class="mono" style="text-align:right">'+(o.stage==='Lost'?'—':money(w))+'</td><td>'+esc(o.next)+'</td></tr>';
-    }).join('');
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function save(){ try{localStorage.setItem('bdp-opps',JSON.stringify(OPPS))}catch(e){} }
+  function wgt(o){ return o.value*(STAGE_PROB[o.stage]||0); }
+  function set(id,t){var e=$(id);if(e)e.textContent=t}
+
+  function groupRows(list,key){
+    var m={}; list.forEach(function(o){ var k=o[key]||'—'; m[k]=m[k]||{t:0,w:0,n:0}; m[k].t+=o.value; m[k].w+=wgt(o); m[k].n++; });
+    return Object.keys(m).map(function(k){return {k:k,t:m[k].t,w:m[k].w,n:m[k].n}}).sort(function(a,b){return b.t-a.t});
   }
-  set('oppFoot',OPPS.length+' opportunities · '+open.length+' open · '+OPPS.filter(function(o){return o.stage==='Won'}).length+' won · '+OPPS.filter(function(o){return o.stage==='Lost'}).length+' lost · sample data');
+  function renderGroup(id,list,key,emptyText){
+    var el=$(id); if(!el)return;
+    if(!list.length){ el.innerHTML='<div class="empty">'+esc(emptyText)+'</div>'; return; }
+    el.innerHTML='<div class="rows">'+groupRows(list,key).map(function(g){
+      return '<div class="kv"><span>'+esc(g.k)+' <span class="muted">· '+g.n+'</span></span><span class="v">'+money(g.t)+' <span class="muted">· '+money(g.w)+'</span></span></div>';
+    }).join('')+'</div>';
+  }
+
+  function render(){
+    var cq=quarterOf(new Date());
+    var open=OPPS.filter(function(o){return o.stage!=='Won'&&o.stage!=='Lost'});
+    var qualified=open.filter(function(o){return o.stage!=='New'});
+    var total=open.reduce(function(s,o){return s+o.value},0);
+    var weighted=open.reduce(function(s,o){return s+wgt(o)},0);
+    var wonQ=OPPS.filter(function(o){ if(o.stage!=='Won'||!o.closed)return false; var q=quarterOf(new Date(o.closed+'T12:00:00')); return q.y===cq.y&&q.q===cq.q; });
+    var won=wonQ.reduce(function(s,o){return s+o.value},0);
+    var avg=OPPS.length?OPPS.reduce(function(s,o){return s+o.value},0)/OPPS.length:0;
+
+    set('pipeEyebrow',OPPS.length+' opportunit'+(OPPS.length===1?'y':'ies')+' · '+qualified.length+' qualified');
+    set('kTotal',OPPS.length?money(total):'—'); set('kTotalSub',open.length+' open opportunit'+(open.length===1?'y':'ies'));
+    set('kWeighted',OPPS.length?money(weighted):'—');
+    set('kWonLabel','Won · Q'+cq.q+' '+cq.y); set('kWon',wonQ.length?money(won):'—'); set('kWonSub',wonQ.length+' closed won this quarter');
+    set('kAvg',OPPS.length?money(avg):'—'); set('kAvgSub','Across '+OPPS.length+' opportunit'+(OPPS.length===1?'y':'ies')+' brought in');
+    set('ovTotal',OPPS.length?money(total):'—'); set('ovSub',OPPS.length?('Weighted '+money(weighted)+' · '+open.length+' open'):'No opportunities entered yet');
+
+    // By stage (qualified only)
+    var bs=$('byStage'); if(bs){
+      if(!qualified.length){ bs.innerHTML='<div class="empty">Qualify an opportunity below and it appears here.</div>'; }
+      else{
+        var maxT=0, stageRows=STAGES.slice(1).map(function(s){ var l=qualified.filter(function(o){return o.stage===s}); var t=l.reduce(function(a,o){return a+o.value},0); maxT=Math.max(maxT,t); return {s:s,t:t,n:l.length}; });
+        bs.innerHTML='<div class="funnel">'+stageRows.map(function(r){
+          return '<div class="frow"><span class="fname">'+esc(r.s)+'</span><div class="ftrack"><div class="fbar" style="width:'+(maxT?Math.round(r.t/maxT*100):0)+'%;background:'+STAGE_COLOR[r.s]+'"></div></div><span class="fval mono">'+(r.n?money(r.t):'—')+'</span><span class="fmeta mono">'+r.n+' · '+Math.round(STAGE_PROB[r.s]*100)+'%</span></div>';
+        }).join('')+'</div>';
+      }
+    }
+    renderGroup('byMetro',qualified,'metro','Qualified opportunities by metro.');
+    renderGroup('byTrade',qualified,'trade','Qualified opportunities by trade.');
+
+    // Table
+    var order=['New','Verbal yes','Proposal sent','Meeting set','Qualified','Won','Lost'];
+    var rows=OPPS.map(function(o,i){o._i=i;return o}).sort(function(a,b){
+      var ga=a.stage==='New'?0:(a.stage==='Won'||a.stage==='Lost')?2:1, gb=b.stage==='New'?0:(b.stage==='Won'||b.stage==='Lost')?2:1;
+      if(ga!==gb)return ga-gb; if(ga===0)return (b.opened||'').localeCompare(a.opened||''); if(ga===2)return (b.closed||'').localeCompare(a.closed||''); return wgt(b)-wgt(a);
+    });
+    var tb=$('oppRows'); if(tb){
+      if(!rows.length){ tb.innerHTML='<tr><td colspan="11"><div class="empty" style="margin:16px 0">No opportunities yet. Click "Add opportunity" to enter the first one.</div></td></tr>'; }
+      else tb.innerHTML=rows.map(function(o){
+        var cls=(o.stage==='Won'||o.stage==='Verbal yes'||o.stage==='Proposal sent')?'tag ok':'tag';
+        var idx=STAGES.indexOf(o.stage), acts='';
+        if(o.stage==='New') acts='<button class="sbtn go" data-act="advance" data-i="'+o._i+'">Qualify →</button>';
+        else if(idx>0&&idx<STAGES.length-1) acts='<button class="sbtn go" data-act="advance" data-i="'+o._i+'">'+esc(STAGES[idx+1])+' →</button>';
+        if(idx>0) acts+='<button class="sbtn win" data-act="won" data-i="'+o._i+'">Won</button><button class="sbtn quiet" data-act="lost" data-i="'+o._i+'">Lost</button>';
+        if(o.stage==='Won'||o.stage==='Lost') acts='<span class="sub13">Closed '+esc(o.closed||'')+'</span> <button class="sbtn quiet" data-act="reopen" data-i="'+o._i+'">Reopen</button>';
+        acts+='<button class="sbtn quiet" data-act="remove" data-i="'+o._i+'" aria-label="Remove '+esc(o.project)+'">✕</button>';
+        return '<tr><td>'+esc(o.project)+'</td><td>'+esc(o.gc)+'</td><td>'+esc(o.metro)+'</td><td>'+esc(o.trade)+'</td><td><span class="'+cls+'">'+esc(o.stage)+'</span></td>'+
+          '<td class="mono" style="text-align:right">'+esc(o.heads)+'</td><td class="mono" style="text-align:right">'+esc(o.weeks)+'</td>'+
+          '<td class="mono" style="text-align:right">'+money(o.value)+'</td><td class="mono" style="text-align:right">'+(o.stage==='Lost'?'—':money(wgt(o)))+'</td><td>'+esc(o.next)+'</td><td><div class="acts">'+acts+'</div></td></tr>';
+      }).join('');
+    }
+    set('oppFoot',OPPS.length?(OPPS.length+' opportunities · '+OPPS.filter(function(o){return o.stage==='New'}).length+' new · '+qualified.length+' qualified · '+OPPS.filter(function(o){return o.stage==='Won'}).length+' won · '+OPPS.filter(function(o){return o.stage==='Lost'}).length+' lost · saved in this browser'):'Saved in this browser until the shared database is connected.');
+  }
+
+  // Row actions
+  var tbody=$('oppRows'); if(tbody) tbody.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-act]'); if(!b)return;
+    var o=OPPS[+b.dataset.i]; if(!o)return; var act=b.dataset.act;
+    if(act==='advance'){ var i=STAGES.indexOf(o.stage); if(i>=0&&i<STAGES.length-1){ o.stage=STAGES[i+1]; if(o.stage==='Qualified')o.qualified=today(); } }
+    else if(act==='won'){ o.stage='Won'; o.closed=today(); }
+    else if(act==='lost'){ o.stage='Lost'; o.closed=today(); }
+    else if(act==='reopen'){ o.stage='Qualified'; delete o.closed; }
+    else if(act==='remove'){ if(b.dataset.confirm){ OPPS.splice(+b.dataset.i,1); } else { b.dataset.confirm='1'; b.textContent='Remove?'; b.style.color='var(--accent)'; return; } }
+    save(); render();
+  });
+
+  // Add form
+  var addBtn=$('addOppBtn'), card=$('addOppCard'), form=$('oppForm');
+  function toggleForm(open){ card.hidden=!open; addBtn.setAttribute('aria-expanded',open?'true':'false'); if(open)$('fProject').focus(); }
+  if(addBtn) addBtn.addEventListener('click',function(){toggleForm(card.hidden)});
+  var cancel=$('cancelOpp'); if(cancel) cancel.addEventListener('click',function(){form.reset();toggleForm(false)});
+  if(form) form.addEventListener('submit',function(e){
+    e.preventDefault();
+    OPPS.push({ project:$('fProject').value.trim(), gc:$('fGc').value.trim(), metro:$('fMetro').value.trim(), trade:$('fTrade').value, heads:+$('fHeads').value||0, weeks:+$('fWeeks').value||0, value:+$('fValue').value||0, next:$('fNext').value.trim(), stage:'New', opened:today() });
+    save(); form.reset(); toggleForm(false); render();
+  });
+
+  render();
 })();
 
 (function(){
