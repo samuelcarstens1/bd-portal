@@ -153,6 +153,15 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .table th{text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line)}
 .table td{padding:12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
 .scroll{overflow-x:auto}
+.funnel{display:flex;flex-direction:column;gap:10px}
+.frow{display:grid;grid-template-columns:120px minmax(0,1fr) 80px 70px;gap:12px;align-items:center}
+.fname{font-size:13px;font-weight:600}
+.ftrack{height:22px;background:var(--bg);border-radius:4px;overflow:hidden}
+.fbar{height:100%;border-radius:4px}
+.fval{font-size:14px;font-weight:600;text-align:right}
+.fmeta{font-size:12px;color:var(--muted);text-align:right}
+.kv .muted{color:var(--muted);font-family:var(--sans)}
+@media (max-width:640px){.frow{grid-template-columns:90px minmax(0,1fr) 70px}.fmeta{display:none}}
 
 /* Phone */
 @media (max-width:760px){
@@ -186,6 +195,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </div>
   <div class="nav" id="nav">
     <a href="#overview" data-view="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>Overview</a>
+    <a href="#pipeline" data-view="pipeline"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M6 10h12M8 15h8M10 20h4"/></svg>Pipeline</a>
     <a href="#reports" data-view="reports"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h7"/></svg>Daily Reports</a>
     <a href="#foundations" data-view="foundations"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>Foundations to Occupancy</a>
     <a href="#week" data-view="week"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Work Week Summary</a>
@@ -219,7 +229,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </header>
 
   <div class="grid g4" aria-label="Key numbers">
-    <div class="card tight"><span class="label">Pipeline value</span><span class="big">$4.2M</span><span class="delta">▲ $610K vs last week</span></div>
+    <a class="card tight tool" href="#pipeline" style="padding:20px 22px;gap:10px"><span class="label">Pipeline value</span><span class="big">$4.2M</span><span class="delta">▲ $610K vs last week</span><span class="sub13">Weighted $1.6M · 38 opportunities · <span style="color:var(--accent);font-weight:600">See breakdown</span></span></a>
     <div class="card tight"><span class="label">Active leads</span><span class="big">38</span><span class="sub13">12 data center · 26 commercial</span></div>
     <div class="card tight"><span class="label">Meetings this week</span><span class="big">9</span><span class="sub13">4 on site · 5 virtual</span></div>
     <div class="card tight dark"><span class="label">Salary ROI (to date)</span><span class="big" style="color:var(--accent-bright)">3.1×</span><span class="sub13" style="color:var(--navy-dim)">Gross margin placed ÷ cost of seat</span></div>
@@ -278,6 +288,77 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       <a class="card tool" href="#flow"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3 7M16 8l-3 7"/></svg><span class="t">Who's Working Where</span><span class="d">Interactive flowchart of which companies are on which jobs across FL, TX, LA and GA.</span><span class="m">Updated Oct 20</span></a>
       <a class="card tool" href="#research"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="t">Company researcher</span><span class="d">One-page brief on any prospect: projects, key people, labor needs, best way in.</span><span class="m">31 briefs generated</span></a>
     </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section class="view" id="view-pipeline" aria-labelledby="h-pipeline">
+  <header class="head">
+    <div class="head-left">
+      <span class="eyebrow">38 opportunities · as of Fri Oct 23</span>
+      <h1 id="h-pipeline">Pipeline</h1>
+      <span class="sub">Every open labor opportunity, valued at expected contract revenue to IB Group. Weighted value applies each stage's close probability.</span>
+    </div>
+    <div class="head-right"><span class="pill"><span class="dot"></span>Sample data</span><button class="btn primary" type="button">Export pipeline</button></div>
+  </header>
+
+  <div class="grid g4">
+    <div class="card tight"><span class="label">Total pipeline</span><span class="big">$4.2M</span><span class="delta">▲ $610K vs last week</span></div>
+    <div class="card tight"><span class="label">Weighted pipeline</span><span class="big">$1.6M</span><span class="sub13">Stage probability applied</span></div>
+    <div class="card tight"><span class="label">Won this quarter</span><span class="big">$480K</span><span class="sub13">3 crews placed</span></div>
+    <div class="card tight dark"><span class="label">Avg. opportunity</span><span class="big" style="color:var(--accent-bright)">$110K</span><span class="sub13" style="color:var(--navy-dim)">Median crew: 12 heads · 9 weeks</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>By stage</h2><span class="note">Value · count · probability</span></div>
+    <div class="funnel">
+      <div class="frow"><span class="fname">New</span><div class="ftrack"><div class="fbar" style="width:100%;background:var(--s3)"></div></div><span class="fval mono">$1,240K</span><span class="fmeta mono">11 · 10%</span></div>
+      <div class="frow"><span class="fname">Qualified</span><div class="ftrack"><div class="fbar" style="width:77%;background:var(--s2)"></div></div><span class="fval mono">$960K</span><span class="fmeta mono">9 · 25%</span></div>
+      <div class="frow"><span class="fname">Meeting set</span><div class="ftrack"><div class="fbar" style="width:60%;background:var(--s1)"></div></div><span class="fval mono">$740K</span><span class="fmeta mono">8 · 40%</span></div>
+      <div class="frow"><span class="fname">Proposal sent</span><div class="ftrack"><div class="fbar" style="width:56%;background:var(--s4)"></div></div><span class="fval mono">$690K</span><span class="fmeta mono">6 · 60%</span></div>
+      <div class="frow"><span class="fname">Verbal yes</span><div class="ftrack"><div class="fbar" style="width:46%;background:var(--s5)"></div></div><span class="fval mono">$570K</span><span class="fmeta mono">4 · 85%</span></div>
+    </div>
+    <p class="sub13" style="margin:0;max-width:70ch">Weighted value = each stage's total × its probability. Won work leaves the pipeline and moves to Salary ROI.</p>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <div class="card-head"><h2>By metro</h2><span class="note">Total · weighted</span></div>
+      <div class="rows">
+        <div class="kv"><span>Miami / South Florida</span><span class="v">$1,380K <span class="muted">· $520K</span></span></div>
+        <div class="kv"><span>Dallas – Fort Worth</span><span class="v">$1,120K <span class="muted">· $470K</span></span></div>
+        <div class="kv"><span>Houston</span><span class="v">$640K <span class="muted">· $210K</span></span></div>
+        <div class="kv"><span>Orlando / Tampa</span><span class="v">$560K <span class="muted">· $240K</span></span></div>
+        <div class="kv"><span>Atlanta</span><span class="v">$340K <span class="muted">· $110K</span></span></div>
+        <div class="kv"><span>Louisiana</span><span class="v">$160K <span class="muted">· $50K</span></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>By trade</h2><span class="note">Which company fulfills it</span></div>
+      <div class="rows">
+        <div class="kv"><span>Drywall &amp; metal framing <span class="muted">· INTAL</span></span><span class="v">$1,980K</span></div>
+        <div class="kv"><span>Acoustical ceilings <span class="muted">· Elite Mainframe</span></span><span class="v">$1,060K</span></div>
+        <div class="kv"><span>Insulation <span class="muted">· Global Drywall</span></span><span class="v">$620K</span></div>
+        <div class="kv"><span>General labor / cleanup</span><span class="v">$540K</span></div>
+      </div>
+      <div class="chips"><span class="chip">Data center 42%</span><span class="chip">Commercial 38%</span><span class="chip">Healthcare 12%</span><span class="chip">Other 8%</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div class="card-head" style="padding:20px 24px 0"><h2>Opportunities</h2><span class="note">Sorted by weighted value</span></div>
+    <div class="scroll"><table class="table">
+      <thead><tr><th>Project</th><th>GC</th><th>Metro</th><th>Trade</th><th>Stage</th><th style="text-align:right">Heads</th><th style="text-align:right">Weeks</th><th style="text-align:right">Value</th><th style="text-align:right">Weighted</th><th>Next step</th></tr></thead>
+      <tbody>
+        <tr><td>Hyperscale campus, Bldg 2</td><td>[GC name]</td><td>Dallas</td><td>Drywall / framing</td><td><span class="tag ok">Verbal yes</span></td><td class="mono" style="text-align:right">24</td><td class="mono" style="text-align:right">14</td><td class="mono" style="text-align:right">$310K</td><td class="mono" style="text-align:right">$264K</td><td>Contract review Tue</td></tr>
+        <tr><td>Orlando framing scope</td><td>[GC name]</td><td>Orlando</td><td>Framing</td><td><span class="tag ok">Proposal sent</span></td><td class="mono" style="text-align:right">14</td><td class="mono" style="text-align:right">10</td><td class="mono" style="text-align:right">$180K</td><td class="mono" style="text-align:right">$108K</td><td>Follow up Thu</td></tr>
+        <tr><td>Houston data-center shell</td><td>[GC name]</td><td>Houston</td><td>Drywall / ACT</td><td><span class="tag">Meeting set</span></td><td class="mono" style="text-align:right">18</td><td class="mono" style="text-align:right">12</td><td class="mono" style="text-align:right">$240K</td><td class="mono" style="text-align:right">$96K</td><td>Site visit Tue–Thu</td></tr>
+        <tr><td>Miami-Dade mixed-use tower</td><td>[GC name]</td><td>Miami</td><td>ACT</td><td><span class="tag">Meeting set</span></td><td class="mono" style="text-align:right">10</td><td class="mono" style="text-align:right">16</td><td class="mono" style="text-align:right">$190K</td><td class="mono" style="text-align:right">$76K</td><td>Capacity meeting next week</td></tr>
+        <tr><td>Hospital expansion</td><td>[GC name]</td><td>Atlanta</td><td>Insulation</td><td><span class="tag">Qualified</span></td><td class="mono" style="text-align:right">8</td><td class="mono" style="text-align:right">8</td><td class="mono" style="text-align:right">$95K</td><td class="mono" style="text-align:right">$24K</td><td>Send capabilities deck</td></tr>
+        <tr><td>Logistics hub</td><td>[GC name]</td><td>Houston</td><td>Drywall</td><td><span class="tag">New</span></td><td class="mono" style="text-align:right">12</td><td class="mono" style="text-align:right">9</td><td class="mono" style="text-align:right">$130K</td><td class="mono" style="text-align:right">$13K</td><td>Identify precon lead</td></tr>
+      </tbody>
+    </table></div>
+    <div class="sub13" style="padding:14px 24px">Showing 6 of 38 · full list loads when the pipeline is connected</div>
   </div>
 </section>
 
@@ -448,7 +529,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <script>
 (function(){
-  var views=['overview','reports','foundations','week','roi','expenses','contacts','leads','flow','research'];
+  var views=['overview','pipeline','reports','foundations','week','roi','expenses','contacts','leads','flow','research'];
   var side=document.getElementById('side'), menuBtn=document.getElementById('menuBtn');
   function show(){
     var h=(location.hash||'#overview').slice(1);
