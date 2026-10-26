@@ -826,7 +826,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </header>
 
   <div class="card" id="addOppCard" hidden>
-    <div class="card-head"><h2>New opportunity</h2><span class="note">Enters at the New stage</span></div>
+    <div class="card-head"><h2 id="oppFormTitle">New opportunity</h2><span class="note">Enters at the New stage</span></div>
     <div class="importbox">
       <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
         <div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Import from a file</span><span class="sub13">Spreadsheet or CSV (.xlsx, .xls, .csv). One row fills the form below; several rows import as separate opportunities. Columns are matched by their headings.</span></div>
@@ -836,14 +836,14 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     </div>
     <form id="oppForm" class="oppform">
       <label>Project<input id="fProject" required placeholder="e.g. Hyperscale campus, Bldg 2"></label>
-      <label>General contractor<input id="fGc" required placeholder="Company name"></label>
-      <label>Metro<input id="fMetro" required list="metroList" placeholder="Miami, Dallas…"><datalist id="metroList"><option value="Miami"><option value="Fort Lauderdale"><option value="West Palm Beach"><option value="Orlando"><option value="Tampa"><option value="Jacksonville"><option value="Dallas – Fort Worth"><option value="Houston"><option value="Austin"><option value="San Antonio"><option value="Atlanta"><option value="New Orleans"><option value="Baton Rouge"></datalist></label>
-      <label>Trade<select id="fTrade"><option>Drywall &amp; metal framing</option><option>Acoustical ceilings</option><option>Insulation</option><option>Drywall / ACT combined</option><option>General labor</option><option>Other</option></select></label>
-      <label>Heads<input id="fHeads" type="number" min="1" step="1" required placeholder="12"></label>
-      <label>Weeks<input id="fWeeks" type="number" min="1" step="1" required placeholder="10"></label>
+      <label>General contractor<input id="fGc" placeholder="Company name"></label>
+      <label>Metro<input id="fMetro" list="metroList" placeholder="Miami, Dallas…"><datalist id="metroList"><option value="Miami"><option value="Fort Lauderdale"><option value="West Palm Beach"><option value="Orlando"><option value="Tampa"><option value="Jacksonville"><option value="Dallas – Fort Worth"><option value="Houston"><option value="Austin"><option value="San Antonio"><option value="Atlanta"><option value="New Orleans"><option value="Baton Rouge"></datalist></label>
+      <label>Trade<select id="fTrade"><option>Drywall &amp; metal framing</option><option>Acoustical ceilings</option><option>Insulation</option><option>Drywall / ACT combined</option><option>General labor</option><option>General contractor</option><option>Other</option></select></label>
+      <label>Heads<input id="fHeads" type="number" min="0" step="1" placeholder="12"></label>
+      <label>Weeks<input id="fWeeks" type="number" min="0" step="1" placeholder="10"></label>
       <label>Value ($)<input id="fValue" type="number" min="0" step="1000" required placeholder="180000"></label>
       <label>Next step<input id="fNext" placeholder="Follow up Thursday"></label>
-      <div class="oppform-actions"><button class="btn primary" type="submit">Add to pipeline</button><button class="btn" type="button" id="cancelOpp">Cancel</button></div>
+      <div class="oppform-actions"><button class="btn primary" type="submit" id="oppSubmit">Add to pipeline</button><button class="btn" type="button" id="cancelOpp">Cancel</button></div>
     </form>
   </div>
 
@@ -1712,8 +1712,8 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
         else if(idx>0&&idx<STAGES.length-1) acts='<button class="sbtn go" data-act="advance" data-i="'+o._i+'">'+esc(STAGES[idx+1])+' →</button>';
         if(idx>0) acts+='<button class="sbtn win" data-act="won" data-i="'+o._i+'">Won</button><button class="sbtn quiet" data-act="lost" data-i="'+o._i+'">Lost</button>';
         if(o.stage==='Won'||o.stage==='Lost') acts='<span class="sub13">Closed '+esc(o.closed||'')+'</span> <button class="sbtn quiet" data-act="reopen" data-i="'+o._i+'">Reopen</button>';
-        acts+='<button class="sbtn quiet" data-act="remove" data-i="'+o._i+'" aria-label="Remove '+esc(o.project)+'">✕</button>';
-        return '<tr><td>'+esc(o.project)+'</td><td>'+esc(o.gc)+'</td><td>'+esc(o.metro)+'</td><td>'+esc(o.trade)+'</td><td><span class="'+cls+'">'+esc(o.stage)+'</span></td>'+
+        acts+='<button class="sbtn" data-act="edit" data-i="'+o._i+'">Edit</button><button class="sbtn quiet" data-act="remove" data-i="'+o._i+'" aria-label="Remove '+esc(o.project)+'">✕</button>';
+        return '<tr><td>'+esc(o.project)+(o.status||o.contact?'<br><span class="sub13">'+esc([o.contact,o.status].filter(Boolean).join(' · '))+'</span>':'')+'</td><td>'+esc(o.gc||'—')+'</td><td>'+esc(o.metro)+'</td><td>'+esc(o.trade)+'</td><td><span class="'+cls+'">'+esc(o.stage)+'</span></td>'+
           '<td class="mono" style="text-align:right">'+esc(o.heads)+'</td><td class="mono" style="text-align:right">'+esc(o.weeks)+'</td>'+
           '<td class="mono" style="text-align:right">'+money(o.value)+'</td><td class="mono" style="text-align:right">'+(o.stage==='Lost'?'—':money(wgt(o)))+'</td><td>'+esc(o.next)+'</td><td><div class="acts">'+acts+'</div></td></tr>';
       }).join('');
@@ -1725,6 +1725,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   var tbody=$('oppRows'); if(tbody) tbody.addEventListener('click',function(e){
     var b=e.target.closest('button[data-act]'); if(!b)return;
     var o=OPPS[+b.dataset.i]; if(!o)return; var act=b.dataset.act;
+    if(act==='edit'){ editIdx=+b.dataset.i; $('fProject').value=o.project||''; $('fGc').value=o.gc||''; $('fMetro').value=o.metro||''; $('fTrade').value=o.trade||'Other'; if($('fTrade').value!==o.trade)$('fTrade').value='Other'; $('fHeads').value=o.heads||''; $('fWeeks').value=o.weeks||''; $('fValue').value=o.value||''; $('fNext').value=o.next||''; $('oppFormTitle').textContent='Edit opportunity · '+(o.stage||''); $('oppSubmit').textContent='Save changes'; toggleForm(true); card.scrollIntoView({behavior:'smooth'}); return; }
     if(act==='advance'){ var i=STAGES.indexOf(o.stage); if(i>=0&&i<STAGES.length-1){ o.stage=STAGES[i+1]; if(o.stage==='Qualified')o.qualified=today(); } }
     else if(act==='won'){ o.stage='Won'; o.closed=today(); }
     else if(act==='lost'){ o.stage='Lost'; o.closed=today(); }
@@ -1734,17 +1735,20 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   });
 
   // Add form
-  var addBtn=$('addOppBtn'), card=$('addOppCard'), form=$('oppForm');
+  var addBtn=$('addOppBtn'), card=$('addOppCard'), form=$('oppForm'), editIdx=-1;
   function toggleForm(open){ card.hidden=!open; addBtn.setAttribute('aria-expanded',open?'true':'false'); if(open)$('fProject').focus(); }
   if(addBtn) addBtn.addEventListener('click',function(){toggleForm(card.hidden)});
-  var cancel=$('cancelOpp'); if(cancel) cancel.addEventListener('click',function(){form.reset();toggleForm(false)});
+  function resetOppForm(){ form.reset(); editIdx=-1; $('oppFormTitle').textContent='New opportunity'; $('oppSubmit').textContent='Add to pipeline'; }
+  var cancel=$('cancelOpp'); if(cancel) cancel.addEventListener('click',function(){resetOppForm();toggleForm(false)});
   if(form) form.addEventListener('submit',function(e){
     e.preventDefault();
-    OPPS.push({ project:$('fProject').value.trim(), gc:$('fGc').value.trim(), metro:$('fMetro').value.trim(), trade:$('fTrade').value, heads:+$('fHeads').value||0, weeks:+$('fWeeks').value||0, value:+$('fValue').value||0, next:$('fNext').value.trim(), stage:'New', opened:today() });
-    save(); form.reset(); toggleForm(false); render();
+    var vals={ project:$('fProject').value.trim(), gc:$('fGc').value.trim(), metro:$('fMetro').value.trim(), trade:$('fTrade').value, heads:+$('fHeads').value||0, weeks:+$('fWeeks').value||0, value:+$('fValue').value||0, next:$('fNext').value.trim() };
+    if(editIdx>=0&&OPPS[editIdx]){ var o=OPPS[editIdx]; Object.keys(vals).forEach(function(k){o[k]=vals[k]}); o.edited=today(); }
+    else { vals.stage='New'; vals.opened=today(); OPPS.push(vals); }
+    save(); resetOppForm(); toggleForm(false); render();
   });
 
-  render();
+  render(); window.renderPipeline=render;
 })();
 
 (function(){

@@ -439,3 +439,17 @@
     $('eMiles').addEventListener('input',function(){ if(!$('eOdoEnd').value) $('eMiles').dataset.base=$('eMiles').value; });
   }
 })();
+
+/* ===================== ONE-TIME SEED: Framing the Pipeline (Oct 26, 2026) ===================== */
+(function(){
+  var KEY='bdp-seed-ftp-v1';
+  try{ if(localStorage.getItem(KEY))return; }catch(e){ return; }
+  if(!window.OPPS)return;
+  fetch('seed-opps.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(list){
+    var have={}; window.OPPS.forEach(function(o){ have[(o.project||'').toLowerCase()]=1; });
+    var n=0; list.forEach(function(o){ var k=(o.project||'').toLowerCase(); if(!k||have[k])return; have[k]=1; window.OPPS.push(o); n++; });
+    try{ localStorage.setItem('bdp-opps',JSON.stringify(window.OPPS)); localStorage.setItem(KEY,new Date().toISOString()); }catch(e){}
+    if(window.renderPipeline)window.renderPipeline();
+    var f=document.getElementById('oppFoot'); if(f&&n) f.textContent='Loaded '+n+' companies from Framing the Pipeline · '+f.textContent;
+  }).catch(function(){});
+})();
