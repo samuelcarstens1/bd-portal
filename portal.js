@@ -55,7 +55,7 @@
     {key:'gc',label:'General contractor',aliases:['gc','general contractor','contractor','client','company','customer','account']},
     {key:'metro',label:'Metro',aliases:['metro','city','market','location','region','area']},
     {key:'trade',label:'Trade',aliases:['trade','scope','service','work type','package']},
-    {key:'heads',label:'Heads',aliases:['heads','headcount','workers','crew','crew size','manpower','people']},
+    {key:'heads',label:'Workers',aliases:['workers','heads','headcount','workers','crew','crew size','manpower','people']},
     {key:'weeks',label:'Weeks',aliases:['weeks','duration','length','weeks on site']},
     {key:'value',label:'Value ($)',aliases:['value','amount','revenue','contract value','estimated value','size','opportunity size','total']},
     {key:'next',label:'Next step',aliases:['next step','next action','next','notes','status note','follow up']}
@@ -382,52 +382,114 @@
     renderK();
   }
 
-  /* ---------- Work week summary ---------- */
-  var WK=load('bdp-weeks',{weeks:{}});
+  /* ---------- Daily reports + Work week summary (one data model) ---------- */
+  var RPT=load('bdp-reports',{days:{},weeks:{}});
+  // migrate old week counters
+  try{ var oldW=load('bdp-weeks',null); if(oldW&&oldW.weeks&&!RPT._migrated){ Object.keys(oldW.weeks).forEach(function(we){ var w=oldW.weeks[we]; RPT.weeks[we]={wins:w.wins||[],plan:w.plan||'',notes:w.notes||'',photos:w.photos||[],created:w.created}; var c=w.counters||{}; var d=addDays(we,-2); var r=RPT.days[d]||(RPT.days[d]={}); r.calls=(r.calls||0)+(c.dials||0); r.meetings=(r.meetings||0)+(c.meetings||0); r.contacts=(r.contacts||0)+(c.convos||0); r.proposals=(r.proposals||0)+(c.proposals||0); }); RPT._migrated=true; save('bdp-reports',RPT); } }catch(e){}
   function weekEndingOf(dstr){ var d=new Date(dstr+'T12:00:00'); var dow=(d.getDay()+6)%7; d.setDate(d.getDate()+(6-dow)); return d.toISOString().slice(0,10); }
   function addDays(s,n){ var d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+  function saveR(){ save('bdp-reports',RPT); }
+  function day(d,create){ var r=RPT.days[d]; if(!r&&create){ r=RPT.days[d]={title:'',where:'',happened:'',movement:'',tomorrow:'',calls:0,meetings:0,contacts:0,proposals:0,status:'draft'}; } return r||{title:'',where:'',happened:'',movement:'',tomorrow:'',calls:0,meetings:0,contacts:0,proposals:0,status:'none'}; }
+  function wkRec(we,create){ var w=RPT.weeks[we]; if(!w&&create){ w=RPT.weeks[we]={wins:[],plan:'',notes:'',photos:[],created:today()}; } return w||{wins:[],plan:'',notes:'',photos:[],created:null}; }
+  function weekDays(we){ var a=[]; for(var i=6;i>=0;i--)a.push(addDays(we,-i)); return a; }
+  function weekTotals(we){ var t={calls:0,meetings:0,contacts:0,proposals:0}; weekDays(we).forEach(function(d){ var r=RPT.days[d]; if(!r)return; Object.keys(t).forEach(function(k){t[k]+=(+r[k]||0)}); }); return t; }
+  var selDay=today(), calMonth=today().slice(0,7);
+
+  // ---- Daily reports UI
+  function renderCal(){
+    var g=$('calGrid'); if(!g)return; var y=+calMonth.slice(0,4), m=+calMonth.slice(5,7)-1; var first=new Date(y,m,1); var startDow=(first.getDay()+6)%7; var dim=new Date(y,m+1,0).getDate();
+    $('calTitle').textContent=first.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    var html=['Mo','Tu','We','Th','Fr','Sa','Su'].map(function(d){return '<span class="dow">'+d+'</span>'}).join('');
+    var prevDim=new Date(y,m,0).getDate();
+    for(var i=startDow-1;i>=0;i--){ var pd=new Date(y,m-1,prevDim-i); html+=cell(pd,true); }
+    for(var d=1;d<=dim;d++){ html+=cell(new Date(y,m,d),false); }
+    var rem=(7-((startDow+dim)%7))%7; for(var n=1;n<=rem;n++){ html+=cell(new Date(y,m+1,n),true); }
+    g.innerHTML=html;
+    function cell(dt,other){ var iso=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); var r=RPT.days[iso]; var dot=r?(r.status==='submitted'?'<span class="d ok"></span>':'<span class="d draft"></span>'):''; return '<button type="button" data-day="'+iso+'" class="'+(other?'other ':'')+(iso===selDay?'sel ':'')+(iso===today()?'today':'')+'">'+dt.getDate()+dot+'</button>'; }
+  }
+  function renderWeekStrip(){
+    var el=$('rptWeekList'); if(!el)return; var we=weekEndingOf(selDay), days=weekDays(we).slice(0,5); var filed=0;
+    el.innerHTML=days.map(function(d){ var r=RPT.days[d]; if(r&&r.status==='submitted')filed++; var tag=r?(r.status==='submitted'?'<span class="tag ok">Submitted</span>':'<span class="tag">Draft</span>'):'<span class="tag" style="opacity:.5">—</span>'; return '<div class="wkday'+(d===selDay?' sel':'')+'" role="button" tabindex="0" data-day="'+d+'"><div class="top"><span>'+fmtD(d,{weekday:'short',month:'short',day:'numeric'})+'</span>'+tag+'</div><div class="sum">'+esc(r&&(r.title||r.happened)?(r.title||r.happened.slice(0,70)):'Nothing logged')+'</div></div>'; }).join('');
+    $('rptWeekLabel').textContent='Week of '+fmtD(days[0],{month:'short',day:'numeric'}); $('rptWeekFiled').textContent=filed+' of 5 filed';
+  }
+  function renderReport(){
+    if(!$('rptPanel'))return; var r=day(selDay,false);
+    $('rptDateLine').textContent=fmtD(selDay,{weekday:'long',month:'long',day:'numeric',year:'numeric'})+(r.submittedAt?' · Submitted '+r.submittedAt:'');
+    $('rptTitle').value=r.title||''; $('rptWhere').value=r.where||''; $('rptHappened').value=r.happened||''; $('rptMovement').value=r.movement||''; $('rptTomorrow').value=r.tomorrow||'';
+    ['calls','meetings','contacts','proposals'].forEach(function(k){ set('rptN-'+k,r[k]||0); });
+    var st=$('rptStatus'); st.textContent=r.status==='submitted'?'Submitted':r.status==='draft'?'Draft':'Not started'; st.className=r.status==='submitted'?'tag ok':'tag';
+    set('rptFoot',r.status==='none'?'Not saved':(r.status==='submitted'?'Submitted '+(r.submittedAt||''):'Draft saved '+(r.savedAt||'')));
+    set('rptEyebrow','Daily reports · '+Object.keys(RPT.days).filter(function(d){return RPT.days[d].status==='submitted'}).length+' submitted');
+    renderCal(); renderWeekStrip(); renderOverview();
+  }
+  function readForm(r){ r.title=$('rptTitle').value.trim(); r.where=$('rptWhere').value.trim(); r.happened=$('rptHappened').value.trim(); r.movement=$('rptMovement').value.trim(); r.tomorrow=$('rptTomorrow').value.trim(); }
+  function selectDay(d){ selDay=d; calMonth=d.slice(0,7); try{localStorage.setItem('bdp-rpt-day',d)}catch(e){} renderReport(); }
+  if($('rptPanel')){
+    try{ var sd=localStorage.getItem('bdp-rpt-day'); if(sd&&/^\d{4}-\d{2}-\d{2}$/.test(sd))selDay=sd; }catch(e){} calMonth=selDay.slice(0,7);
+    $('calGrid').addEventListener('click',function(e){ var b=e.target.closest('button[data-day]'); if(b)selectDay(b.dataset.day); });
+    $('rptWeekList').addEventListener('click',function(e){ var b=e.target.closest('[data-day]'); if(b)selectDay(b.dataset.day); });
+    $('rptWeekList').addEventListener('keydown',function(e){ if(e.key==='Enter'){ var b=e.target.closest('[data-day]'); if(b)selectDay(b.dataset.day); } });
+    $('calPrev').addEventListener('click',function(){ var y=+calMonth.slice(0,4),m=+calMonth.slice(5,7)-2; var d=new Date(y,m,1); calMonth=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); renderCal(); });
+    $('calNext').addEventListener('click',function(){ var y=+calMonth.slice(0,4),m=+calMonth.slice(5,7); var d=new Date(y,m,1); calMonth=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); renderCal(); });
+    $('rptPanel').addEventListener('click',function(e){ var b=e.target.closest('button[data-rinc],button[data-rdec]'); if(!b)return; var r=day(selDay,true); var k=b.dataset.rinc||b.dataset.rdec; r[k]=Math.max(0,(+r[k]||0)+(b.dataset.rinc?1:-1)); if(r.status==='none')r.status='draft'; saveR(); renderReport(); });
+    $('rptSave').addEventListener('click',function(){ var r=day(selDay,true); readForm(r); if(r.status!=='submitted')r.status='draft'; r.savedAt=today(); saveR(); renderReport(); toastMsg('SAVED'); });
+    $('rptSubmit').addEventListener('click',function(){ var r=day(selDay,true); readForm(r); r.status='submitted'; r.submittedAt=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveR(); renderReport(); toastMsg('SUBMITTED'); });
+    ['rptTitle','rptWhere','rptHappened','rptMovement','rptTomorrow'].forEach(function(id){ $(id).addEventListener('change',function(){ var r=day(selDay,true); readForm(r); if(r.status==='none')r.status='draft'; r.savedAt=today(); saveR(); renderCal(); renderWeekStrip(); }); });
+  }
+  var toastT2; function toastMsg(m){ var t=$('toast'); if(!t)return; t.textContent=m; t.classList.add('show'); clearTimeout(toastT2); toastT2=setTimeout(function(){t.classList.remove('show')},1800); }
+
+  // ---- Overview cards
+  function renderOverview(){
+    var subm=Object.keys(RPT.days).filter(function(d){return RPT.days[d].status!=='none'}).sort(); var last=subm.length?subm[subm.length-1]:null;
+    if($('ovRptDate')){ if(last){ var r=RPT.days[last]; set('ovRptDate',fmtD(last,{weekday:'short',month:'short',day:'numeric'})+(r.status==='submitted'?' · Submitted':' · Draft')); set('ovRptText',r.title?(r.title+(r.happened?' — '+r.happened:'')):(r.happened||'No narrative yet.')); $('ovRptChips').innerHTML='<span class="chip outline">Calls '+(r.calls||0)+'</span><span class="chip outline">Meetings '+(r.meetings||0)+'</span><span class="chip outline">New contacts '+(r.contacts||0)+'</span><span class="chip outline">Proposals '+(r.proposals||0)+'</span>'; } else { set('ovRptDate','—'); set('ovRptText','No daily report filed yet.'); } }
+    var we=weekEndingOf(today()), t=weekTotals(we), w=wkRec(we,false);
+    var ov=$('ovWeekRows'); if(ov){ ov.innerHTML='<div class="kv"><span>Calls</span><span class="v">'+t.calls+'</span></div><div class="kv"><span>Meetings</span><span class="v">'+t.meetings+'</span></div><div class="kv"><span>New contacts</span><span class="v">'+t.contacts+'</span></div><div class="kv"><span>Proposals</span><span class="v">'+t.proposals+'</span></div>'+(w.wins.length?'<div class="kv"><span>Wins</span><span class="v">'+w.wins.length+'</span></div>':''); set('ovWeekFoot',w.wins.length?('Latest win: '+w.wins[w.wins.length-1].text):'Log the day on Daily Reports and it adds up here.'); }
+    set('ovMeet',String(t.meetings)); set('ovMeetSub',t.proposals+' proposals · '+w.wins.length+' wins');
+  }
+
+  // ---- Work week summary UI
   var cur=weekEndingOf(today());
-  function wk(create){ var w=WK.weeks[cur]; if(!w&&create){ w=WK.weeks[cur]={counters:{dials:0,convos:0,meetings:0,proposals:0},wins:[],plan:'',notes:'',photos:[],created:today()}; } return w||{counters:{dials:0,convos:0,meetings:0,proposals:0},wins:[],plan:'',notes:'',photos:[],created:null}; }
-  function saveW(){ save('bdp-weeks',WK); }
   function renderW(){
-    if(!$('wkCounters'))return; var w=wk(false), start=addDays(cur,-6);
-    set('wkEyebrow','Week of '+fmtD(start,{month:'short',day:'numeric'})+' – '+fmtD(cur)); set('wkMeta',w.created?('Week created '+fmtD(w.created)+(cur===weekEndingOf(today())?' · current week':'')):'This week has no entries yet — the first +1 or win creates it.');
-    ['dials','convos','meetings','proposals'].forEach(function(k){ set('wkC-'+k,w.counters[k]||0); });
+    if(!$('wkCounters'))return; var w=wkRec(cur,false), t=weekTotals(cur), start=addDays(cur,-6);
+    set('wkEyebrow','Week of '+fmtD(start,{month:'short',day:'numeric'})+' – '+fmtD(cur)); var filed=weekDays(cur).filter(function(d){return RPT.days[d]&&RPT.days[d].status==='submitted'}).length; set('wkMeta',filed+' daily report'+(filed===1?'':'s')+' submitted this week'+(w.created?' · week notes started '+fmtD(w.created):'')+(cur===weekEndingOf(today())?' · current week':''));
+    ['calls','meetings','contacts','proposals'].forEach(function(k){ set('wkC-'+k,t[k]); });
     set('wkWinCount',w.wins.length+' win'+(w.wins.length===1?'':'s'));
     $('wkWins').innerHTML=w.wins.length?w.wins.map(function(x,i){return '<div class="kv"><span>'+esc(x.text)+'</span><span style="display:flex;gap:8px;align-items:center"><span class="v muted">'+esc(x.date)+'</span><button class="rm" type="button" data-winrm="'+i+'" aria-label="Remove win">✕</button></span></div>'}).join(''):'<div class="sub13">No wins logged yet this week.</div>';
     $('wkNextPlan').value=w.plan||''; $('wkNotes').value=w.notes||'';
     $('wkPhotos').innerHTML=w.photos.length?w.photos.map(function(p,i){return '<figure><img src="'+p.src+'" alt="'+esc(p.name)+'"><button class="rmp" type="button" data-prm="'+i+'" aria-label="Remove photo">✕</button><figcaption>'+esc(p.name)+' · '+esc(p.date)+'</figcaption></figure>'}).join(''):'<div class="sub13">No photos attached.</div>';
-    // overview
-    var tw=WK.weeks[weekEndingOf(today())]||wk(false);
-    var ov=$('ovWeekRows'); if(ov){ ov.innerHTML='<div class="kv"><span>Dials</span><span class="v">'+(tw.counters.dials||0)+'</span></div><div class="kv"><span>Conversations</span><span class="v">'+(tw.counters.convos||0)+'</span></div><div class="kv"><span>Meetings held</span><span class="v">'+(tw.counters.meetings||0)+'</span></div><div class="kv"><span>Proposals</span><span class="v">'+(tw.counters.proposals||0)+'</span></div>'+(tw.wins.length?'<div class="kv"><span>Wins</span><span class="v">'+tw.wins.length+'</span></div>':''); set('ovWeekFoot',tw.wins.length?('Latest win: '+tw.wins[tw.wins.length-1].text):'Tap +1 on the Work Week tab as the week happens.'); }
-    set('ovMeet',String(tw.counters.meetings||0)); set('ovMeetSub',(tw.counters.proposals||0)+' proposals · '+tw.wins.length+' wins');
+    renderOverview();
   }
   if($('wkCounters')){
-    $('wkCounters').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; var w=wk(true); if(b.dataset.inc){w.counters[b.dataset.inc]=(w.counters[b.dataset.inc]||0)+1;} else if(b.dataset.dec){w.counters[b.dataset.dec]=Math.max(0,(w.counters[b.dataset.dec]||0)-1);} saveW(); renderW(); });
-    $('winForm').addEventListener('submit',function(e){ e.preventDefault(); wk(true).wins.push({text:$('winText').value.trim(),date:today()}); saveW(); $('winForm').reset(); renderW(); });
-    $('wkWins').addEventListener('click',function(e){ var b=e.target.closest('button[data-winrm]'); if(!b)return; wk(true).wins.splice(+b.dataset.winrm,1); saveW(); renderW(); });
-    $('wkNextPlan').addEventListener('change',function(){ wk(true).plan=$('wkNextPlan').value; saveW(); renderW(); });
-    $('wkNotes').addEventListener('change',function(){ wk(true).notes=$('wkNotes').value; saveW(); renderW(); });
+    var logDay=function(){ var td=today(); var days=weekDays(cur); if(days.indexOf(td)>=0)return td; return days[4]; };
+    $('wkCounters').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; var d=logDay(); var r=day(d,true); var k=b.dataset.inc||b.dataset.dec; if(!k)return; r[k]=Math.max(0,(+r[k]||0)+(b.dataset.inc?1:-1)); if(r.status==='none')r.status='draft'; saveR(); renderW(); if(selDay===d)renderReport(); });
+    $('winForm').addEventListener('submit',function(e){ e.preventDefault(); wkRec(cur,true).wins.push({text:$('winText').value.trim(),date:today()}); saveR(); $('winForm').reset(); renderW(); });
+    $('wkWins').addEventListener('click',function(e){ var b=e.target.closest('button[data-winrm]'); if(!b)return; wkRec(cur,true).wins.splice(+b.dataset.winrm,1); saveR(); renderW(); });
+    $('wkNextPlan').addEventListener('change',function(){ wkRec(cur,true).plan=$('wkNextPlan').value; saveR(); renderW(); });
+    $('wkNotes').addEventListener('change',function(){ wkRec(cur,true).notes=$('wkNotes').value; saveR(); renderW(); });
     $('wkPrev').addEventListener('click',function(){ cur=addDays(cur,-7); renderW(); });
     $('wkNext').addEventListener('click',function(){ cur=addDays(cur,7); renderW(); });
-    $('wkNew').addEventListener('click',function(){ var keys=Object.keys(WK.weeks).sort(); var latest=keys.length?keys[keys.length-1]:weekEndingOf(today()); var next=WK.weeks[latest]?addDays(latest,7):latest; cur=next; var w=wk(true); w.created=today(); saveW(); renderW(); window.scrollTo(0,0); });
-    $('wkPhotos').addEventListener('click',function(e){ var b=e.target.closest('button[data-prm]'); if(!b)return; wk(true).photos.splice(+b.dataset.prm,1); saveW(); renderW(); });
-    $('wkPhoto').addEventListener('change',function(){ var files=[].slice.call($('wkPhoto').files); var w=wk(true); var left=files.length; files.forEach(function(f){ var img=new Image(), url=URL.createObjectURL(f); img.onload=function(){ var s=Math.min(1,1000/Math.max(img.width,img.height)); var c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); w.photos.push({src:c.toDataURL('image/jpeg',0.72),name:f.name,date:today()}); if(--left===0){ saveW(); renderW(); } }; img.src=url; }); $('wkPhoto').value=''; });
+    $('wkPhotos').addEventListener('click',function(e){ var b=e.target.closest('button[data-prm]'); if(!b)return; wkRec(cur,true).photos.splice(+b.dataset.prm,1); saveR(); renderW(); });
+    $('wkPhoto').addEventListener('change',function(){ var files=[].slice.call($('wkPhoto').files); var w=wkRec(cur,true); var left=files.length; files.forEach(function(f){ var img=new Image(), url=URL.createObjectURL(f); img.onload=function(){ var s=Math.min(1,1000/Math.max(img.width,img.height)); var c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); w.photos.push({src:c.toDataURL('image/jpeg',0.72),name:f.name,date:today()}); if(--left===0){ saveR(); renderW(); } }; img.src=url; }); $('wkPhoto').value=''; });
     $('wkDownload').addEventListener('click',function(){
-      var w=wk(false), start=addDays(cur,-6); var win=window.open('','_blank'); if(!win){ alert('Allow pop-ups for this site to download the PDF.'); return; }
-      var css='body{margin:0;padding:32px;font-family:"IBM Plex Sans",system-ui,sans-serif;color:#1B1F27;background:#fff} .mono{font-family:"IBM Plex Mono",monospace} h1{font-size:28px;margin:0 0 4px} .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5B6270} .sub{color:#5B6270;margin-bottom:20px} .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px} .tile{border:1px solid #E3DFD5;border-radius:10px;padding:14px 16px} .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:#5B6270} .big{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600} h2{font-size:16px;margin:18px 0 8px} .kv{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #EDE9E0;font-size:14px} .kv:last-child{border-bottom:1px solid #EDE9E0} .muted{color:#5B6270;font-family:"IBM Plex Mono",monospace;font-size:12px} p{white-space:pre-wrap;font-size:14px;line-height:1.55;margin:0} .photos{display:flex;flex-wrap:wrap;gap:10px} .photos figure{margin:0;width:220px;break-inside:avoid} .photos img{width:220px;height:165px;object-fit:cover;border-radius:6px;border:1px solid #E3DFD5} figcaption{font-size:11px;color:#5B6270;margin-top:4px} .head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:3px solid #16233A;padding-bottom:14px;margin-bottom:18px} .brand{font-weight:700} .foot{margin-top:28px;font-size:11px;color:#5B6270;border-top:1px solid #EDE9E0;padding-top:10px} @media print{body{padding:0} @page{margin:18mm}}';
+      var w=wkRec(cur,false), t=weekTotals(cur), start=addDays(cur,-6); var win=window.open('','_blank'); if(!win){ alert('Allow pop-ups for this site to download the PDF.'); return; }
+      var days=weekDays(cur).slice(0,5).filter(function(d){return RPT.days[d]&&RPT.days[d].status!=='none'});
+      var css='body{margin:0;padding:32px;font-family:"IBM Plex Sans",system-ui,sans-serif;color:#1B1F27;background:#fff} .mono{font-family:"IBM Plex Mono",monospace} h1{font-size:28px;margin:0 0 4px} .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5B6270} .sub{color:#5B6270;margin-bottom:20px} .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px} .tile{border:1px solid #E3DFD5;border-radius:10px;padding:14px 16px} .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:#5B6270} .big{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600} h2{font-size:16px;margin:18px 0 8px} h3{font-size:14px;margin:12px 0 4px} .kv{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #EDE9E0;font-size:14px} .kv:last-child{border-bottom:1px solid #EDE9E0} .muted{color:#5B6270;font-family:"IBM Plex Mono",monospace;font-size:12px} p{white-space:pre-wrap;font-size:14px;line-height:1.55;margin:0} .day{border:1px solid #E3DFD5;border-radius:8px;padding:12px 14px;margin-bottom:10px;break-inside:avoid} .photos{display:flex;flex-wrap:wrap;gap:10px} .photos figure{margin:0;width:220px;break-inside:avoid} .photos img{width:220px;height:165px;object-fit:cover;border-radius:6px;border:1px solid #E3DFD5} figcaption{font-size:11px;color:#5B6270;margin-top:4px} .head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:3px solid #16233A;padding-bottom:14px;margin-bottom:18px} .foot{margin-top:28px;font-size:11px;color:#5B6270;border-top:1px solid #EDE9E0;padding-top:10px} @media print{body{padding:0} @page{margin:18mm}}';
       var html='<!doctype html><html><head><meta charset="utf-8"><title>Work Week Summary — week ending '+cur+'</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style>'+css+'</style></head><body>'
-        +'<div class="head"><div><div class="eyebrow">IB Group Worldwide · BD Progress Portal</div><h1>Work Week Summary</h1><div class="sub" style="margin:0">Samuel R. Carstens — Strategic Accounts &amp; Data Centers · FL · TX · LA · GA</div></div><div style="text-align:right"><div class="eyebrow">Week ending</div><div class="mono" style="font-size:18px;font-weight:600">'+fmtD(cur)+'</div><div class="muted">'+fmtD(start,{month:'short',day:'numeric'})+' – '+fmtD(cur,{month:'short',day:'numeric'})+(w.created?' · created '+fmtD(w.created):'')+'</div></div></div>'
-        +'<div class="grid"><div class="tile"><div class="label">Dials</div><div class="big">'+(w.counters.dials||0)+'</div></div><div class="tile"><div class="label">Conversations</div><div class="big">'+(w.counters.convos||0)+'</div></div><div class="tile"><div class="label">Meetings held</div><div class="big">'+(w.counters.meetings||0)+'</div></div><div class="tile"><div class="label">Proposals</div><div class="big">'+(w.counters.proposals||0)+'</div></div></div>'
+        +'<div class="head"><div><div class="eyebrow">IB Group Worldwide · BD Progress Portal</div><h1>Work Week Summary</h1><div class="sub" style="margin:0">Samuel R. Carstens — Strategic Accounts &amp; Data Centers · FL · TX · LA · GA</div></div><div style="text-align:right"><div class="eyebrow">Week ending</div><div class="mono" style="font-size:18px;font-weight:600">'+fmtD(cur)+'</div><div class="muted">'+fmtD(start,{month:'short',day:'numeric'})+' – '+fmtD(cur,{month:'short',day:'numeric'})+'</div></div></div>'
+        +'<div class="grid"><div class="tile"><div class="label">Calls</div><div class="big">'+t.calls+'</div></div><div class="tile"><div class="label">Meetings</div><div class="big">'+t.meetings+'</div></div><div class="tile"><div class="label">New contacts</div><div class="big">'+t.contacts+'</div></div><div class="tile"><div class="label">Proposals</div><div class="big">'+t.proposals+'</div></div></div>'
         +'<h2>Wins ('+w.wins.length+')</h2>'+(w.wins.length?w.wins.map(function(x){return '<div class="kv"><span>'+esc(x.text)+'</span><span class="muted">'+esc(x.date)+'</span></div>'}).join(''):'<p class="muted">None logged.</p>')
+        +'<h2>Daily reports</h2>'+(days.length?days.map(function(d){ var r=RPT.days[d]; return '<div class="day"><div class="eyebrow">'+fmtD(d,{weekday:'long',month:'short',day:'numeric'})+' · '+(r.status==='submitted'?'Submitted':'Draft')+' · Calls '+(r.calls||0)+' · Meetings '+(r.meetings||0)+' · New contacts '+(r.contacts||0)+' · Proposals '+(r.proposals||0)+'</div>'+(r.title?'<h3>'+esc(r.title)+'</h3>':'')+(r.happened?'<p>'+esc(r.happened)+'</p>':'')+(r.movement?'<h3>Pipeline movement</h3><p>'+esc(r.movement)+'</p>':'')+(r.tomorrow?'<h3>Next</h3><p>'+esc(r.tomorrow)+'</p>':'')+'</div>'; }).join(''):'<p class="muted">No daily reports this week.</p>')
         +'<h2>Plan for next week</h2><p>'+(esc(w.plan)||'<span class="muted">—</span>')+'</p><h2>Notes</h2><p>'+(esc(w.notes)||'<span class="muted">—</span>')+'</p>'
         +(w.photos.length?'<h2>Photos ('+w.photos.length+')</h2><div class="photos">'+w.photos.map(function(p){return '<figure><img src="'+p.src+'"><figcaption>'+esc(p.name)+' · '+esc(p.date)+'</figcaption></figure>'}).join('')+'</div>':'')
         +'<div class="foot">Generated '+fmtD(today())+' from the BD Progress Portal. In the print dialog choose "Save as PDF".</div>'
         +'<script>window.addEventListener("load",function(){setTimeout(function(){window.print()},600)})<\/script></body></html>';
       win.document.open(); win.document.write(html); win.document.close();
     });
-    renderW();
   }
+  renderReport(); renderW(); renderOverview();
+  window.addEventListener('hashchange',function(){ if(location.hash==='#week'){ cur=weekEndingOf(today()); renderW(); } if(location.hash==='#reports')renderReport(); if(location.hash==='#overview')renderOverview(); });
+  // Lead Gen hub contact count
+  try{ var cc=JSON.parse(localStorage.getItem('bdp-contacts')||'[]'); set('lgContacts',cc.length+' contact'+(cc.length===1?'':'s')); }catch(e){}
 
   /* ---------- Mileage counter in expense form ---------- */
   var eCat=$('eCat'); if(eCat){
@@ -462,18 +524,21 @@
   function money(n){ n=+n||0; if(n>=1e6)return '$'+(n/1e6).toFixed(n>=1e7?0:1)+'M'; if(n>=1e3)return '$'+Math.round(n/1e3)+'K'; return '$'+Math.round(n); }
   function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
   var home=$('pipeHome'), sub=$('pipeSub'); if(!home||!sub)return;
+  var toastT; function toast(msg){ var t=$('toast'); if(!t)return; t.textContent=msg||'SAVED'; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show')},1800); }
+  function push(state){ try{ history.pushState(state,'',location.href); }catch(e){} }
+  var suppress=false;
   function OPPS(){ return window.OPPS||[]; }
   function saveAll(){ try{localStorage.setItem('bdp-opps',JSON.stringify(OPPS()))}catch(e){ alert('Could not save — browser storage is full. Site plans are the usual cause; try a smaller file.'); } if(window.renderPipeline)window.renderPipeline(); }
   var ACTIVE=['Qualified','Meeting set','Proposal sent','Verbal yes'];
   var STAGES_ALL=['New','Qualified','Meeting set','Proposal sent','Verbal yes','Won','Lost'];
   var cur={key:null,val:null};
   var hdr=$('view-pipeline').querySelector('header.head');
-  function showHome(){ sub.hidden=true; home.hidden=false; if(hdr)hdr.hidden=false; window.scrollTo(0,0); }
+  function showHome(noPush){ sub.hidden=true; home.hidden=false; if(hdr)hdr.hidden=false; window.scrollTo(0,0); if(!noPush&&history.state&&history.state.pipe&&history.state.pipe!=='home')push({pipe:'home'}); }
   function groupList(key,val){ return OPPS().map(function(o,i){o._i=i;return o}).filter(function(o){ return ACTIVE.indexOf(o.stage)>=0 && (o[key]||'—')===val; }); }
   function stageCls(s){ return (s==='Won'||s==='Verbal yes'||s==='Proposal sent')?'tag ok':'tag'; }
 
-  function showGroup(key,val){
-    cur={key:key,val:val}; var list=groupList(key,val); var total=list.reduce(function(a,o){return a+(+o.value||0)},0);
+  function showGroup(key,val,noPush){
+    cur={key:key,val:val}; if(!noPush)push({pipe:'group',key:key,val:val}); var list=groupList(key,val); var total=list.reduce(function(a,o){return a+(+o.value||0)},0);
     sub.innerHTML='<div style="display:flex;flex-direction:column;gap:16px">'
       +'<div><button class="btn" type="button" data-back="home">‹ Pipeline</button></div>'
       +'<header class="head"><div class="head-left"><span class="eyebrow">By '+esc(key)+' · '+list.length+' qualified opportunit'+(list.length===1?'y':'ies')+'</span><h1>'+esc(val)+'</h1><span class="sub">Total value '+money(total)+'. Click a company for the job details, site plan and price.</span></div></header>'
@@ -481,17 +546,18 @@
     home.hidden=true; sub.hidden=false; if(hdr)hdr.hidden=true; window.scrollTo(0,0);
   }
 
-  function showCompany(idx){
-    var o=OPPS()[idx]; if(!o)return; var si=STAGES_ALL.indexOf(o.stage);
+  function showCompany(idx,noPush){
+    var o=OPPS()[idx]; if(!o)return; var si=STAGES_ALL.indexOf(o.stage); if(!noPush)push({pipe:'company',idx:idx,key:cur.key,val:cur.val});
     var f=function(label,key,type,wide){ return '<label class="'+(wide?'wide':'')+'">'+label+'<input data-f="'+key+'" type="'+(type||'text')+'" value="'+esc(o[key]||'')+'"></label>'; };
     sub.innerHTML='<div style="display:flex;flex-direction:column;gap:18px">'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-back="group">‹ '+esc(cur.val||'Back')+'</button><button class="btn" type="button" data-back="home">Pipeline</button></div>'
       +'<header class="head"><div class="head-left"><span class="eyebrow">'+esc(o.metro||'')+' · '+esc(o.trade||'')+'</span><h1>'+esc(o.project)+'</h1><span class="sub">'+esc([o.gc,o.location,o.projectType].filter(Boolean).join(' · '))+'</span></div><div class="head-right"><span class="'+stageCls(o.stage)+'" style="font-size:13px;padding:6px 12px">'+esc(o.stage)+'</span></div></header>'
       +'<div class="price"><div style="display:flex;flex-direction:column;gap:4px"><span class="label" style="color:var(--mute-soft)">Price for this project</span><span class="sub13" style="color:var(--navy-dim)">Counts toward the '+esc(o.stage)+' total in By stage, By metro and By trade.</span></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="mono" style="font-size:22px">$</span><input data-f="value" type="number" min="0" step="1000" value="'+(o.value||'')+'" placeholder="0" aria-label="Price"><button class="btn" type="button" data-saveprice style="background:var(--accent);border-color:var(--accent);color:#fff">Save price</button></div></div>'
+      +'<div class="card"><div class="card-head"><h2>Agreed hourly rates</h2><span class="note">Rate × 40 hrs/week × weeks on site, per role</span></div><div class="rates" data-ratecalc></div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-top:12px;border-top:1px solid var(--line-soft)"><span class="sub13">Tick the roles on this job. Workers count is the Workers field.</span><div style="display:flex;align-items:center;gap:12px"><span class="mono" style="font-size:20px;font-weight:600" data-ratetotal>—</span><button class="btn primary" type="button" data-rateuse>Use as price</button></div></div></div>'
       +'<div class="card"><div class="card-head"><h2>Job details</h2><span class="note">Edits save when you leave a field</span></div><div class="detail">'
       +f('Company / project','project')+f('General contractor','gc')+f('Metro','metro')
       +'<label>Trade<select data-f="trade">'+['Drywall &amp; metal framing','Acoustical ceilings','Insulation','Drywall / ACT combined','General labor','General contractor','Other'].map(function(t){var tt=t.replace('&amp;','&');return '<option'+(tt===o.trade?' selected':'')+'>'+t+'</option>'}).join('')+'</select></label>'
-      +f('Heads','heads','number')+f('Weeks','weeks','number')
+      +f('Workers','heads','number')+f('Weeks','weeks','number')
       +f('Decision-maker / contact','contact')+f('Phone','phone','tel')+f('Email','email','email')
       +f('Location / address','location',null,true)+f('Project type / scope','projectType',null,true)
       +f('Relationship status','status')+f('Next step','next')+f('Timeline','timeline')
@@ -505,7 +571,18 @@
       +'</div>';
     home.hidden=true; sub.hidden=false; if(hdr)hdr.hidden=true; window.scrollTo(0,0);
     sub.querySelectorAll('[data-f]').forEach(function(inp){ inp.addEventListener('change',function(){ var k=inp.dataset.f; o[k]=(inp.type==='number')?(+inp.value||0):inp.value; o.edited=today(); saveAll(); if(k==='value'||k==='metro'||k==='trade'||k==='project')showCompany(idx); }); });
-    sub.querySelector('[data-saveprice]').addEventListener('click',function(){ var inp=sub.querySelector('input[data-f="value"]'); o.value=+inp.value||0; o.edited=today(); saveAll(); showCompany(idx); });
+    sub.querySelector('[data-saveprice]').addEventListener('click',function(){ var inp=sub.querySelector('input[data-f="value"]'); o.value=+inp.value||0; o.edited=today(); saveAll(); showCompany(idx,true); toast('SAVED'); });
+    // ---- hourly rate calculator
+    var R=o.rates||{sup:{on:false,count:1,rate:0,weeks:o.weeks||0},fore:{on:false,count:1,rate:0,weeks:o.weeks||0},work:{on:true,count:o.heads||0,rate:0,weeks:o.weeks||0}};
+    var rc=sub.querySelector('[data-ratecalc]'); if(rc){
+      var row=function(k,label){ var r=R[k]; return '<input type="checkbox" data-rk="'+k+'" data-rf="on" '+(r.on?'checked':'')+' aria-label="Include '+label+'"><span>'+label+'</span><input class="c3" type="number" min="0" step="1" data-rk="'+k+'" data-rf="count" value="'+(r.count||0)+'" aria-label="'+label+' count"><input class="c4" type="number" min="0" step="0.25" data-rk="'+k+'" data-rf="rate" value="'+(r.rate||'')+'" placeholder="$/hr" aria-label="'+label+' hourly rate"><input class="c5" type="number" min="0" step="1" data-rk="'+k+'" data-rf="weeks" value="'+(r.weeks||0)+'" aria-label="'+label+' weeks"><span class="rowt c6" data-rt="'+k+'">—</span>'; };
+      rc.innerHTML='<span class="hd"></span><span class="hd">Role</span><span class="hd">Count</span><span class="hd">Rate $/hr</span><span class="hd">Weeks</span><span class="hd" style="text-align:right">Line total</span>'+row('sup','Superintendent')+row('fore','Foreman')+row('work','Workers');
+      var calc=function(){ var tot=0; ['sup','fore','work'].forEach(function(k){ var r=R[k]; var lt=r.on?(+r.count||0)*(+r.rate||0)*40*(+r.weeks||0):0; tot+=lt; var el=rc.querySelector('[data-rt="'+k+'"]'); if(el)el.textContent=r.on&&lt?money(lt):'—'; }); var tv=sub.querySelector('[data-ratetotal]'); if(tv)tv.textContent=tot?('$'+Math.round(tot).toLocaleString()):'—'; return tot; };
+      rc.addEventListener('input',function(e){ var i=e.target.closest('[data-rk]'); if(!i)return; var r=R[i.dataset.rk]; if(i.dataset.rf==='on')r.on=i.checked; else r[i.dataset.rf]=+i.value||0; o.rates=R; calc(); });
+      rc.addEventListener('change',function(){ o.rates=R; if(R.work.count)o.heads=R.work.count; saveAll(); });
+      sub.querySelector('[data-rateuse]').addEventListener('click',function(){ var tot=calc(); o.rates=R; o.value=Math.round(tot); o.edited=today(); if(R.work.count)o.heads=R.work.count; saveAll(); showCompany(idx,true); toast('SAVED'); });
+      calc();
+    }
     sub.querySelectorAll('[data-stage]').forEach(function(b){ b.addEventListener('click',function(){ var s=b.dataset.stage; if(s===o.stage)return; o.stage=s; if(s==='Qualified'&&!o.qualified)o.qualified=today(); if(s==='Won'||s==='Lost')o.closed=today(); else delete o.closed; saveAll(); showCompany(idx); }); });
     var pf=sub.querySelector('[data-plan]'); pf.addEventListener('change',function(){ var file=pf.files[0]; if(!file)return;
       var finish=function(src){ o.plan={src:src,name:file.name,type:file.type,date:today()}; saveAll(); showCompany(idx); };
@@ -521,5 +598,19 @@
   sub.addEventListener('keydown',function(e){ if(e.key==='Enter'){ var c=e.target.closest('[data-co]'); if(c)showCompany(+c.dataset.co); } });
   // opportunities table: clicking a project name opens its page too
   var rows=$('oppRows'); if(rows) rows.addEventListener('click',function(e){ if(e.target.closest('button'))return; var tr=e.target.closest('tr'); if(!tr)return; var b=tr.querySelector('button[data-i]'); if(!b)return; cur={key:null,val:null}; showCompany(+b.dataset.i); });
-  window.addEventListener('hashchange',function(){ if(location.hash!=='#pipeline')showHome(); });
+  try{ if(!history.state||!history.state.pipe) history.replaceState({pipe:'home'},'',location.href); }catch(e){}
+  window.addEventListener('popstate',function(e){ var s=e.state||{}; if(location.hash!=='#pipeline')return; if(s.pipe==='company'){ cur={key:s.key,val:s.val}; showCompany(s.idx,true); } else if(s.pipe==='group'){ showGroup(s.key,s.val,true); } else { showHome(true); } });
+  window.addEventListener('hashchange',function(){ if(location.hash!=='#pipeline')showHome(true); });
+  // ---- search across all companies
+  var sIn=$('pipeSearch'), sOut=$('pipeSearchResults');
+  if(sIn){ var doSearch=function(){ var q=sIn.value.trim().toLowerCase(); if(!q){ sOut.hidden=true; sOut.innerHTML=''; return; }
+      var hits=OPPS().map(function(o,i){o._i=i;return o}).filter(function(o){ return [o.project,o.gc,o.contact,o.metro,o.trade,o.location,o.status,o.projectType].join(' ').toLowerCase().indexOf(q)>=0; }).slice(0,30);
+      sOut.innerHTML=hits.length?hits.map(function(o){ return '<div class="sr-item" role="button" tabindex="0" data-sr="'+o._i+'"><div><div class="t">'+esc(o.project)+'</div><div class="m">'+esc([o.metro,o.trade,o.contact].filter(Boolean).join(' · '))+'</div></div><div style="text-align:right"><span class="'+stageCls(o.stage)+'">'+esc(o.stage)+'</span><div class="m mono">'+(o.value?money(o.value):'')+'</div></div></div>'; }).join('')+(hits.length===30?'<div class="m" style="padding:8px 14px">Showing first 30 — keep typing to narrow.</div>':''):'<div class="sr-item"><div class="m">No companies match "'+esc(sIn.value)+'".</div></div>';
+      sOut.hidden=false; };
+    sIn.addEventListener('input',doSearch); sIn.addEventListener('focus',doSearch);
+    sOut.addEventListener('click',function(e){ var r=e.target.closest('[data-sr]'); if(!r)return; sOut.hidden=true; sIn.value=''; cur={key:null,val:null}; showCompany(+r.dataset.sr); });
+    sOut.addEventListener('keydown',function(e){ if(e.key==='Enter'){ var r=e.target.closest('[data-sr]'); if(r){ sOut.hidden=true; sIn.value=''; showCompany(+r.dataset.sr); } } });
+    document.addEventListener('click',function(e){ if(!e.target.closest('#pipeSearch,#pipeSearchResults')) sOut.hidden=true; });
+    sIn.addEventListener('keydown',function(e){ if(e.key==='Escape'){ sOut.hidden=true; } });
+  }
 })();
