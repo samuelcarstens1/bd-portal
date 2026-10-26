@@ -4,7 +4,7 @@
   'use strict';
   var $=function(id){return document.getElementById(id)};
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
-  function money(n){ n=+n||0; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function money(n){ n=+n||0; return '$'+n.toLocaleString(window.BDP_LOCALE||'en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function moneyK(n){ if(n>=1e6)return '$'+(n/1e6).toFixed(n>=1e7?0:1)+'M'; if(n>=1e3)return '$'+Math.round(n/1e3)+'K'; return '$'+Math.round(n); }
   function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
   function load(k,def){ try{var v=JSON.parse(localStorage.getItem(k)); return v==null?def:v;}catch(e){return def} }
@@ -139,7 +139,7 @@
   function weekEndingOf(dstr){ var d=new Date(dstr+'T12:00:00'); var dow=(d.getDay()+6)%7; d.setDate(d.getDate()+(6-dow)); return d.toISOString().slice(0,10); }
   var curWeek=weekEndingOf(today());
   function addDays(s,n){ var d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
-  function fmtD(s,o){ return new Date(s+'T12:00:00').toLocaleDateString('en-US',o||{month:'short',day:'numeric'}); }
+  function fmtD(s,o){ return new Date(s+'T12:00:00').toLocaleDateString(window.BDP_LOCALE||'en-US',o||{month:'short',day:'numeric'}); }
   function amountOf(e){ return e.cat==='Miles Driven'?(+e.miles||0)*(+EXPMETA.rate||0):(+e.amount||0); }
   function saveExp(){ save('bdp-expenses',EXP); save('bdp-expmeta',EXPMETA); }
 
@@ -178,7 +178,7 @@
     // Overview card: current month
     var m=today().slice(0,7), mon=EXP.filter(function(e){return e.date.slice(0,7)===m}), mt=0, byc={};
     mon.forEach(function(e){var a=amountOf(e);mt+=a;byc[e.cat]=(byc[e.cat]||0)+a});
-    set('ovExpMonth',new Date().toLocaleDateString('en-US',{month:'long'})); set('ovExpTotal',mon.length?money(mt):'—');
+    set('ovExpMonth',new Date().toLocaleDateString(window.BDP_LOCALE||'en-US',{month:'long'})); set('ovExpTotal',mon.length?money(mt):'—');
     var top=Object.keys(byc).sort(function(a,b){return byc[b]-byc[a]}).slice(0,4);
     if($('ovExpRows'))$('ovExpRows').innerHTML=top.map(function(c){return '<div class="kv"><span>'+esc(c.replace('*',''))+'</span><span class="v">'+money(byc[c])+'</span></div>'}).join('');
     set('ovExpFoot',mon.length?(mon.length+' expenses · '+mon.filter(function(e){return e.receipt}).length+' receipts attached'):'No expenses logged yet');
@@ -275,7 +275,7 @@
   function load(k,def){ try{var v=JSON.parse(localStorage.getItem(k)); return v==null?def:v;}catch(e){return def} }
   function save(k,v){ try{localStorage.setItem(k,JSON.stringify(v))}catch(e){ alert('Could not save — browser storage is full. Large photos are the usual cause.'); } }
   function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-  function fmtD(s,o){ return new Date(s+'T12:00:00').toLocaleDateString('en-US',o||{month:'short',day:'numeric',year:'numeric'}); }
+  function fmtD(s,o){ return new Date(s+'T12:00:00').toLocaleDateString(window.BDP_LOCALE||'en-US',o||{month:'short',day:'numeric',year:'numeric'}); }
   function set(id,t){var e=$(id);if(e)e.textContent=t}
   function uid(){ return Math.random().toString(36).slice(2,9); }
 
@@ -398,7 +398,7 @@
   // ---- Daily reports UI
   function renderCal(){
     var g=$('calGrid'); if(!g)return; var y=+calMonth.slice(0,4), m=+calMonth.slice(5,7)-1; var first=new Date(y,m,1); var startDow=(first.getDay()+6)%7; var dim=new Date(y,m+1,0).getDate();
-    $('calTitle').textContent=first.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    $('calTitle').textContent=first.toLocaleDateString(window.BDP_LOCALE||'en-US',{month:'long',year:'numeric'});
     var html=['Mo','Tu','We','Th','Fr','Sa','Su'].map(function(d){return '<span class="dow">'+d+'</span>'}).join('');
     var prevDim=new Date(y,m,0).getDate();
     for(var i=startDow-1;i>=0;i--){ var pd=new Date(y,m-1,prevDim-i); html+=cell(pd,true); }
@@ -433,7 +433,7 @@
     $('calNext').addEventListener('click',function(){ var y=+calMonth.slice(0,4),m=+calMonth.slice(5,7); var d=new Date(y,m,1); calMonth=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); renderCal(); });
     $('rptPanel').addEventListener('click',function(e){ var b=e.target.closest('button[data-rinc],button[data-rdec]'); if(!b)return; var r=day(selDay,true); var k=b.dataset.rinc||b.dataset.rdec; r[k]=Math.max(0,(+r[k]||0)+(b.dataset.rinc?1:-1)); if(r.status==='none')r.status='draft'; saveR(); renderReport(); });
     $('rptSave').addEventListener('click',function(){ var r=day(selDay,true); readForm(r); if(r.status!=='submitted')r.status='draft'; r.savedAt=today(); saveR(); renderReport(); toastMsg('SAVED'); });
-    $('rptSubmit').addEventListener('click',function(){ var r=day(selDay,true); readForm(r); r.status='submitted'; r.submittedAt=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveR(); renderReport(); toastMsg('SUBMITTED'); });
+    $('rptSubmit').addEventListener('click',function(){ var r=day(selDay,true); readForm(r); r.status='submitted'; r.submittedAt=new Date().toLocaleString(window.BDP_LOCALE||'en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); saveR(); renderReport(); toastMsg('SUBMITTED'); });
     ['rptTitle','rptWhere','rptHappened','rptMovement','rptTomorrow'].forEach(function(id){ $(id).addEventListener('change',function(){ var r=day(selDay,true); readForm(r); if(r.status==='none')r.status='draft'; r.savedAt=today(); saveR(); renderCal(); renderWeekStrip(); }); });
   }
   var toastT2; function toastMsg(m){ var t=$('toast'); if(!t)return; t.textContent=m; t.classList.add('show'); clearTimeout(toastT2); toastT2=setTimeout(function(){t.classList.remove('show')},1800); }

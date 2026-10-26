@@ -741,6 +741,12 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .rates .rowt{font-family:var(--mono);text-align:right}
 @media (max-width:760px){.rates{grid-template-columns:auto minmax(0,1fr) 90px}.rates .hd:nth-child(n+4),.rates .c4,.rates .c5,.rates .c6{display:none}}
 
+.langbtn{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#C9D1DE;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;cursor:pointer}
+.langbtn .on{color:#fff;text-decoration:underline;text-underline-offset:3px}.langbtn .sep{opacity:.4}
+.langwrap{padding:0 8px}
+.langtop{position:fixed;top:max(14px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:40;background:var(--navy);border-color:var(--navy);box-shadow:0 4px 14px rgba(22,35,47,.18)}
+@media (max-width:760px){.langtop{display:none}}
+
 /* Phone */
 @media (max-width:760px){
   .shell{flex-direction:column}
@@ -756,6 +762,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 </style>
 </head>
 <body>
+<script src="i18n.js"></script>
 
 <div class="shell">
 <nav class="side" id="side" aria-label="Portal sections">
@@ -1498,7 +1505,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   var ranges = document.querySelectorAll("[data-range]");
 
   function fmt(d){
-    return d.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+    return d.toLocaleDateString(window.BDP_LOCALE||'en-US', {month:"short", day:"numeric", year:"numeric"});
   }
   function addDays(date, n){
     var d = new Date(date.getTime());
@@ -1666,7 +1673,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   // review calendar
   function startDate(){ var v=$('startdate')&&$('startdate').value; var d=new Date((v||'2026-09-09')+'T00:00:00'); return isNaN(d)?new Date():d; }
   function addDays(d,n){var x=new Date(d.getTime());x.setDate(x.getDate()+n);return x;}
-  function fmt(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+  function fmt(d){return d.toLocaleDateString(window.BDP_LOCALE||'en-US',{month:'short',day:'numeric',year:'numeric'})}
   function renderReviews(){
     var tb=$('reviewRows'); if(!tb)return; var s=startDate(), today=new Date(); today.setHours(0,0,0,0);
     var list=[{id:'d30',name:'30-day check-in',ref:'§9, §10',day:30},{id:'d60',name:'60-day mid-phase check-in',ref:'§9',day:60},{id:'d90',name:'90-day introductory period review',ref:'§10',day:90}];
@@ -1824,7 +1831,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   show();
   menuBtn.addEventListener('click',function(){var o=side.classList.toggle('open');menuBtn.setAttribute('aria-expanded',o?'true':'false')});
   var d=new Date();
-  document.getElementById('todayLine').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric',year:'numeric'}).replace(',',' ·')+' · Week 7 in role';
+  document.getElementById('todayLine').textContent=d.toLocaleDateString(window.BDP_LOCALE||'en-US',{weekday:'long',month:'short',day:'numeric',year:'numeric'}).replace(',',' ·')+' · Week 7 in role';
   document.getElementById('researchForm').addEventListener('submit',function(e){e.preventDefault();
     var q=document.getElementById('researchQ').value.trim();
     document.getElementById('researchNote').textContent=q?('Brief for "'+q+'" will generate here once the portal is connected.'):'Enter a company name.';
