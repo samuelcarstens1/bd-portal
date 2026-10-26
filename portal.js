@@ -453,3 +453,73 @@
     var f=document.getElementById('oppFoot'); if(f&&n) f.textContent='Loaded '+n+' companies from Framing the Pipeline · '+f.textContent;
   }).catch(function(){});
 })();
+
+/* ===================== PIPELINE DRILL-DOWN: metro / trade pages and company job pages ===================== */
+(function(){
+  'use strict';
+  var $=function(id){return document.getElementById(id)};
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+  function money(n){ n=+n||0; if(n>=1e6)return '$'+(n/1e6).toFixed(n>=1e7?0:1)+'M'; if(n>=1e3)return '$'+Math.round(n/1e3)+'K'; return '$'+Math.round(n); }
+  function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  var home=$('pipeHome'), sub=$('pipeSub'); if(!home||!sub)return;
+  function OPPS(){ return window.OPPS||[]; }
+  function saveAll(){ try{localStorage.setItem('bdp-opps',JSON.stringify(OPPS()))}catch(e){ alert('Could not save — browser storage is full. Site plans are the usual cause; try a smaller file.'); } if(window.renderPipeline)window.renderPipeline(); }
+  var ACTIVE=['Qualified','Meeting set','Proposal sent','Verbal yes'];
+  var STAGES_ALL=['New','Qualified','Meeting set','Proposal sent','Verbal yes','Won','Lost'];
+  var cur={key:null,val:null};
+  var hdr=$('view-pipeline').querySelector('header.head');
+  function showHome(){ sub.hidden=true; home.hidden=false; if(hdr)hdr.hidden=false; window.scrollTo(0,0); }
+  function groupList(key,val){ return OPPS().map(function(o,i){o._i=i;return o}).filter(function(o){ return ACTIVE.indexOf(o.stage)>=0 && (o[key]||'—')===val; }); }
+  function stageCls(s){ return (s==='Won'||s==='Verbal yes'||s==='Proposal sent')?'tag ok':'tag'; }
+
+  function showGroup(key,val){
+    cur={key:key,val:val}; var list=groupList(key,val); var total=list.reduce(function(a,o){return a+(+o.value||0)},0);
+    sub.innerHTML='<div style="display:flex;flex-direction:column;gap:16px">'
+      +'<div><button class="btn" type="button" data-back="home">‹ Pipeline</button></div>'
+      +'<header class="head"><div class="head-left"><span class="eyebrow">By '+esc(key)+' · '+list.length+' qualified opportunit'+(list.length===1?'y':'ies')+'</span><h1>'+esc(val)+'</h1><span class="sub">Total value '+money(total)+'. Click a company for the job details, site plan and price.</span></div></header>'
+      +'<div class="sublist">'+(list.length?list.map(function(o){ return '<div class="co" role="button" tabindex="0" data-co="'+o._i+'"><div><div class="t">'+esc(o.project)+'</div><div class="m">'+esc([o.gc,o.location||o.metro,o.trade].filter(Boolean).join(' · '))+'</div></div><div><div class="m"><span class="'+stageCls(o.stage)+'">'+esc(o.stage)+'</span>'+(o.contact?' · '+esc(o.contact):'')+'</div><div class="m">'+esc(o.next||o.status||'')+'</div></div><div class="mono" style="text-align:right;font-weight:600">'+(o.value?money(o.value):'<span style="color:var(--accent)">Set price</span>')+'</div><div style="text-align:right;color:var(--accent)">›</div></div>'; }).join(''):'<div class="empty">No qualified opportunities in this group.</div>')+'</div></div>';
+    home.hidden=true; sub.hidden=false; if(hdr)hdr.hidden=true; window.scrollTo(0,0);
+  }
+
+  function showCompany(idx){
+    var o=OPPS()[idx]; if(!o)return; var si=STAGES_ALL.indexOf(o.stage);
+    var f=function(label,key,type,wide){ return '<label class="'+(wide?'wide':'')+'">'+label+'<input data-f="'+key+'" type="'+(type||'text')+'" value="'+esc(o[key]||'')+'"></label>'; };
+    sub.innerHTML='<div style="display:flex;flex-direction:column;gap:18px">'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-back="group">‹ '+esc(cur.val||'Back')+'</button><button class="btn" type="button" data-back="home">Pipeline</button></div>'
+      +'<header class="head"><div class="head-left"><span class="eyebrow">'+esc(o.metro||'')+' · '+esc(o.trade||'')+'</span><h1>'+esc(o.project)+'</h1><span class="sub">'+esc([o.gc,o.location,o.projectType].filter(Boolean).join(' · '))+'</span></div><div class="head-right"><span class="'+stageCls(o.stage)+'" style="font-size:13px;padding:6px 12px">'+esc(o.stage)+'</span></div></header>'
+      +'<div class="price"><div style="display:flex;flex-direction:column;gap:4px"><span class="label" style="color:var(--mute-soft)">Price for this project</span><span class="sub13" style="color:var(--navy-dim)">Counts toward the '+esc(o.stage)+' total in By stage, By metro and By trade.</span></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="mono" style="font-size:22px">$</span><input data-f="value" type="number" min="0" step="1000" value="'+(o.value||'')+'" placeholder="0" aria-label="Price"><button class="btn" type="button" data-saveprice style="background:var(--accent);border-color:var(--accent);color:#fff">Save price</button></div></div>'
+      +'<div class="card"><div class="card-head"><h2>Job details</h2><span class="note">Edits save when you leave a field</span></div><div class="detail">'
+      +f('Company / project','project')+f('General contractor','gc')+f('Metro','metro')
+      +'<label>Trade<select data-f="trade">'+['Drywall &amp; metal framing','Acoustical ceilings','Insulation','Drywall / ACT combined','General labor','General contractor','Other'].map(function(t){var tt=t.replace('&amp;','&');return '<option'+(tt===o.trade?' selected':'')+'>'+t+'</option>'}).join('')+'</select></label>'
+      +f('Heads','heads','number')+f('Weeks','weeks','number')
+      +f('Decision-maker / contact','contact')+f('Phone','phone','tel')+f('Email','email','email')
+      +f('Location / address','location',null,true)+f('Project type / scope','projectType',null,true)
+      +f('Relationship status','status')+f('Next step','next')+f('Timeline','timeline')
+      +'<label class="wide">Notes<textarea data-f="notes">'+esc(o.notes||'')+'</textarea></label>'
+      +'</div></div>'
+      +'<div class="card"><div class="card-head"><h2>Site plan</h2><label class="btn" style="display:inline-flex;align-items:center;cursor:pointer;position:relative;overflow:hidden"><input type="file" data-plan accept="image/*,.pdf" style="position:absolute;width:1px;height:1px;opacity:0">Attach site plan</label></div><div class="plan">'
+      +(o.plan?(o.plan.type==='application/pdf'?'<a class="btn" href="'+o.plan.src+'" target="_blank" rel="noopener">Open PDF · '+esc(o.plan.name)+'</a>':'<a href="'+o.plan.src+'" target="_blank" rel="noopener"><img src="'+o.plan.src+'" alt="Site plan"></a>')+'<span class="sub13">'+esc(o.plan.name)+' · attached '+esc(o.plan.date)+'</span><button class="sbtn quiet" type="button" data-planrm>Remove</button>':'<span class="sub13">No site plan attached. Images or PDF up to about 2 MB.</span>')
+      +'</div></div>'
+      +'<div class="card"><div class="card-head"><h2>Stage</h2><span class="note">Opened '+esc(o.opened||'')+(o.qualified?' · qualified '+esc(o.qualified):'')+(o.closed?' · closed '+esc(o.closed):'')+'</span></div><div class="acts">'
+      +STAGES_ALL.slice(0,5).map(function(s,i){return '<button class="sbtn'+(o.stage===s?' go':'')+'" type="button" data-stage="'+s+'">'+s+'</button>'}).join('')+'<button class="sbtn win" type="button" data-stage="Won">Won</button><button class="sbtn quiet" type="button" data-stage="Lost">Lost</button></div></div>'
+      +'</div>';
+    home.hidden=true; sub.hidden=false; if(hdr)hdr.hidden=true; window.scrollTo(0,0);
+    sub.querySelectorAll('[data-f]').forEach(function(inp){ inp.addEventListener('change',function(){ var k=inp.dataset.f; o[k]=(inp.type==='number')?(+inp.value||0):inp.value; o.edited=today(); saveAll(); if(k==='value'||k==='metro'||k==='trade'||k==='project')showCompany(idx); }); });
+    sub.querySelector('[data-saveprice]').addEventListener('click',function(){ var inp=sub.querySelector('input[data-f="value"]'); o.value=+inp.value||0; o.edited=today(); saveAll(); showCompany(idx); });
+    sub.querySelectorAll('[data-stage]').forEach(function(b){ b.addEventListener('click',function(){ var s=b.dataset.stage; if(s===o.stage)return; o.stage=s; if(s==='Qualified'&&!o.qualified)o.qualified=today(); if(s==='Won'||s==='Lost')o.closed=today(); else delete o.closed; saveAll(); showCompany(idx); }); });
+    var pf=sub.querySelector('[data-plan]'); pf.addEventListener('change',function(){ var file=pf.files[0]; if(!file)return;
+      var finish=function(src){ o.plan={src:src,name:file.name,type:file.type,date:today()}; saveAll(); showCompany(idx); };
+      if(file.type==='application/pdf'){ if(file.size>2.5e6){ alert('That PDF is '+(file.size/1e6).toFixed(1)+' MB — too large to keep in the browser. Export a smaller PDF or a screenshot of the plan.'); return; } var r=new FileReader(); r.onload=function(){finish(r.result)}; r.readAsDataURL(file); }
+      else { var img=new Image(), url=URL.createObjectURL(file); img.onload=function(){ var s=Math.min(1,1800/Math.max(img.width,img.height)); var c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); finish(c.toDataURL('image/jpeg',0.8)); }; img.src=url; }
+    });
+    var prm=sub.querySelector('[data-planrm]'); if(prm) prm.addEventListener('click',function(){ delete o.plan; saveAll(); showCompany(idx); });
+  }
+
+  // navigation
+  ['byMetro','byTrade'].forEach(function(id){ var el=$(id); if(!el)return; el.addEventListener('click',function(e){ var r=e.target.closest('[data-gkey]'); if(r)showGroup(r.dataset.gkey,r.dataset.gval); }); el.addEventListener('keydown',function(e){ if(e.key==='Enter'){ var r=e.target.closest('[data-gkey]'); if(r)showGroup(r.dataset.gkey,r.dataset.gval); } }); });
+  sub.addEventListener('click',function(e){ var b=e.target.closest('[data-back]'); if(b){ if(b.dataset.back==='home')showHome(); else if(cur.key)showGroup(cur.key,cur.val); else showHome(); return; } var c=e.target.closest('[data-co]'); if(c)showCompany(+c.dataset.co); });
+  sub.addEventListener('keydown',function(e){ if(e.key==='Enter'){ var c=e.target.closest('[data-co]'); if(c)showCompany(+c.dataset.co); } });
+  // opportunities table: clicking a project name opens its page too
+  var rows=$('oppRows'); if(rows) rows.addEventListener('click',function(e){ if(e.target.closest('button'))return; var tr=e.target.closest('tr'); if(!tr)return; var b=tr.querySelector('button[data-i]'); if(!b)return; cur={key:null,val:null}; showCompany(+b.dataset.i); });
+  window.addEventListener('hashchange',function(){ if(location.hash!=='#pipeline')showHome(); });
+})();

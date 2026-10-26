@@ -694,6 +694,24 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .phase .phase-head h2::before{content:"▾ ";color:var(--muted);font-size:.8em}
 .phase.collapsed .phase-head h2::before{content:"▸ "}
 
+.kv.drill{cursor:pointer;border-radius:4px}.kv.drill:hover{background:var(--bg)}
+.sublist{display:flex;flex-direction:column;gap:10px}
+.co{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) 120px 40px;gap:12px;align-items:center;cursor:pointer}
+.co:hover{border-color:var(--accent)}
+.co .t{font-weight:700;font-size:15px}.co .m{font-size:13px;color:var(--muted)}
+@media (max-width:760px){.co{grid-template-columns:1fr}}
+.detail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:1000px){.detail{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.detail{grid-template-columns:1fr}}
+.detail label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.detail input,.detail select,.detail textarea{min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;text-transform:none;letter-spacing:0;font-weight:400}
+.detail textarea{padding:8px 10px;min-height:70px}
+.detail .wide{grid-column:1/-1}
+.price{background:var(--navy);color:#fff;border-radius:10px;padding:18px 20px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.price input{font-family:var(--mono);font-size:24px;font-weight:600;min-height:48px;padding:0 12px;border:1px solid rgba(255,255,255,.25);border-radius:6px;background:rgba(255,255,255,.08);color:#fff;width:200px}
+.plan{border:1px dashed var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.plan img{max-width:220px;max-height:160px;border-radius:6px;border:1px solid var(--line)}
+
 /* Phone */
 @media (max-width:760px){
   .shell{flex-direction:column}
@@ -824,6 +842,8 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     </div>
     <div class="head-right"><button class="btn primary" type="button" id="addOppBtn" aria-expanded="false" aria-controls="addOppCard">Add opportunity</button></div>
   </header>
+  <div id="pipeSub" hidden></div>
+  <div id="pipeHome">
 
   <div class="card" id="addOppCard" hidden>
     <div class="card-head"><h2 id="oppFormTitle">New opportunity</h2><span class="note">Enters at the New stage</span></div>
@@ -877,6 +897,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       <tbody id="oppRows"></tbody>
     </table></div>
     <div class="sub13" style="padding:14px 24px" id="oppFoot"></div>
+  </div>
   </div>
 </section>
 
@@ -1663,7 +1684,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
     var el=$(id); if(!el)return;
     if(!list.length){ el.innerHTML='<div class="empty">'+esc(emptyText)+'</div>'; return; }
     el.innerHTML='<div class="rows">'+groupRows(list,key).map(function(g){
-      return '<div class="kv"><span>'+esc(g.k)+' <span class="muted">· '+g.n+'</span></span><span class="v">'+money(g.t)+' <span class="muted">· '+money(g.w)+'</span></span></div>';
+      return '<div class="kv drill" role="button" tabindex="0" data-gkey="'+esc(key)+'" data-gval="'+esc(g.k)+'"><span>'+esc(g.k)+' <span class="muted">· '+g.n+'</span></span><span class="v">'+money(g.t)+' <span class="muted">· '+money(g.w)+'</span> <span style="color:var(--accent)">›</span></span></div>';
     }).join('')+'</div>';
   }
 
