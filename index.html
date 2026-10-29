@@ -759,6 +759,70 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   .head h1{font-size:26px}
 }
 @media (prefers-reduced-motion:no-preference){.tool,.nav a,.btn{transition:border-color .15s,background .15s}}
+/* Labor Demand Radar (#view-leads) */
+#view-leads .lr-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#view-leads .lr-controls select{min-height:44px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-family:var(--sans);font-size:14px;max-width:100%}
+#view-leads .lr-controls input[type=search]{flex:1 1 220px;width:auto}
+.lr-seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--card)}
+.lr-seg button{min-height:44px;padding:0 16px;border:0;background:transparent;color:var(--fg);font-weight:600;cursor:pointer}
+.lr-seg button+button{border-left:1px solid var(--line)}
+.lr-seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.lr-seg button:focus-visible,#view-leads select:focus-visible,#view-leads summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lr-run{margin:0;max-width:80ch}
+.lr-hist summary,.lr-how summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--accent);list-style:none}
+.lr-hist summary::-webkit-details-marker,.lr-how summary::-webkit-details-marker{display:none}
+.lr-hist ul{margin:10px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.lr-how summary h2{font-size:18px;font-weight:700;display:inline}
+.lr-how summary::after{content:" +";font-family:var(--mono);color:var(--muted)}
+.lr-how[open] summary::after{content:" −"}
+.lr-how p{margin:6px 0 0}
+.lr-list{display:flex;flex-direction:column;gap:12px}
+.lr-empty{color:var(--muted);text-align:center}
+.lr-lead{display:grid;grid-template-columns:84px minmax(0,1fr);padding:0;gap:0;overflow:hidden}
+.lr-score{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 6px;background:var(--bg);border-right:1px solid var(--line-soft)}
+.lr-score .n{font-family:var(--mono);font-size:28px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.lr-score .n.t1{color:var(--accent)} .lr-score .n.t2{color:var(--s2)} .lr-score .n.t3{color:var(--s4)} .lr-score .n.t4{color:var(--muted)}
+.lr-score .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.lr-score .d.up{color:var(--good)} .lr-score .d.dn{color:var(--accent)}
+.lr-body{padding:16px 20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.lr-title{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:baseline}
+.lr-title h3{font-size:17px;font-weight:700;line-height:1.25;margin-right:4px}
+.lr-tag{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:var(--bg);color:var(--muted);white-space:nowrap}
+.lr-tag.new{background:var(--accent-wash);color:var(--accent)}
+.lr-tag.hire{background:var(--accent);color:#fff}
+.lr-tag.st{background:var(--good-wash);color:var(--good)}
+.lr-meta{font-size:13px;color:var(--muted)}
+.lr-window{font-size:14px}
+.lr-window b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--s4);margin-right:8px;font-weight:600}
+.lr-change{font-size:13px;color:var(--warn)}
+.lr-kv{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 12px;font-size:13.5px;margin:0}
+.lr-kv dt{color:var(--muted)} .lr-kv dd{margin:0;overflow-wrap:anywhere}
+.lr-more summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);list-style:none}
+.lr-more summary::-webkit-details-marker{display:none}
+.lr-more summary::before{content:"+ ";font-family:var(--mono)}
+.lr-more[open] summary::before{content:"− "}
+.lr-inner{display:flex;flex-direction:column;gap:12px;padding-top:10px}
+.lr-line{border-left:3px solid var(--accent);background:var(--bg);padding:8px 12px;font-size:14px;display:flex;gap:12px;justify-content:space-between;align-items:flex-start}
+.lr-line button{min-height:32px;padding:0 10px;border-radius:5px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap}
+.lr-why{border:1px solid var(--line-soft);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.lr-why-h{font-weight:700;font-size:14px}
+.lr-why-row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:start}
+.lr-why-l{font-size:12px;color:var(--muted)}
+.lr-why-l b{font-family:var(--mono);color:var(--fg)}
+.lr-track{height:6px;background:var(--line-soft);border-radius:3px;overflow:hidden;margin-top:4px}
+.lr-fill{height:100%;background:var(--s4)}
+.lr-why-t{font-size:13.5px}
+.lr-src a{display:block;font-size:13px;color:var(--accent);overflow-wrap:anywhere}
+.lr-src a:hover{text-decoration:underline}
+@media (max-width:640px){
+  #view-leads .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #view-leads .g4 .big{font-size:26px}
+  .lr-lead{grid-template-columns:62px minmax(0,1fr)}
+  .lr-score .n{font-size:22px}
+  .lr-kv{grid-template-columns:88px minmax(0,1fr)}
+  .lr-why-row{grid-template-columns:1fr}
+  .lr-line{flex-direction:column}
+}
 </style>
 </head>
 <body>
@@ -784,6 +848,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <a href="#reports" data-view="reports"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h7"/></svg>Daily Reports</a>
     <a href="#foundations" data-view="foundations"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>Annual Operation Plan</a>
     <a href="#leadgen" data-view="leadgen"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>Lead Gen</a>
+    <a href="#leads" data-view="leads"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/></svg>Lead Radar</a>
     <a href="#week" data-view="week" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Work Week Summary</a>
     <a href="#roi" data-view="roi"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Salary ROI</a>
     <a href="#expenses" data-view="expenses"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>Expense Report</a>
@@ -812,7 +877,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
   <div class="grid g4" aria-label="Key numbers">
     <a class="card tight tool" href="#pipeline" style="padding:20px 22px;gap:10px"><span class="label">Pipeline value</span><span class="big" id="ovTotal">—</span><span class="sub13" id="ovSub">—</span><span class="sub13" style="color:var(--accent);font-weight:600">See breakdown</span></a>
-    <div class="card tight"><span class="label">Active leads</span><span class="big">38</span><span class="sub13">12 data center · 26 commercial</span></div>
+    <a class="card tight" href="#leads"><span class="label">Leads to call</span><span class="big" id="ovLeadsBig">—</span><span class="sub13" id="ovLeadsSub">From the Labor Demand Radar</span></a>
     <a class="card tight tool" href="#week" style="padding:20px 22px;gap:10px"><span class="label">Meetings this week</span><span class="big" id="ovMeet">—</span><span class="sub13" id="ovMeetSub">—</span></a>
     <div class="card tight dark"><span class="label">Salary ROI (to date)</span><span class="big" style="color:var(--accent-bright)">3.1×</span><span class="sub13" style="color:var(--navy-dim)">Gross margin placed ÷ cost of seat</span></div>
   </div>
@@ -858,7 +923,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <h2 style="font-size:18px;font-weight:700">Lead Gen tools</h2>
     <div class="grid g4">
       <a class="card tool" href="#contacts"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4a3.5 3.5 0 0 1 0 7M18 13.5a6.5 6.5 0 0 1 3.5 6.5"/></svg><span class="t">Company contact database</span><span class="d">Every GC, developer and decision-maker in territory, with verified LinkedIn profiles.</span><span class="m">412 contacts · 96 companies</span></a>
-      <a class="card tool" href="#leads"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg><span class="t">Labor staffing lead generation</span><span class="d">Permits, bid boards and project announcements turned into ranked labor leads.</span><span class="m">23 new this week</span></a>
+      <a class="card tool" href="#leads"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg><span class="t">Labor Demand Radar</span><span class="d">Projects scored daily on how soon they will need drywall, framing, ACT and insulation labor.</span><span class="m" id="ovLeadsMeta">—</span></a>
       <a class="card tool" href="#flow"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3 7M16 8l-3 7"/></svg><span class="t">Who's Working Where</span><span class="d">Interactive flowchart of which companies are on which jobs across FL, TX, LA and GA.</span><span class="m">Updated Oct 20</span></a>
       <a class="card tool" href="#research"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="t">Company researcher</span><span class="d">One-page brief on any prospect: projects, key people, labor needs, best way in.</span><span class="m">31 briefs generated</span></a>
     </div>
@@ -1380,7 +1445,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   <header class="head"><div class="head-left"><span class="eyebrow">Prospecting tools</span><h1 id="h-leadgen">Lead Gen</h1><span class="sub">Four tools for finding, researching and tracking who to call next.</span></div></header>
   <div class="grid g2">
     <a class="card tool" href="#contacts" style="padding:28px;gap:12px;min-height:160px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4a3.5 3.5 0 0 1 0 7M18 13.5a6.5 6.5 0 0 1 3.5 6.5"/></svg><span class="t" style="font-size:18px">Contact Database</span><span class="d">Every GC, developer and decision-maker in territory. Add, import, search.</span><span class="m" id="lgContacts">—</span></a>
-    <a class="card tool" href="#leads" style="padding:28px;gap:12px;min-height:160px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg><span class="t" style="font-size:18px">Lead Generation</span><span class="d">Permits, bid boards and announcements scored for labor demand.</span><span class="m">Module layout — connect next</span></a>
+    <a class="card tool" href="#leads" style="padding:28px;gap:12px;min-height:160px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg><span class="t" style="font-size:18px">Labor Demand Radar</span><span class="d">Projects scored daily on how soon they will need drywall, framing, ACT and insulation labor.</span><span class="m" id="lgLeadsMeta">—</span></a>
     <a class="card tool" href="#flow" style="padding:28px;gap:12px;min-height:160px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3 7M16 8l-3 7"/></svg><span class="t" style="font-size:18px">Who's Working Where</span><span class="d">Interactive flowchart of which companies are on which jobs.</span><span class="m">Embed slot</span></a>
     <a class="card tool" href="#research" style="padding:28px;gap:12px;min-height:160px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="t" style="font-size:18px">Company Researcher</span><span class="d">One-page brief on any prospect: projects, people, labor needs, way in.</span><span class="m">Connects to Claude next</span></a>
   </div>
@@ -1430,12 +1495,54 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </div>
 </section>
 
-<!-- LEADS -->
+<!-- LEADS: Labor Demand Radar, refreshed daily from data/leads.json (see scripts/export_leads.py) -->
 <section class="view" id="view-leads" aria-labelledby="h-leads">
   <div><a class="btn" href="#leadgen" style="display:inline-flex;align-items:center">‹ Lead Gen</a></div>
-  <header class="head"><div class="head-left"><span class="eyebrow">23 new this week</span><h1 id="h-leads">Labor staffing lead generation</h1><span class="sub">Permits, bid boards and announcements scored for drywall, framing, ACT and insulation labor demand.</span></div><div class="head-right"><span class="pill"><span class="dot"></span>Sample data</span></div></header>
-  <div class="card module"><span class="status">● Module layout</span><p>Each lead arrives as a card: project, GC, metro, stage, estimated head count and a score. One click moves it into the contact database or the Foundations timeline.</p>
-    <ul><li>Sources: county permits, Dodge/ConstructConnect-style bid boards, press and LinkedIn announcements</li><li>Scoring: trade fit × metro × stage × size</li><li>Owner: Samuel · reviewed weekly with Juan Carlos</li></ul></div>
+  <header class="head">
+    <div class="head-left"><span class="eyebrow" id="lrEyebrow">Loading leads…</span><h1 id="h-leads">Labor Demand Radar</h1><span class="sub">Projects across FL, TX, LA, GA, NC, SC, MS, TN and AL scored on how soon they will need drywall, framing, ACT and insulation labor.</span></div>
+    <div class="head-right"><span class="pill" id="lrFresh"><span class="dot"></span>Updated daily at 6:32 AM ET</span></div>
+  </header>
+
+  <div class="grid g4">
+    <div class="card tight"><span class="label">On call list</span><span class="big" id="lrCall">—</span><span class="sub13" id="lrCallSub">Score above 50</span></div>
+    <div class="card tight"><span class="label">New this week</span><span class="big" id="lrNew">—</span><span class="sub13">First seen in the last 7 days</span></div>
+    <div class="card tight"><span class="label">Hiring signals</span><span class="big" id="lrHire">—</span><span class="sub13">Contractors posting jobs for our trades</span></div>
+    <div class="card tight"><span class="label">Contacted</span><span class="big" id="lrTouch">—</span><span class="sub13">Leads with a logged call or meeting</span></div>
+  </div>
+
+  <div class="card" id="lrRunCard" hidden>
+    <div class="card-head"><h2>Latest daily run</h2><span class="note mono" id="lrRunDate"></span></div>
+    <p class="lr-run" id="lrRunSummary"></p>
+    <details class="lr-hist"><summary>Earlier runs</summary><ul id="lrHist"></ul></details>
+  </div>
+
+  <div class="lr-controls">
+    <div class="lr-seg" role="group" aria-label="Which leads">
+      <button type="button" data-lrtab="call" aria-pressed="true">Call list</button>
+      <button type="button" data-lrtab="pipeline" aria-pressed="false">Pipeline</button>
+      <button type="button" data-lrtab="all" aria-pressed="false">All</button>
+    </div>
+    <select id="lrState" aria-label="State"><option value="">All states</option></select>
+    <select id="lrType" aria-label="Project type"><option value="">All project types</option></select>
+    <select id="lrSort" aria-label="Sort">
+      <option value="score">Sort: score</option>
+      <option value="new">Sort: newest</option>
+      <option value="move">Sort: biggest score change</option>
+    </select>
+    <input type="search" id="lrQ" placeholder="Search project, GC, metro" aria-label="Search leads">
+  </div>
+  <div class="sub13" id="lrCount" aria-live="polite"></div>
+  <div class="lr-list" id="lrList"><div class="card lr-empty">Loading the lead list…</div></div>
+
+  <details class="card lr-how">
+    <summary><h2>How leads are found and scored</h2></summary>
+    <div class="grid g2">
+      <div><span class="label">Where leads come from</span><p class="sub13">Public sources only: business journals, Construction Dive, ENR, hospital, university and GC press releases, county permit portals, Texas TDLR filings, and job boards. Every lead links to its sources.</p></div>
+      <div><span class="label">What gets a project on the list</span><p class="sub13">Large commercial first (healthcare, hotels, mixed-use, convention centers, arenas, office, higher-ed, government), then multifamily of 150+ units, then large data centers. Single-family and small tenant improvements are left out.</p></div>
+      <div><span class="label">How labor timing is estimated</span><p class="sub13">Metal framing starts once the structure tops out or dries in. Drywall follows framing and MEP rough-in by 1–3 months; ACT comes near the end. Windows are estimates from public milestones and get confirmed on the first call.</p></div>
+      <div><span class="label">The score (0–100)</span><p class="sub13">Timing 40 · project size 25 · active hiring 20 · project-type fit 10 · named contact 5. Above 50 goes on the call list. Every lead is re-checked and re-scored each morning.</p></div>
+    </div>
+  </details>
 </section>
 
 <!-- FLOW -->
@@ -1819,8 +1926,9 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
     if(views.indexOf(h)<0){ var t=document.getElementById(h), v=t&&t.closest&&t.closest('.view'); if(v){ h=v.id.replace('view-',''); } else h='overview'; }
     var anchor=(location.hash||'').slice(1)!==h?document.getElementById((location.hash||'').slice(1)):null;
     views.forEach(function(v){document.getElementById('view-'+v).classList.toggle('active',v===h)});
+    var navH={contacts:'leadgen',flow:'leadgen',research:'leadgen'}[h]||h;
     document.querySelectorAll('#nav a').forEach(function(a){
-      if(a.dataset.view===h)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
+      if(a.dataset.view===navH)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
     });
     side.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');
     if(anchor){ var pnl=anchor.closest&&anchor.closest('.ftp-panel'); if(pnl&&window.aopShowSub)window.aopShowSub(pnl.id.replace('panel-','')); anchor.scrollIntoView(); } else window.scrollTo(0,0);
@@ -1841,5 +1949,6 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 <script src="portal.js"></script>
+<script src="leads.js"></script>
 </body>
 </html>
