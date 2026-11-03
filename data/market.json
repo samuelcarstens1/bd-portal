@@ -20,7 +20,9 @@
     "NC": 31187000000.0,
     "SC": 12603000000.0,
     "TN": 13175000000.0
-   }
+   },
+   "label_es": "Inicios de construcción no residencial (edificación + ingeniería, sin residencial)",
+   "period_es": "ene–dic 2025"
   },
   {
    "id": "nonres_starts_chg",
@@ -41,7 +43,9 @@
     "NC": "+51.3%",
     "SC": "−23.8%",
     "TN": "−6.7%"
-   }
+   },
+   "label_es": "Inicios no residenciales, cambio % 2025 vs 2024",
+   "period_es": "ene–dic 2025"
   },
   {
    "id": "constr_emp",
@@ -62,7 +66,9 @@
     "NC": 295800,
     "SC": 130200,
     "TN": 167600
-   }
+   },
+   "label_es": "Empleos en construcción",
+   "period_es": "sept 2026, BLS desestacionalizado"
   },
   {
    "id": "constr_emp_chg",
@@ -83,7 +89,9 @@
     "NC": "+5.7%",
     "SC": "+4.4%",
     "TN": "+0.5%"
-   }
+   },
+   "label_es": "Empleos en construcción, cambio en 12 meses",
+   "period_es": "sept 2025 – sept 2026"
   },
   {
    "id": "housing_permits",
@@ -104,7 +112,9 @@
     "NC": 86167,
     "SC": 45862,
     "TN": 43374
-   }
+   },
+   "label_es": "Viviendas autorizadas, todos los tamaños (no hubo cifras solo multifamiliares)",
+   "period_es": "2025; esta fuente no publica AL, MS, LA"
   },
   {
    "id": "dc_mw_uc",
@@ -125,7 +135,9 @@
     "NC": 577,
     "SC": 30,
     "TN": 115
-   }
+   },
+   "label_es": "Potencia de centros de datos en construcción, MW (orientativo: agregador)",
+   "period_es": "oct 2026"
   },
   {
    "id": "dc_mw_planned",
@@ -146,7 +158,9 @@
     "NC": 1500,
     "SC": 2200,
     "TN": 168
-   }
+   },
+   "label_es": "Potencia de centros de datos planificada, MW (orientativo: agregador)",
+   "period_es": "oct 2026"
   }
  ],
  "notes": [
@@ -154,73 +168,86 @@
    "state": "TX",
    "projectType": "Data center",
    "text": "Texas data center starts topped $22B through Aug 2026, with $11B+ more planned for the rest of the year.",
-   "url": "https://news.constructconnect.com/october-2026-data-center-report-spending-reaches-98.5-billion-ytd-construction-costs-rise"
+   "url": "https://news.constructconnect.com/october-2026-data-center-report-spending-reaches-98.5-billion-ytd-construction-costs-rise",
+   "text_es": "Los inicios de centros de datos en Texas superaron $22B hasta agosto de 2026, con más de $11B adicionales planificados para el resto del año."
   },
   {
    "state": "TX",
    "projectType": "Data center",
    "text": "Vantage's $25B, 1.4 GW Frontier campus in Shackelford County expects its first building in the second half of 2026.",
-   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026"
+   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026",
+   "text_es": "El campus Frontier de Vantage ($25B, 1.4 GW) en el condado de Shackelford espera su primer edificio en el segundo semestre de 2026."
   },
   {
    "state": "FL",
    "projectType": "Multifamily",
    "text": "Florida multifamily permits rose 29.6% in 2025 but fell 28.1% in Jan–Aug 2026 vs. the same months of 2025 (NAHB).",
-   "url": "https://eyeonhousing.org/2026/10/single-family-permitting-declines-through-august/"
+   "url": "https://eyeonhousing.org/2026/10/single-family-permitting-declines-through-august/",
+   "text_es": "Los permisos multifamiliares de Florida subieron 29.6% en 2025 pero bajaron 28.1% en ene–ago 2026 frente a los mismos meses de 2025 (NAHB)."
   },
   {
    "state": "GA",
    "projectType": "Data center",
    "text": "Metro Atlanta has the most data center space under construction in the U.S., though local moratoriums are slowing new approvals (AJC, Mar 2026).",
-   "url": "https://www.ajc.com/business/2026/03/metro-atlanta-cities-question-how-many-data-centers-are-too-many"
+   "url": "https://www.ajc.com/business/2026/03/metro-atlanta-cities-question-how-many-data-centers-are-too-many",
+   "text_es": "El área metropolitana de Atlanta tiene el mayor espacio de centros de datos en construcción de EE. UU., aunque las moratorias locales frenan nuevas aprobaciones (AJC, mar 2026)."
   },
   {
    "state": "AL",
    "projectType": "Industrial",
    "text": "Eli Lilly's $6B+ plant in Huntsville led Alabama's record $14.6B of 2025 economic-development investment.",
-   "url": "https://www.alreporter.com/2026/01/21/alabama-achieves-record-146-billion-in-economic-development-investment/"
+   "url": "https://www.alreporter.com/2026/01/21/alabama-achieves-record-146-billion-in-economic-development-investment/",
+   "text_es": "La planta de Eli Lilly de más de $6B en Huntsville encabezó la inversión récord de $14.6B de Alabama en desarrollo económico en 2025."
   },
   {
    "state": "AL",
    "projectType": "Multifamily",
    "text": "Alabama multifamily permits rose 76.3% to 2,163 units in Jan–Aug 2026 (NAHB).",
-   "url": "https://eyeonhousing.org/2026/10/single-family-permitting-declines-through-august/"
+   "url": "https://eyeonhousing.org/2026/10/single-family-permitting-declines-through-august/",
+   "text_es": "Los permisos multifamiliares de Alabama subieron 76.3% a 2,163 unidades en ene–ago 2026 (NAHB)."
   },
   {
    "state": "MS",
    "projectType": "Data center",
    "text": "Compass is building a $10B, 320 MW data center campus in Meridian, with completion expected in 2033.",
-   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026"
+   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026",
+   "text_es": "Compass construye un campus de centros de datos de $10B y 320 MW en Meridian, con finalización prevista en 2033."
   },
   {
    "state": "LA",
    "projectType": "Data center",
    "text": "Meta's Hyperion campus in Richland Parish is under construction; it is listed at 6,500 MW at full build-out.",
-   "url": "https://cleanview.co/data-centers/us"
+   "url": "https://cleanview.co/data-centers/us",
+   "text_es": "El campus Hyperion de Meta en Richland Parish está en construcción; figura con 6,500 MW al completarse."
   },
   {
    "state": "LA",
    "projectType": "Industrial",
    "text": "A $5.8B electric-arc steel plant and a $15.1B LNG terminal are slated to start in Louisiana in 2026.",
-   "url": "https://www.constructionowners.com/news/10-u-s-megaprojects-set-to-break-ground-in-2026"
+   "url": "https://www.constructionowners.com/news/10-u-s-megaprojects-set-to-break-ground-in-2026",
+   "text_es": "Una acería de horno de arco eléctrico de $5.8B y una terminal de GNL de $15.1B deben iniciar obra en Luisiana en 2026."
   },
   {
    "state": "NC",
    "projectType": "Data center",
    "text": "Amazon is building a $10B data center campus in Richmond County.",
-   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026"
+   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026",
+   "text_es": "Amazon construye un campus de centros de datos de $10B en el condado de Richmond."
   },
   {
    "state": "SC",
    "projectType": "Data center",
    "text": "Data center campuses in Cherokee and Spartanburg counties were South Carolina's two largest economic-development deals of 2025.",
-   "url": "https://www.postandcourier.com/business/sc-pulled-in-9-1b-from-expanding-businesses-in-2025/article_1faac3c5-eba7-418e-9ac0-3cb2c857b7be.html"
+   "url": "https://www.postandcourier.com/business/sc-pulled-in-9-1b-from-expanding-businesses-in-2025/article_1faac3c5-eba7-418e-9ac0-3cb2c857b7be.html",
+   "text_es": "Los campus de centros de datos en los condados de Cherokee y Spartanburg fueron los dos mayores acuerdos de desarrollo económico de Carolina del Sur en 2025."
   },
   {
    "state": "TN",
    "projectType": "Data center",
    "text": "xAI's Colossus 2 in Shelby County (Memphis) is listed at 2,555 MW at full build-out, far above the aggregator's 115 MW under construction for Tennessee.",
-   "url": "https://cleanview.co/data-centers/us"
+   "url": "https://cleanview.co/data-centers/us",
+   "text_es": "Colossus 2 de xAI en el condado de Shelby (Memphis) figura con 2,555 MW al completarse, muy por encima de los 115 MW en construcción que el agregador indica para Tennessee."
   }
- ]
+ ],
+ "asOf_es": "3 nov 2026"
 }

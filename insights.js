@@ -77,23 +77,27 @@
       ['events','associations','charities','sports'].forEach(function(k){ (rc[k]||[]).forEach(function(x){ c[k].push(x); }); });
       if(rc.notes) c.notes.push(rc.notes);
     });
+    CO.forEach(function(c){ c.projects.forEach(function(p){ addState(c,p.st); }); c.leads.forEach(function(l){ addState(c,l.state); }); c.offices.forEach(function(o){ statesIn(o.where).forEach(function(x){ addState(c,x); }); }); c.states.sort(function(a,b){return TERR.indexOf(a)-TERR.indexOf(b)}); });
     CO.forEach(function(c){ c.hay=[c.name,c.data&&c.data.aka,c.radar&&(c.radar.aka||[]).join(' '),c.types.join(' '),c.data&&c.data.hq,c.hqText,c.offices.map(function(o){return o.where}).join(' '),c.people.map(function(p){return p.name+' '+p.title}).join(' '),c.projects.map(function(p){return p.name}).join(' '),c.leads.map(function(l){return l.project}).join(' ')].join(' ').toLowerCase(); });
     CO.sort(function(a,b){ return (b.client?1:0)-(a.client?1:0)||score(b)-score(a)||a.name.localeCompare(b.name); });
   }
   function score(c){ return c.people.length+c.projects.length+c.leads.length*3+c.events.length; }
 
   /* ---------- Company researcher ---------- */
-  var RS={q:'',src:'',type:'',state:'',clients:false,open:null};
+  var RS={q:'',src:'',type:'',state:'',clients:false,open:null}; try{ RS.state=localStorage.getItem('bdp-rs-state')||''; }catch(e){}
   function rsFill(){
     var types={}, sts={}; CO.forEach(function(c){ c.types.forEach(function(t){types[t]=1}); c.states.forEach(function(s){sts[s]=1}); });
-    var ft=$('rsType'), fs=$('rsState'); if(!ft)return;
+    var ft=$('rsType'); if(!ft)return;
     var keep=function(sel,vals,lab){ var cur=sel.value; sel.length=1; vals.forEach(function(v){ var o=document.createElement('option'); o.value=v; o.textContent=lab?lab(v):v; sel.appendChild(o); }); sel.value=vals.indexOf(cur)>=0?cur:''; };
-    keep(ft,Object.keys(types).sort()); keep(fs,TERR.filter(function(s){return sts[s]}),function(s){return ST_NAME[s]});
+    keep(ft,Object.keys(types).sort());
   }
   function rsRender(){
     var rows=$('rsRows'); if(!rows)return;
     var q=RS.q.toLowerCase();
     var list=CO.filter(function(c){ return (!q||c.hay.indexOf(q)>=0)&&(!RS.src||c.src[RS.src])&&(!RS.type||c.types.indexOf(RS.type)>=0)&&(!RS.state||c.states.indexOf(RS.state)>=0)&&(!RS.clients||c.client); });
+    var sb=$('rsStates'); if(sb){ var base=CO.filter(function(c){ return (!q||c.hay.indexOf(q)>=0)&&(!RS.src||c.src[RS.src])&&(!RS.type||c.types.indexOf(RS.type)>=0)&&(!RS.clients||c.client); });
+      var n=function(s){ return base.filter(function(c){return c.states.indexOf(s)>=0}).length; };
+      sb.innerHTML='<button type="button" data-rst="" aria-pressed="'+(!RS.state)+'">'+tx('All states','Todos los estados')+' <span class="n">'+base.length+'</span></button>'+TERR.map(function(s){ return '<button type="button" data-rst="'+s+'" aria-pressed="'+(RS.state===s)+'" title="'+esc(ST_NAME[s])+'">'+s+' <span class="n">'+n(s)+'</span></button>'; }).join(''); }
     $('rsEyebrow').textContent=CO.length+tx(' companies · ',' empresas · ')+CO.filter(function(c){return c.client}).length+tx(' IB Group clients',' clientes de IB Group');
     $('rsCount').textContent=list.length+(list.length===1?tx(' company shown',' empresa mostrada'):tx(' companies shown',' empresas mostradas'));
     if(!CO.length){ rows.innerHTML='<div class="card lr-empty">'+tx('Loading company research…','Cargando empresas…')+'</div>'; return; }
@@ -152,7 +156,7 @@
     var qt; $('rsQ').addEventListener('input',function(e){ clearTimeout(qt); qt=setTimeout(function(){ RS.q=e.target.value.trim(); rsRender(); },150); });
     $('rsSrc').addEventListener('change',function(e){ RS.src=e.target.value; rsRender(); });
     $('rsType').addEventListener('change',function(e){ RS.type=e.target.value; rsRender(); });
-    $('rsState').addEventListener('change',function(e){ RS.state=e.target.value; rsRender(); });
+    $('rsStates').addEventListener('click',function(e){ var b=e.target.closest('[data-rst]'); if(!b)return; RS.state=b.dataset.rst; try{localStorage.setItem('bdp-rs-state',RS.state)}catch(x){} rsRender(); });
     $('rsClients').addEventListener('change',function(e){ RS.clients=e.target.checked; rsRender(); });
   }
 
@@ -233,11 +237,11 @@
     var h='<div class="card-head"><h2>'+tx('Market context (outside data)','Contexto de mercado (datos externos)')+'</h2><span class="note">'+tx('Public sources, to check our picture against','Fuentes públicas')+'</span></div>';
     h+='<div class="hm-wrap"><table class="hm hm-mk"><thead><tr><th scope="col">'+tx('Indicator','Indicador')+'</th>'+TERR.map(function(s){return '<th scope="col">'+s+'</th>'}).join('')+'</tr></thead><tbody>';
     inds.forEach(function(ind){ var vals=TERR.map(function(s){return (ind.values||{})[s]}).filter(function(v){return typeof v==='number'}); var mx=Math.max.apply(null,vals.concat([0]));
-      h+='<tr><th scope="row">'+esc(ind.label)+'<br><span class="sub13">'+esc(ind.period||'')+(ind.source&&ind.source.url?' · '+link(ind.source.url,ind.source.title||'source'):'')+'</span></th>'+TERR.map(function(s){ var v=(ind.values||{})[s]; return '<td><span class="hm-v" style="'+(typeof v==='number'&&mx?heat(v,mx):'')+'">'+fmt(v,ind.unit)+'</span></td>'; }).join('')+'</tr>'; });
+      h+='<tr><th scope="row">'+esc(ES&&ind.label_es||ind.label)+'<br><span class="sub13">'+esc(ES&&ind.period_es||ind.period||'')+(ind.source&&ind.source.url?' · '+link(ind.source.url,ind.source.title||'source'):'')+'</span></th>'+TERR.map(function(s){ var v=(ind.values||{})[s]; return '<td><span class="hm-v" style="'+(typeof v==='number'&&mx?heat(v,mx):'')+'">'+fmt(v,ind.unit)+'</span></td>'; }).join('')+'</tr>'; });
     h+='</tbody></table></div>';
     var notes=(MK.notes||[]).filter(function(n){return n.text});
-    if(notes.length) h+='<ul class="rs-ul hm-notes">'+notes.map(function(n){ return '<li><b>'+esc(n.state)+(n.projectType?' · '+esc(n.projectType):'')+'</b> — '+esc(n.text)+(n.url?' '+link(n.url,'source'):'')+'</li>'; }).join('')+'</ul>';
-    if(MK.asOf) h+='<div class="sub13">'+tx('Gathered ','Recopilado ')+esc(MK.asOf)+'</div>';
+    if(notes.length) h+='<ul class="rs-ul hm-notes">'+notes.map(function(n){ return '<li><b>'+esc(n.state)+(n.projectType?' · '+esc(n.projectType):'')+'</b> — '+esc(ES&&n.text_es||n.text)+(n.url?' '+link(n.url,'source'):'')+'</li>'; }).join('')+'</ul>';
+    if(MK.asOf) h+='<div class="sub13">'+tx('Gathered ','Recopilado ')+esc(ES&&MK.asOf_es||MK.asOf)+'</div>';
     box.hidden=false; box.innerHTML=h;
   }
   function hmWire(){
