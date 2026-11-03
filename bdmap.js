@@ -11842,6 +11842,7 @@ function liBadges() {
 }
 function liRefresh() {
   liBadges();
+  try { window.dispatchEvent(new Event("bdmap:change")); } catch (e) {}
   render();
   renderFU();
   renderPR();
@@ -12384,4 +12385,9 @@ new ResizeObserver(() => { clearTimeout(rT); rT = setTimeout(render, 120); }).ob
 
 // Small test hook for headless verification; harmless in production.
 window.__pwMap = { navigateTo: id => navigateTo(byId.get(id)), goUp, reset, get path() { return path.map(n => n.id); } };
+
+window.BDMAP = { COMPANIES, CATEGORIES, STATES, BRANCH_METRO, OUR_WORK, DC_DATA, isClient, LI, OUT, ADDED, PERSONAL, lastTouch,
+  key: (companyKey, personId) => companyKey + "__" + personId,
+  openCompany: k => { const i = (INSTANCES[k] || [])[0]; if (i) { navigateTo(i.node); openPanel(i.node); } } };
+try { window.dispatchEvent(new Event("bdmap:ready")); } catch (e) {}
 })();

@@ -84,7 +84,7 @@
     await load('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
     load('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
     await load('portal.js'); await load('leads.js');
-    await load('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'); await load('bdmap.js');
+    await load('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'); await load('bdmap.js'); await load('classify.js'); await load('insights.js');
     patchDownloads();
     pill();
   }

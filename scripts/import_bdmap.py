@@ -24,6 +24,16 @@ js = sub1('const margin = phone ? 78 : 118;', 'const margin = phone ? 78 : 170;'
 # long one-line notes under ring circles get cut at the stage edge; shorten them (the tooltip keeps the full text)
 js = sub1('const badgeText = d.n.badge && (d.role !== "parent") && !(d.role === "focus" && items.some(i => i.dense)) ? d.n.badge : "";',
           'let badgeText = d.n.badge && (d.role !== "parent") && !(d.role === "focus" && items.some(i => i.dense)) ? d.n.badge : "";\n    const bMax = d.role === "ring" ? (phone ? 24 : 28) : 70; if (badgeText.length > bMax) badgeText = badgeText.slice(0, bMax - 1).trim() + "…";', js)
+# let the rest of the portal (contacts, company researcher, heat map) read the map's data and live edits
+js = sub1('function liRefresh() {\n  liBadges();', 'function liRefresh() {\n  liBadges();\n  try { window.dispatchEvent(new Event("bdmap:change")); } catch (e) {}', js)
+js = js.rstrip()
+assert js.endswith("})();"), js[-40:]
+js = js[:-5] + """
+window.BDMAP = { COMPANIES, CATEGORIES, STATES, BRANCH_METRO, OUR_WORK, DC_DATA, isClient, LI, OUT, ADDED, PERSONAL, lastTouch,
+  key: (companyKey, personId) => companyKey + "__" + personId,
+  openCompany: k => { const i = (INSTANCES[k] || [])[0]; if (i) { navigateTo(i.node); openPanel(i.node); } } };
+try { window.dispatchEvent(new Event("bdmap:ready")); } catch (e) {}
+})();"""
 open(os.path.join(ROOT, "bdmap.js"), "w", encoding="utf-8").write("/* Business Development Map — imported from the claude.ai map by scripts/import_bdmap.py. */\n" + js.strip() + "\n")
 
 # ---------- CSS ----------

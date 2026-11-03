@@ -98,23 +98,49 @@
     return rows;
   }
   function saveCon(){ save('bdp-contacts',CON); }
+  /* People at every starred (IB Group client) company on the BusDev Map, plus people added on the map.
+     Read live from the map, so they follow its edits; contacts you add or import here sit alongside. */
+  function mapContacts(){
+    var M=window.BDMAP; if(!M) return [];
+    var metroName={}; (M.STATES||[]).forEach(function(st){ st.metros.forEach(function(m){ metroName[m[0]]=m[1]+', '+st.id; }); });
+    var out=[];
+    M.COMPANIES.filter(M.isClient).forEach(function(e){
+      var co=e.company||{};
+      var where=function(bid){ if(!bid||bid==='hq') return co.hq||''; var b=(e.branches||[]).find(function(x){return x.id===bid}); var m=(M.BRANCH_METRO[bid]||[])[0]; return m&&metroName[m]?metroName[m]:(b&&b.name)||''; };
+      var phoneOf=function(bid){ var b=(e.branches||[]).find(function(x){return x.id===bid}); return (b&&b.phone)||''; };
+      (e.people||[]).forEach(function(p){
+        var k=M.key(e.key,p.id);
+        out.push({name:p.name,title:p.title||'',company:co.name||e.key,companyKey:e.key,metro:where(p.branchId),email:p.email||'',phone:p.phone||phoneOf(p.branchId),phoneIsOffice:!p.phone&&!!phoneOf(p.branchId),linkedin:M.LI[k]||p.linkedin||'',touch:M.lastTouch(k)||'',fromMap:true});
+      });
+    });
+    Object.keys(M.ADDED||{}).forEach(function(id){ var a=M.ADDED[id]; var e=M.COMPANIES.find(function(x){return x.key===a.company}); if(!e||!M.isClient(e))return;
+      var k=M.key(a.company,'add-'+id);
+      out.push({name:a.name,title:a.title||'',company:(e.company||{}).name||a.company,companyKey:a.company,metro:metroName[a.metro]||'',email:a.email||'',phone:a.phone||'',linkedin:M.LI[k]||'',touch:M.lastTouch(k)||'',fromMap:true}); });
+    return out;
+  }
   function renderCon(){
     var q=($('searchContacts')&&$('searchContacts').value||'').toLowerCase().trim();
-    var list=CON.map(function(c,i){c._i=i;return c}).filter(function(c){ return !q||[c.name,c.title,c.company,c.metro,c.email,c.notes].join(' ').toLowerCase().indexOf(q)>=0; }).sort(function(a,b){return (a.company||'').localeCompare(b.company||'')||(a.name||'').localeCompare(b.name||'')});
+    var mine=CON.map(function(c,i){c._i=i;return c});
+    var all=mine.concat(mapContacts());
+    var list=all.filter(function(c){ return !q||[c.name,c.title,c.company,c.metro,c.email,c.notes].join(' ').toLowerCase().indexOf(q)>=0; }).sort(function(a,b){return (a.company||'').localeCompare(b.company||'')||(a.name||'').localeCompare(b.name||'')});
     var tb=$('conRows'); if(!tb)return;
-    if(!CON.length) tb.innerHTML='<tr><td colspan="9"><div class="empty" style="margin:16px 0">No contacts yet. Add one, or import a spreadsheet or vCard.</div></td></tr>';
+    if(!all.length) tb.innerHTML='<tr><td colspan="9"><div class="empty" style="margin:16px 0">'+(window.BDMAP?'No contacts yet. Star a client on the BusDev Map, add one here, or import a spreadsheet or vCard.':'Loading clients from the BusDev Map…')+'</div></td></tr>';
     else if(!list.length) tb.innerHTML='<tr><td colspan="9"><div class="empty" style="margin:16px 0">No contacts match "'+esc(q)+'".</div></td></tr>';
-    else tb.innerHTML=list.map(function(c){ return '<tr><td><strong>'+esc(c.name)+'</strong>'+(c.notes?'<br><span class="sub13">'+esc(c.notes)+'</span>':'')+'</td><td>'+esc(c.title)+'</td><td>'+esc(c.company)+'</td><td>'+esc(c.metro)+'</td><td>'+(c.email?'<a href="mailto:'+esc(c.email)+'" style="color:var(--accent)">'+esc(c.email)+'</a>':'')+'</td><td class="mono">'+esc(c.phone)+'</td><td>'+(c.linkedin?'<a href="'+esc(c.linkedin)+'" target="_blank" rel="noopener"><span class="tag ok">Profile ↗</span></a>':'<span class="tag">None</span>')+'</td><td class="mono">'+esc(c.touch)+'</td><td><button class="sbtn quiet" data-delc="'+c._i+'" aria-label="Remove contact">✕</button></td></tr>'; }).join('');
+    else tb.innerHTML=list.map(function(c){ return '<tr><td><strong>'+esc(c.name)+'</strong>'+(c.notes?'<br><span class="sub13">'+esc(c.notes)+'</span>':'')+'</td><td>'+esc(c.title)+'</td><td>'+(c.fromMap?'<span class="con-co" title="IB Group client on the BusDev Map">★ '+esc(c.company)+'</span>':esc(c.company))+'</td><td>'+esc(c.metro)+'</td><td>'+(c.email?'<a href="mailto:'+esc(c.email)+'" style="color:var(--accent)">'+esc(c.email)+'</a>':'')+'</td><td class="mono">'+esc(c.phone)+(c.phoneIsOffice?'<br><span class="sub13">office</span>':'')+'</td><td>'+(c.linkedin?'<a href="'+esc(c.linkedin)+'" target="_blank" rel="noopener"><span class="tag ok">Profile ↗</span></a>':'<span class="tag">None</span>')+'</td><td class="mono">'+esc(c.touch)+'</td><td>'+(c.fromMap?'<button class="sbtn" data-mapco="'+esc(c.companyKey)+'" aria-label="Open '+esc(c.company)+' on the map">Map</button>':'<button class="sbtn quiet" data-delc="'+c._i+'" aria-label="Remove contact">✕</button>')+'</td></tr>'; }).join('');
     var set=function(id,t){var e=$(id);if(e)e.textContent=t};
-    var cos={}; CON.forEach(function(c){cos[(c.company||'').toLowerCase()]=1});
-    set('conEyebrow',CON.length+' contact'+(CON.length===1?'':'s')+' · '+Object.keys(cos).filter(Boolean).length+' companies');
-    set('conFoot',CON.length?(list.length+' shown · '+CON.filter(function(c){return c.linkedin}).length+' with LinkedIn · saved in this browser'):'Saved in this browser until the shared database is connected.');
+    var cos={}; all.forEach(function(c){cos[(c.company||'').toLowerCase()]=1});
+    var nMap=all.length-mine.length;
+    set('conEyebrow',all.length+' contact'+(all.length===1?'':'s')+' · '+Object.keys(cos).filter(Boolean).length+' companies');
+    set('conFoot',list.length+' shown · '+all.filter(function(c){return c.linkedin}).length+' with LinkedIn · '+nMap+' from IB Group clients on the BusDev Map'+(mine.length?' · '+mine.length+' added here':''));
   }
   var addConBtn=$('addConBtn'), addConCard=$('addConCard'), conForm=$('conForm'), conImportBtn=$('conImportBtn'), conImportCard=$('conImportCard');
   if(addConBtn){ addConBtn.addEventListener('click',function(){ toggle(addConBtn,addConCard,addConCard.hidden); if(!addConCard.hidden){ toggle(conImportBtn,conImportCard,false); $('cName').focus(); } });
     $('cancelCon').addEventListener('click',function(){conForm.reset();toggle(addConBtn,addConCard,false)});
     conImportBtn.addEventListener('click',function(){ toggle(conImportBtn,conImportCard,conImportCard.hidden); if(!conImportCard.hidden)toggle(addConBtn,addConCard,false); });
     conForm.addEventListener('submit',function(e){ e.preventDefault(); CON.push({name:$('cName').value.trim(),title:$('cTitle').value.trim(),company:$('cCompany').value.trim(),metro:$('cMetro').value.trim(),email:$('cEmail').value.trim(),phone:$('cPhone').value.trim(),linkedin:$('cLinkedin').value.trim(),touch:$('cTouch').value,notes:$('cNotes').value.trim(),added:today()}); saveCon(); conForm.reset(); toggle(addConBtn,addConCard,false); renderCon(); });
+    $('conRows').addEventListener('click',function(e){ var m=e.target.closest('button[data-mapco]'); if(m&&window.BDMAP){ location.hash='#leadgen'; setTimeout(function(){ window.BDMAP.openCompany(m.dataset.mapco); },60); return; } });
+    var conT; var conLive=function(){ clearTimeout(conT); conT=setTimeout(renderCon,150); };
+    window.addEventListener('bdmap:ready',conLive); window.addEventListener('bdmap:change',conLive);
     $('conRows').addEventListener('click',function(e){ var b=e.target.closest('button[data-delc]'); if(!b)return; if(!b.dataset.confirm){b.dataset.confirm='1';b.textContent='Remove?';b.style.color='var(--accent)';return;} CON.splice(+b.dataset.delc,1); saveCon(); renderCon(); });
     $('searchContacts').addEventListener('input',renderCon);
     var cf=$('conImportFile'); cf.addEventListener('change',function(){
@@ -489,7 +515,7 @@
   renderReport(); renderW(); renderOverview();
   window.addEventListener('hashchange',function(){ if(location.hash==='#week'){ cur=weekEndingOf(today()); renderW(); } if(location.hash==='#reports')renderReport(); if(location.hash==='#overview')renderOverview(); });
   // Lead Gen hub contact count
-  try{ var cc=JSON.parse(localStorage.getItem('bdp-contacts')||'[]'); set('lgContacts',cc.length+' contact'+(cc.length===1?'':'s')); }catch(e){}
+
 
   /* ---------- Mileage counter in expense form ---------- */
   var eCat=$('eCat'); if(eCat){

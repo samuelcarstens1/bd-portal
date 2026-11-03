@@ -63,6 +63,8 @@ h1,h2,h3{margin:0;text-wrap:balance}
 @media (min-width:900px){.main{padding-left:40px;padding-right:max(40px,env(safe-area-inset-right,0px))}}
 .view{display:none;flex-direction:column;gap:28px}
 .view.active{display:flex}
+.view>*{min-width:0;max-width:100%}
+.view .card{min-width:0}
 .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
 .head h1{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .head .sub{font-size:15px;color:var(--muted)}
@@ -758,7 +760,8 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 /* Phone */
 @media (max-width:760px){
-  .shell{flex-direction:column}
+  .shell{flex-direction:column;flex-wrap:nowrap}
+  .main{flex:1 1 auto;width:100%}
   .side{flex:0 0 auto;gap:16px;padding-block:16px;padding-right:max(16px,env(safe-area-inset-right,0px))}
   .brand{justify-content:space-between}
   .menu-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;cursor:pointer}
@@ -786,6 +789,71 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .lr-how[open] summary::after{content:" −"}
 .lr-how p{margin:6px 0 0}
 .lr-list{display:flex;flex-direction:column;gap:12px}
+.statebar{display:flex;flex-wrap:wrap;gap:6px;padding:14px 24px 0}
+.statebar button{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-weight:600;font-size:13px;cursor:pointer}
+.statebar button .n{font-family:var(--mono);font-weight:500;color:var(--muted);font-size:12px}
+.statebar button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.statebar button[aria-pressed="true"] .n{color:var(--navy-dim)}
+.statebar button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.con-co{font-weight:600}
+#conRows td.mono{white-space:nowrap}
+/* Company researcher */
+.rs-controls{flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px;padding:16px}
+.rs-controls input[type=search]{flex:1 1 260px;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
+.rs-controls select{min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font:inherit}
+.rs-check{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+.rs-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.rs-row{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.rs-row:hover{border-color:var(--accent)}
+.rs-row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rs-name{font-weight:700;font-size:15px}
+.rs-meta{font-size:13px;color:var(--muted)}
+.rs-counts{font-size:13px}
+.rs-src{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute-soft);font-weight:600}
+.rs-star{color:var(--warn)}
+#rsProfile{display:flex;flex-direction:column;gap:16px}
+#rsProfile[hidden]{display:none}
+.rs-sec h2{font-size:17px;font-weight:700}
+.rs-sec h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
+.rs-facts{display:grid;grid-template-columns:130px minmax(0,1fr);gap:6px 14px;margin:0;font-size:14px}
+.rs-facts dt{color:var(--muted)} .rs-facts dd{margin:0;overflow-wrap:anywhere}
+.rs-ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.rs-ul a,.rs-facts a,.rs-table a,.rs-links a,.hm-notes a,.hm-mk a{color:var(--accent)}
+.rs-links{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;overflow-wrap:anywhere}
+.rs-table{overflow-x:auto}
+.rs-table table{width:100%;border-collapse:collapse;font-size:13.5px}
+.rs-table th,.rs-table td{text-align:left;padding:8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.rs-table th{font-size:12px;color:var(--muted);font-weight:600}
+.rs-hire{color:var(--accent);font-weight:600}
+.linklike{all:unset;cursor:pointer;color:var(--accent);font-weight:600}
+.linklike:focus-visible{outline:2px solid var(--accent)}
+@media (max-width:640px){.rs-facts{grid-template-columns:96px minmax(0,1fr)}}
+/* Heat map */
+.hm-controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+.hm-seg{flex-wrap:wrap}
+.hm-seg button{min-height:40px;padding:0 14px;font-size:13.5px}
+.hm-takeaways{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hm-takeaways .label{margin-right:4px}
+.hm-pill{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:13px;cursor:pointer}
+.hm-pill b{font-family:var(--mono);color:var(--accent)}
+.hm-wrap{overflow-x:auto}
+.hm{border-collapse:separate;border-spacing:3px;width:100%;min-width:680px}
+.hm th{font-size:12px;font-weight:600;color:var(--muted);text-align:center;padding:4px}
+.hm tbody th{text-align:left;color:var(--fg);font-size:13.5px;white-space:nowrap;padding-right:10px}
+.hm td{text-align:center;padding:0;height:40px}
+.hm-c{width:100%;height:40px;border:0;border-radius:6px;font-family:var(--mono);font-weight:600;font-size:13.5px;cursor:pointer}
+.hm-c:hover,.hm-c.on{outline:2px solid var(--navy);outline-offset:1px}
+.hm-c:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hm-z{color:var(--line)}
+.hm-t{color:var(--muted);font-size:13px}
+.hm-tot td{font-size:12.5px;color:var(--muted);height:28px}
+.hm-legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.hm-scale{width:120px;height:10px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 12%,var(--card)),var(--accent))}
+.hm-mk{min-width:820px}
+.hm-mk tbody th{white-space:normal;font-weight:600;max-width:260px}
+.hm-mk td{font-family:var(--mono);font-size:12.5px;height:auto;padding:2px}
+.hm-v{display:block;padding:8px 4px;border-radius:6px}
+.hm-notes{margin-top:8px}
 .lr-empty{color:var(--muted);text-align:center}
 .lr-co{display:flex;flex-direction:column;gap:8px}
 .lr-co h3{margin:0;font-size:16px}
@@ -1165,8 +1233,8 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <a href="#pipeline" data-view="pipeline"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M6 10h12M8 15h8M10 20h4"/></svg>Pipeline</a>
     <a href="#reports" data-view="reports"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h7"/></svg>Daily Reports</a>
     <a href="#foundations" data-view="foundations"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>Annual Operation Plan</a>
-    <a href="#leadgen" data-view="leadgen"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>Lead Gen</a>
-    <a href="#leads" data-view="leads"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/></svg>Lead Radar</a>
+    <a href="#leadgen" data-view="leadgen"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>BusDev Map</a>
+    <a href="#leads" data-view="leads"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/></svg>Labor Radar</a>
     <a href="#week" data-view="week" hidden><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Work Week Summary</a>
     <a href="#roi" data-view="roi"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Salary ROI</a>
     <a href="#expenses" data-view="expenses"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>Expense Report</a>
@@ -1238,12 +1306,12 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </div>
 
   <div style="display:flex;flex-direction:column;gap:14px">
-    <h2 style="font-size:18px;font-weight:700">Lead Gen tools</h2>
+    <h2 style="font-size:18px;font-weight:700">Prospecting tools</h2>
     <div class="grid g4">
-      <a class="card tool" href="#contacts"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4a3.5 3.5 0 0 1 0 7M18 13.5a6.5 6.5 0 0 1 3.5 6.5"/></svg><span class="t">Company contact database</span><span class="d">Every GC, developer and decision-maker in territory, with verified LinkedIn profiles.</span><span class="m">412 contacts · 96 companies</span></a>
-      <a class="card tool" href="#leads"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg><span class="t">Labor Demand Radar</span><span class="d">Projects scored daily on how soon they will need drywall, framing, ACT and insulation labor.</span><span class="m" id="ovLeadsMeta">—</span></a>
-      <a class="card tool" href="#flow"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3 7M16 8l-3 7"/></svg><span class="t">Who's Working Where</span><span class="d">Interactive flowchart of which companies are on which jobs across FL, TX, LA and GA.</span><span class="m">Updated Oct 20</span></a>
-      <a class="card tool" href="#research"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="t">Company researcher</span><span class="d">One-page brief on any prospect: projects, key people, labor needs, best way in.</span><span class="m">31 briefs generated</span></a>
+      <a class="card tool" href="#contacts"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4a3.5 3.5 0 0 1 0 7M18 13.5a6.5 6.5 0 0 1 3.5 6.5"/></svg><span class="t">Company contact database</span><span class="d">Everyone at the IB Group clients starred on the BusDev Map, plus contacts you add.</span><span class="m" id="ovConMeta">—</span></a>
+      <a class="card tool" href="#leads"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg><span class="t">Labor Radar</span><span class="d">Projects scored daily on how soon they will need drywall, framing, ACT and insulation labor.</span><span class="m" id="ovLeadsMeta">—</span></a>
+      <a class="card tool" href="#flow"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3 7M16 8l-3 7"/></svg><span class="t">Who's Working Where</span><span class="d">Heat map of which kinds of companies are working on which kinds of projects, state by state.</span><span class="m" id="ovFlowMeta">—</span></a>
+      <a class="card tool" href="#research"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="t">Company researcher</span><span class="d">Everything we have on each company from the BusDev Map and the Labor Radar, in one place.</span><span class="m" id="ovResMeta">—</span></a>
     </div>
   </div>
 </section>
@@ -1308,6 +1376,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
   <div class="card" style="padding:0">
     <div class="card-head" style="padding:20px 24px 0"><h2>Opportunities</h2><span class="note">New first, then by weighted value</span></div>
+    <div class="statebar" id="oppStates" role="group" aria-label="Show opportunities in one state"></div>
     <div class="scroll"><table class="table">
       <thead><tr><th>Project</th><th>GC</th><th>Metro</th><th>Trade</th><th>Stage</th><th style="text-align:right">Workers</th><th style="text-align:right">Weeks</th><th style="text-align:right">Value</th><th style="text-align:right">Weighted</th><th>Next step</th><th>Action</th></tr></thead>
       <tbody id="oppRows"></tbody>
@@ -1760,7 +1829,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <!-- LEAD GEN HUB -->
 <section class="view" id="view-leadgen" aria-labelledby="h-leadgen">
-  <header class="head"><div class="head-left"><span class="eyebrow">Lead Gen</span><h1 id="h-leadgen">Business Development Map</h1><span class="sub">IB Group clients and targets. Click a circle to drill in; click any circle in the path bar to go back.</span></div></header>
+  <header class="head"><div class="head-left"><span class="eyebrow">BusDev Map</span><h1 id="h-leadgen">Business Development Map</h1><span class="sub">IB Group clients and targets. Click a circle to drill in; click any circle in the path bar to go back.</span></div></header>
 <!-- BDMAP HTML START -->
 <div class="pw-map">
 <div class="app">
@@ -1825,9 +1894,9 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <!-- CONTACTS -->
 <section class="view" id="view-contacts" aria-labelledby="h-contacts">
-  <div><a class="btn" href="#leadgen" style="display:inline-flex;align-items:center">‹ Lead Gen</a></div>
+  <div><a class="btn" href="#overview" style="display:inline-flex;align-items:center">‹ Overview</a></div>
   <header class="head">
-    <div class="head-left"><span class="eyebrow" id="conEyebrow">0 contacts</span><h1 id="h-contacts">Company contact database</h1><span class="sub">GCs, developers, subcontractors and the decision-makers at each, across FL, TX, LA and GA.</span></div>
+    <div class="head-left"><span class="eyebrow" id="conEyebrow">0 contacts</span><h1 id="h-contacts">Company contact database</h1><span class="sub">Everyone at the IB Group clients starred on the BusDev Map, plus contacts you add or import here.</span></div>
     <div class="head-right"><input type="search" id="searchContacts" placeholder="Search people or companies" aria-label="Search contacts"><button class="btn" type="button" id="conImportBtn" aria-expanded="false" aria-controls="conImportCard">Import file</button><button class="btn primary" type="button" id="addConBtn" aria-expanded="false" aria-controls="addConCard">Add contact</button></div>
   </header>
 
@@ -1869,7 +1938,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <!-- LEADS: Labor Demand Radar, refreshed daily from data/leads.json (see scripts/export_leads.py) -->
 <section class="view" id="view-leads" aria-labelledby="h-leads">
-  <div><a class="btn" href="#leadgen" style="display:inline-flex;align-items:center">‹ Lead Gen</a></div>
+  <div><a class="btn" href="#overview" style="display:inline-flex;align-items:center">‹ Overview</a></div>
   <header class="head">
     <div class="head-left"><span class="eyebrow" id="lrEyebrow">Loading leads…</span><h1 id="h-leads">Labor Demand Radar</h1><span class="sub">Projects across FL, TX, LA, GA, NC, SC, MS, TN and AL scored on how soon they will need drywall, framing, ACT and insulation labor.</span></div>
     <div class="head-right"><span class="pill" id="lrFresh"><span class="dot"></span>Updated daily at 6:32 AM ET</span></div>
@@ -1920,16 +1989,37 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 <!-- FLOW -->
 <section class="view" id="view-flow" aria-labelledby="h-flow">
-  <div><a class="btn" href="#leadgen" style="display:inline-flex;align-items:center">‹ Lead Gen</a></div>
-  <header class="head"><div class="head-left"><span class="eyebrow">Interactive flowchart · updated Oct 20</span><h1 id="h-flow">Who's Working Where</h1><span class="sub">Which companies are on which jobs, and who at each company we know.</span></div><div class="head-right"><button class="btn primary" type="button">Open full screen</button></div></header>
-  <div class="card module" style="min-height:360px;align-items:center;justify-content:center;text-align:center"><span class="status">● Embed slot</span><p>The existing bubble map loads here when we connect it.</p></div>
+  <div><a class="btn" href="#overview" style="display:inline-flex;align-items:center">‹ Overview</a></div>
+  <header class="head"><div class="head-left"><span class="eyebrow" id="hmEyebrow">Heat map</span><h1 id="h-flow">Who's Working Where</h1><span class="sub">A broad picture of which kinds of companies are working on which kinds of projects, state by state. Darker means more activity.</span></div></header>
+  <div class="card hm-card">
+    <div class="hm-controls">
+      <div class="lr-seg hm-seg" role="group" aria-label="Type of company" id="hmTypes"></div>
+      <div class="lr-seg hm-seg" role="group" aria-label="Count" id="hmMeasure"><button type="button" data-m="projects" aria-pressed="true">Projects</button><button type="button" data-m="companies" aria-pressed="false">Companies</button></div>
+    </div>
+    <div class="hm-takeaways" id="hmTake" aria-live="polite"></div>
+    <div class="hm-wrap"><table class="hm" id="hmTable"><caption class="sr">Heat map of activity by project type and state</caption></table></div>
+    <div class="hm-legend"><span>Less</span><span class="hm-scale" aria-hidden="true"></span><span>More</span><span class="sub13" id="hmFoot"></span></div>
+  </div>
+  <div class="card hm-detail" id="hmDetail" hidden></div>
+  <div class="card" id="hmMarket" hidden></div>
 </section>
 
 <!-- RESEARCH -->
 <section class="view" id="view-research" aria-labelledby="h-research">
-  <div><a class="btn" href="#leadgen" style="display:inline-flex;align-items:center">‹ Lead Gen</a></div>
-  <header class="head"><div class="head-left"><span class="eyebrow">31 briefs generated</span><h1 id="h-research">Company researcher</h1><span class="sub">Type a company. Get a one-page brief: active projects, key people with verified profiles, labor needs, best way in.</span></div></header>
-  <div class="card"><form id="researchForm" style="display:flex;flex-wrap:wrap;gap:10px"><label for="researchQ" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Company name</label><input id="researchQ" type="search" placeholder="Company name" style="flex:1 1 240px"><button class="btn primary" type="submit">Research</button></form><p class="sub13" id="researchNote" style="margin:0">Briefs will be generated by Claude once the portal is connected.</p></div>
+  <div id="rsTop"><a class="btn" href="#overview" style="display:inline-flex;align-items:center">‹ Overview</a></div>
+  <div id="rsList">
+    <header class="head"><div class="head-left"><span class="eyebrow" id="rsEyebrow">Loading companies…</span><h1 id="h-research">Company researcher</h1><span class="sub">Every company we've researched on the BusDev Map and the Labor Radar. Search one to see everything we know: people, offices, projects, signals, events and the way in.</span></div></header>
+    <div class="card rs-controls">
+      <label class="sr" for="rsQ">Search companies</label><input type="search" id="rsQ" placeholder="Search a company, person, city or project">
+      <select id="rsSrc" aria-label="Source"><option value="">All sources</option><option value="map">BusDev Map</option><option value="radar">Labor Radar</option><option value="dc">Data center research</option></select>
+      <select id="rsType" aria-label="Type of company"><option value="">All types</option></select>
+      <select id="rsState" aria-label="State"><option value="">All states</option></select>
+      <label class="rs-check"><input type="checkbox" id="rsClients"> IB Group clients only</label>
+    </div>
+    <div class="sub13" id="rsCount" aria-live="polite"></div>
+    <div class="rs-list" id="rsRows"></div>
+  </div>
+  <div id="rsProfile" hidden></div>
 </section>
 
 </main>
@@ -2191,9 +2281,21 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   function money(n){ if(n>=1e6)return '$'+(n/1e6).toFixed(n>=1e7?0:1)+'M'; if(n>=1e3)return '$'+Math.round(n/1e3)+'K'; return '$'+Math.round(n); }
   function quarterOf(d){ return {y:d.getFullYear(), q:Math.floor(d.getMonth()/3)+1}; }
   function today(){ return new Date().toISOString().slice(0,10); }
-  function save(){ try{localStorage.setItem('bdp-opps',JSON.stringify(OPPS))}catch(e){} }
+  function save(){ OPPS.forEach(function(o){ if(o._st) delete o._st; }); try{localStorage.setItem('bdp-opps',JSON.stringify(OPPS))}catch(e){} }
   function wgt(o){ return o.value*(STAGE_PROB[o.stage]||0); }
   function set(id,t){var e=$(id);if(e)e.textContent=t}
+  // Which states an opportunity is in: its own state field, else ", XX" in its location, else its metro's state
+  var oppState='all'; try{ oppState=localStorage.getItem('bdp-opp-state')||'all'; }catch(e){}
+  var METRO_ST={houston:'TX',dallas:'TX','fort worth':'TX',austin:'TX','san antonio':'TX',dfw:'TX',miami:'FL',orlando:'FL',tampa:'FL',jacksonville:'FL','fort lauderdale':'FL',atlanta:'GA',savannah:'GA','new orleans':'LA','baton rouge':'LA',charlotte:'NC',raleigh:'NC',durham:'NC',charleston:'SC',greenville:'SC',nashville:'TN',memphis:'TN',birmingham:'AL',huntsville:'AL',mobile:'AL',jackson:'MS',gulfport:'MS',biloxi:'MS'};
+  function oppStates(o){
+    if(o._st) return o._st;
+    var out=[], add=function(x){ x=String(x).trim().toUpperCase(); if(/^[A-Z]{2}$/.test(x)&&out.indexOf(x)<0) out.push(x); };
+    if(o.state) String(o.state).split(/[,;\/ ]+/).forEach(add);
+    if(!out.length&&o.location){ (String(o.location).match(/,\s*([A-Z]{2})\b/g)||[]).forEach(function(m){ add(m.replace(/[^A-Z]/g,'')); }); }
+    if(!out.length&&o.metro){ var m=String(o.metro).toLowerCase(); Object.keys(METRO_ST).forEach(function(k){ if(m.indexOf(k)>=0) add(METRO_ST[k]); }); var t=String(o.metro).match(/,\s*([A-Z]{2})\b/); if(t) add(t[1]); }
+    Object.defineProperty(o,'_st',{value:out,enumerable:false,configurable:true,writable:true});
+    return out;
+  }
 
   function groupRows(list,key){
     var m={}; list.forEach(function(o){ var k=o[key]||'—'; m[k]=m[k]||{t:0,w:0,n:0}; m[k].t+=o.value; m[k].w+=wgt(o); m[k].n++; });
@@ -2243,8 +2345,18 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
       var ga=a.stage==='New'?0:(a.stage==='Won'||a.stage==='Lost')?2:1, gb=b.stage==='New'?0:(b.stage==='Won'||b.stage==='Lost')?2:1;
       if(ga!==gb)return ga-gb; if(ga===0)return (b.opened||'').localeCompare(a.opened||''); if(ga===2)return (b.closed||'').localeCompare(a.closed||''); return wgt(b)-wgt(a);
     });
+    // One state at a time: chips with counts; "All" shows everything
+    var ST_NAMES={TX:'Texas',FL:'Florida',GA:'Georgia',AL:'Alabama',MS:'Mississippi',LA:'Louisiana',NC:'North Carolina',SC:'South Carolina',TN:'Tennessee'};
+    var stCount={}; OPPS.forEach(function(o){ oppStates(o).forEach(function(x){ stCount[x]=(stCount[x]||0)+1; }); if(!oppStates(o).length) stCount['?']=(stCount['?']||0)+1; });
+    var stKeys=Object.keys(stCount).filter(function(k){return k!=='?'}).sort(function(a,b){ return (ST_NAMES[b]?1:0)-(ST_NAMES[a]?1:0)||stCount[b]-stCount[a]||a.localeCompare(b); });
+    if(oppState!=='all'&&!stCount[oppState]) oppState='all';
+    var sb=$('oppStates'); if(sb){
+      var chip=function(k,label,n){ return '<button type="button" data-st="'+k+'" aria-pressed="'+(oppState===k)+'" title="'+esc(ST_NAMES[k]||label)+'">'+esc(label)+' <span class="n">'+n+'</span></button>'; };
+      sb.innerHTML=chip('all','All states',OPPS.length)+stKeys.map(function(k){return chip(k,k,stCount[k])}).join('')+(stCount['?']?chip('?','No state',stCount['?']):'');
+    }
+    if(oppState!=='all') rows=rows.filter(function(o){ var st=oppStates(o); return oppState==='?'?!st.length:st.indexOf(oppState)>=0; });
     var tb=$('oppRows'); if(tb){
-      if(!rows.length){ tb.innerHTML='<tr><td colspan="11"><div class="empty" style="margin:16px 0">No opportunities yet. Click "Add opportunity" to enter the first one.</div></td></tr>'; }
+      if(!rows.length){ tb.innerHTML='<tr><td colspan="11"><div class="empty" style="margin:16px 0">'+(OPPS.length?'No opportunities in '+esc(ST_NAMES[oppState]||'this state')+'.':'No opportunities yet. Click "Add opportunity" to enter the first one.')+'</div></td></tr>'; }
       else tb.innerHTML=rows.map(function(o){
         var cls=(o.stage==='Won'||o.stage==='Verbal yes'||o.stage==='Proposal sent')?'tag ok':'tag';
         var idx=STAGES.indexOf(o.stage), acts='';
@@ -2262,6 +2374,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   }
 
   // Row actions
+  var stBar=$('oppStates'); if(stBar) stBar.addEventListener('click',function(e){ var b=e.target.closest('[data-st]'); if(!b)return; oppState=b.dataset.st; try{localStorage.setItem('bdp-opp-state',oppState)}catch(x){} render(); });
   var tbody=$('oppRows'); if(tbody) tbody.addEventListener('click',function(e){
     var b=e.target.closest('button[data-act]'); if(!b)return;
     var o=OPPS[+b.dataset.i]; if(!o)return; var act=b.dataset.act;
@@ -2299,7 +2412,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
     if(views.indexOf(h)<0){ var t=document.getElementById(h), v=t&&t.closest&&t.closest('.view'); if(v){ h=v.id.replace('view-',''); } else h='overview'; }
     var anchor=(location.hash||'').slice(1)!==h?document.getElementById((location.hash||'').slice(1)):null;
     views.forEach(function(v){document.getElementById('view-'+v).classList.toggle('active',v===h)});
-    var navH={contacts:'leadgen',flow:'leadgen',research:'leadgen'}[h]||h;
+    var navH={contacts:'overview',flow:'overview',research:'overview'}[h]||h;
     document.querySelectorAll('#nav a').forEach(function(a){
       if(a.dataset.view===navH)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
     });
@@ -2312,11 +2425,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   show();
   menuBtn.addEventListener('click',function(){var o=side.classList.toggle('open');menuBtn.setAttribute('aria-expanded',o?'true':'false')});
   var d=new Date();
-  document.getElementById('todayLine').textContent=d.toLocaleDateString(window.BDP_LOCALE||'en-US',{weekday:'long',month:'short',day:'numeric',year:'numeric'}).replace(',',' ·')+' · Week 7 in role';
-  document.getElementById('researchForm').addEventListener('submit',function(e){e.preventDefault();
-    var q=document.getElementById('researchQ').value.trim();
-    document.getElementById('researchNote').textContent=q?('Brief for "'+q+'" will generate here once the portal is connected.'):'Enter a company name.';
-  });
+  document.getElementById('todayLine').textContent=d.toLocaleDateString(window.BDP_LOCALE||'en-US',{weekday:'long',month:'short',day:'numeric',year:'numeric'}).replace(',',' ·')+' · Week '+(Math.floor((d-new Date('2026-09-09T00:00:00'))/6048e5)+1)+' in role';
 })();
 </script>
 <script src="sync.js"></script>

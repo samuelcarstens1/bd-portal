@@ -1,0 +1,226 @@
+{
+ "asOf": "Nov 3, 2026",
+ "indicators": [
+  {
+   "id": "nonres_starts",
+   "label": "Nonresidential construction starts (building + engineering, residential excluded)",
+   "period": "Jan–Dec 2025",
+   "unit": "$",
+   "source": {
+    "title": "ConstructConnect via AGC, Jan 2026",
+    "url": "https://www.agc.org/sites/default/files/users/user21902/Construction%20Economic%20Snapshot%20Package-Jan2026.pdf"
+   },
+   "values": {
+    "TX": 124681000000.0,
+    "FL": 39165000000.0,
+    "GA": 18212000000.0,
+    "AL": 7473000000.0,
+    "MS": 18894000000.0,
+    "LA": 42509000000.0,
+    "NC": 31187000000.0,
+    "SC": 12603000000.0,
+    "TN": 13175000000.0
+   }
+  },
+  {
+   "id": "nonres_starts_chg",
+   "label": "Nonresidential starts, % change 2025 vs 2024",
+   "period": "Jan–Dec 2025",
+   "unit": "%",
+   "source": {
+    "title": "ConstructConnect via AGC, Jan 2026",
+    "url": "https://www.agc.org/sites/default/files/users/user21902/Construction%20Economic%20Snapshot%20Package-Jan2026.pdf"
+   },
+   "values": {
+    "TX": "+19.7%",
+    "FL": "−3.0%",
+    "GA": "−5.0%",
+    "AL": "−26.4%",
+    "MS": "+112.8%",
+    "LA": "+575%",
+    "NC": "+51.3%",
+    "SC": "−23.8%",
+    "TN": "−6.7%"
+   }
+  },
+  {
+   "id": "constr_emp",
+   "label": "Construction jobs",
+   "period": "Sept 2026, BLS seasonally adjusted",
+   "unit": "jobs",
+   "source": {
+    "title": "AGC state construction employment, Sept 2026",
+    "url": "https://www.agc.org/sites/default/files/users/user21902/State%20Empl%202026__September_Alpha.pdf"
+   },
+   "values": {
+    "TX": 921600,
+    "FL": 657000,
+    "GA": 231800,
+    "AL": 113100,
+    "MS": 55400,
+    "LA": 154200,
+    "NC": 295800,
+    "SC": 130200,
+    "TN": 167600
+   }
+  },
+  {
+   "id": "constr_emp_chg",
+   "label": "Construction jobs, 12-month change",
+   "period": "Sept 2025 – Sept 2026",
+   "unit": "%",
+   "source": {
+    "title": "AGC state construction employment, Sept 2026",
+    "url": "https://www.agc.org/sites/default/files/users/user21902/State%20Empl%202026__September_Alpha.pdf"
+   },
+   "values": {
+    "TX": "+1.7%",
+    "FL": "+0.5%",
+    "GA": "−2.1%",
+    "AL": "+2.5%",
+    "MS": "+3.2%",
+    "LA": "+13.9%",
+    "NC": "+5.7%",
+    "SC": "+4.4%",
+    "TN": "+0.5%"
+   }
+  },
+  {
+   "id": "housing_permits",
+   "label": "Housing units permitted, all sizes (multifamily-only figures weren't available)",
+   "period": "2025; AL, MS, LA not published by this source",
+   "unit": "units",
+   "source": {
+    "title": "Census BPS via BusinessStats",
+    "url": "https://businesstats.com/us-building-permits-statistics/"
+   },
+   "values": {
+    "TX": 210217,
+    "FL": 178297,
+    "GA": 61196,
+    "AL": null,
+    "MS": null,
+    "LA": null,
+    "NC": 86167,
+    "SC": 45862,
+    "TN": 43374
+   }
+  },
+  {
+   "id": "dc_mw_uc",
+   "label": "Data center power under construction, MW (directional: aggregator)",
+   "period": "Oct 2026",
+   "unit": "MW",
+   "source": {
+    "title": "dcmap.us",
+    "url": "https://dcmap.us/states/"
+   },
+   "values": {
+    "TX": 19500,
+    "FL": 16,
+    "GA": 1200,
+    "AL": 372,
+    "MS": 156,
+    "LA": 2800,
+    "NC": 577,
+    "SC": 30,
+    "TN": 115
+   }
+  },
+  {
+   "id": "dc_mw_planned",
+   "label": "Data center power planned, MW (directional: aggregator)",
+   "period": "Oct 2026",
+   "unit": "MW",
+   "source": {
+    "title": "dcmap.us",
+    "url": "https://dcmap.us/states/"
+   },
+   "values": {
+    "TX": 73600,
+    "FL": 770.8,
+    "GA": 18600,
+    "AL": 2000,
+    "MS": 280,
+    "LA": 3000,
+    "NC": 1500,
+    "SC": 2200,
+    "TN": 168
+   }
+  }
+ ],
+ "notes": [
+  {
+   "state": "TX",
+   "projectType": "Data center",
+   "text": "Texas data center starts topped $22B through Aug 2026, with $11B+ more planned for the rest of the year.",
+   "url": "https://news.constructconnect.com/october-2026-data-center-report-spending-reaches-98.5-billion-ytd-construction-costs-rise"
+  },
+  {
+   "state": "TX",
+   "projectType": "Data center",
+   "text": "Vantage's $25B, 1.4 GW Frontier campus in Shackelford County expects its first building in the second half of 2026.",
+   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026"
+  },
+  {
+   "state": "FL",
+   "projectType": "Multifamily",
+   "text": "Florida multifamily permits rose 29.6% in 2025 but fell 28.1% in Jan–Aug 2026 vs. the same months of 2025 (NAHB).",
+   "url": "https://eyeonhousing.org/2026/10/single-family-permitting-declines-through-august/"
+  },
+  {
+   "state": "GA",
+   "projectType": "Data center",
+   "text": "Metro Atlanta has the most data center space under construction in the U.S., though local moratoriums are slowing new approvals (AJC, Mar 2026).",
+   "url": "https://www.ajc.com/business/2026/03/metro-atlanta-cities-question-how-many-data-centers-are-too-many"
+  },
+  {
+   "state": "AL",
+   "projectType": "Industrial",
+   "text": "Eli Lilly's $6B+ plant in Huntsville led Alabama's record $14.6B of 2025 economic-development investment.",
+   "url": "https://www.alreporter.com/2026/01/21/alabama-achieves-record-146-billion-in-economic-development-investment/"
+  },
+  {
+   "state": "AL",
+   "projectType": "Multifamily",
+   "text": "Alabama multifamily permits rose 76.3% to 2,163 units in Jan–Aug 2026 (NAHB).",
+   "url": "https://eyeonhousing.org/2026/10/single-family-permitting-declines-through-august/"
+  },
+  {
+   "state": "MS",
+   "projectType": "Data center",
+   "text": "Compass is building a $10B, 320 MW data center campus in Meridian, with completion expected in 2033.",
+   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026"
+  },
+  {
+   "state": "LA",
+   "projectType": "Data center",
+   "text": "Meta's Hyperion campus in Richland Parish is under construction; it is listed at 6,500 MW at full build-out.",
+   "url": "https://cleanview.co/data-centers/us"
+  },
+  {
+   "state": "LA",
+   "projectType": "Industrial",
+   "text": "A $5.8B electric-arc steel plant and a $15.1B LNG terminal are slated to start in Louisiana in 2026.",
+   "url": "https://www.constructionowners.com/news/10-u-s-megaprojects-set-to-break-ground-in-2026"
+  },
+  {
+   "state": "NC",
+   "projectType": "Data center",
+   "text": "Amazon is building a $10B data center campus in Richmond County.",
+   "url": "https://www.equipmentworld.com/market-pulse/article/15816534/data-center-construction-boom-to-grow-in-2026"
+  },
+  {
+   "state": "SC",
+   "projectType": "Data center",
+   "text": "Data center campuses in Cherokee and Spartanburg counties were South Carolina's two largest economic-development deals of 2025.",
+   "url": "https://www.postandcourier.com/business/sc-pulled-in-9-1b-from-expanding-businesses-in-2025/article_1faac3c5-eba7-418e-9ac0-3cb2c857b7be.html"
+  },
+  {
+   "state": "TN",
+   "projectType": "Data center",
+   "text": "xAI's Colossus 2 in Shelby County (Memphis) is listed at 2,555 MW at full build-out, far above the aggregator's 115 MW under construction for Tennessee.",
+   "url": "https://cleanview.co/data-centers/us"
+  }
+ ]
+}
