@@ -2,7 +2,7 @@
 """Build data/leads.json for the portal's Lead Generation tab from a Labor Demand Radar export.
 
 Usage: python3 -I scripts/export_leads.py <export_dir> <out_file>
-  <export_dir> holds leads/*.json, status/*.json (optional) and meta/run.json, as written by
+  <export_dir> holds leads/*.json, status/*.json (optional), companies/*.json (optional) and meta/run.json, as written by
   ArtifactData list/get with out_dir. Each file is {"id","data",...} or the bare document.
 
 The repo is public, so this keeps only public-source lead fields plus Samuel's status label.
@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 KEEP = ["state", "metro", "project", "ptype", "size", "stage", "signal", "sdate", "gc", "sub",
         "window", "who", "web", "line", "src", "t", "s", "h", "p", "c", "score", "prevScore",
         "list", "firstSeen", "lastChecked", "active", "changeNote"]
+CO_KEEP = ["name", "aka", "type", "hq", "offices", "states", "events", "associations", "charities",
+           "sports", "leadIds", "notes", "firstSeen", "lastChecked", "changeNote"]
 STATUSES = {"Not contacted", "Left voicemail", "Spoke – interested", "Meeting set",
             "Proposal sent", "Won – placement", "Lost", "Not a fit"}
 
@@ -57,14 +59,29 @@ def main(src, out):
         meta = {k: m.get(k) for k in ("lastRun", "summary", "nextRun") if m.get(k)}
         meta["history"] = [h for h in (m.get("history") or [])][:30]
 
+    companies = []
+    for p in sorted(glob.glob(os.path.join(src, "companies", "*.json"))):
+        i, d = body(p)
+        row = {"id": i}
+        for k in CO_KEEP:
+            if k in d and d[k] not in (None, "", []):
+                row[k] = d[k]
+        for k in ("events", "associations", "charities", "sports"):
+            row[k] = [x for x in (row.get(k) or []) if isinstance(x, dict)]
+            for x in row[k]:
+                if x.get("url") and not str(x["url"]).startswith(("http://", "https://")):
+                    x.pop("url")
+        companies.append(row)
+    companies.sort(key=lambda r: r.get("name", r["id"]).lower())
+
     payload = {"exportedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-               "run": meta, "leads": leads}
+               "run": meta, "leads": leads, "companies": companies}
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
     active = [r for r in leads if r.get("active", True)]
     print(f"{len(leads)} leads ({len(active)} active, {sum(r['list']=='call' for r in active)} on call list), "
-          f"{len(status)} with status -> {out}")
+          f"{len(status)} with status, {len(companies)} companies -> {out}")
 
 
 if __name__ == "__main__":

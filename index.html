@@ -787,6 +787,21 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .lr-how p{margin:6px 0 0}
 .lr-list{display:flex;flex-direction:column;gap:12px}
 .lr-empty{color:var(--muted);text-align:center}
+.lr-co{display:flex;flex-direction:column;gap:8px}
+.lr-co h3{margin:0;font-size:16px}
+.lr-co .lr-title{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lr-co-sec{margin-top:4px}
+.lr-co-sec h4{margin:6px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.lr-co-sec ul{margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:3px}
+.lr-co-sec a{color:var(--accent)}
+.lr-proj{display:flex;flex-wrap:wrap;gap:6px}
+.lr-proj button{font:inherit;font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;text-align:left}
+.lr-proj button:hover{border-color:var(--accent);color:var(--accent)}
+.lr-ev{width:100%;border-collapse:collapse;font-size:13.5px}
+.lr-ev th,.lr-ev td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.lr-ev th{font-size:12px;color:var(--muted);font-weight:600}
+.lr-ev-wrap{overflow-x:auto}
+.lr-ev .past td{color:var(--muted)}
 .lr-lead{display:grid;grid-template-columns:84px minmax(0,1fr);padding:0;gap:0;overflow:hidden}
 .lr-score{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 6px;background:var(--bg);border-right:1px solid var(--line-soft)}
 .lr-score .n{font-family:var(--mono);font-size:28px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
@@ -1530,6 +1545,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
       <button type="button" data-lrtab="call" aria-pressed="true">Call list</button>
       <button type="button" data-lrtab="pipeline" aria-pressed="false">Pipeline</button>
       <button type="button" data-lrtab="all" aria-pressed="false">All</button>
+      <button type="button" data-lrtab="companies" aria-pressed="false">Companies</button>
     </div>
     <select id="lrState" aria-label="State"><option value="">All states</option></select>
     <select id="lrType" aria-label="Project type"><option value="">All project types</option></select>
