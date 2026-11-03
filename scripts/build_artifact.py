@@ -13,6 +13,6 @@ head = re.sub(r'<style>img\{max-width:100%\}\[hidden\]\{display:none!important\}
 t = re.search(r"<title>.*?</title>", head, re.S).group(0)
 head = t + "\n" + head.replace(t, "", 1).strip()
 open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(head + "\n" + body.strip() + "\n")
-for f in ["sync.js", "i18n.js", "portal.js", "leads.js", "seed-opps.json", "data/leads.json"]:
+for f in ["sync.js", "i18n.js", "portal.js", "leads.js", "seed-opps.json", "data/leads.json", "bdmap.js"]:
     shutil.copy(os.path.join(src, f), os.path.join(out, f))
 print("built", out)
