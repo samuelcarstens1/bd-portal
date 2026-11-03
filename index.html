@@ -747,6 +747,15 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .langtop{position:fixed;top:max(14px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:40;background:var(--navy);border-color:var(--navy);box-shadow:0 4px 14px rgba(22,35,47,.18)}
 @media (max-width:760px){.langtop{display:none}}
 
+.syncpill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--navy-dim);padding:2px 0 6px}
+.syncpill .dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.syncpill .dot.ok{background:#5BC98A}.syncpill .dot.wait{background:#D9A93A}.syncpill .dot.bad{background:#F07A33}.syncpill .dot.local{background:#9AA6BA}
+.bktools{display:flex;gap:12px;flex-wrap:wrap;padding-top:6px}
+.bktools button,.bktools label{background:none;border:0;padding:0;color:var(--mute-soft);font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-family:inherit}
+.bktools button:hover,.bktools label:hover{color:#fff}
+.syncbanner{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px 10px 16px;box-shadow:0 8px 24px rgba(22,35,47,.15);font-size:14px;max-width:calc(100vw - 32px)}
+@media (max-width:760px){.side-foot{display:flex}}
+
 /* Phone */
 @media (max-width:760px){
   .shell{flex-direction:column}
@@ -1563,7 +1572,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite">SAVED</div>
 
-<script>
+<script type="text/x-bdp">
 /* ---------- FOUNDATION TO OCCUPANCY (ramp-plan checklist, ported from the artifact) ---------- */
 (function(){
   "use strict";
@@ -1800,7 +1809,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   renderGoals(); renderInits(); renderReviews();
 })();
 </script>
-<script>
+<script type="text/x-bdp">
 /* ---------- PIPELINE ----------
    Opportunities are entered on the Pipeline page and saved in this browser (localStorage key "bdp-opps").
    Nothing is pre-filled. A later step will move this list to a shared database so your boss sees the same data.
@@ -1946,9 +1955,6 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
   });
 })();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
-<script src="portal.js"></script>
-<script src="leads.js"></script>
+<script src="sync.js"></script>
 </body>
 </html>
