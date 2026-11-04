@@ -8,7 +8,7 @@
   var SYNC=['bdp-opps','bdp-contacts','bdp-expenses','bdp-expmeta','bdp-goals','bdp-kpis','bdp-reports','bdp-weeks','bdp-aop','ib-ramp-plan-v1','bdp-seed-ftp-v1'];
   var CHUNK=180000;
   var LS=window.localStorage, P=Storage.prototype, rawSet=P.setItem, rawGet=P.getItem, rawRemove=P.removeItem;
-  var db=null, mode='local', known={}, timers={}, writing={}, again={}, pending=0, failed=false, mine={};
+  var snapAt='', db=null, mode='local', known={}, timers={}, writing={}, again={}, pending=0, failed=false, mine={};
   window.BDP_SYNC={mode:function(){return mode}};
 
   /* ---------- status pill ---------- */
@@ -18,6 +18,7 @@
     var t,c;
     if(mode==='loading'){t='Loading portal data…';c='wait';}
     else if(mode==='db'){ if(failed){t='Not saved — check connection';c='bad';} else if(pending){t='Saving…';c='wait';} else {t='Saved to portal';c='ok';} }
+    else if(mode==='snapshot'){ var d=new Date(snapAt); t='View-only copy · updated '+(isNaN(d)?'':d.toLocaleString(window.BDP_LOCALE||'en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})); c='ok'; }
     else if(failed){t='Could not load portal data — refresh';c='bad';}
     else {t='Saved in this browser only';c='local';}
     el.innerHTML='<span class="dot '+c+'"></span><span>'+t+'</span>';
@@ -118,6 +119,22 @@
       location.reload(); }; r.readAsText(f); };
   }
 
+  /* ---------- GitHub Pages copy: load the daily snapshot of the artifact's data (data/portal.json) ---------- */
+  async function loadSnapshot(){
+    try{
+      var r=await fetch('data/portal.json',{cache:'no-store'}); if(!r.ok) return;
+      var d=await r.json(); if(!d||!d.kv) return;
+      SYNC.forEach(function(k){ rawRemove.call(LS,k); });
+      Object.keys(d.kv).forEach(function(k){ if(SYNC.indexOf(k)>=0) rawSet.call(LS,k,d.kv[k]); });
+      var m=d.map||{};
+      rawSet.call(LS,'pwLinkedIn',JSON.stringify(m.linkedin||{}));
+      rawSet.call(LS,'pwOutreach',JSON.stringify(m.outreach||{}));
+      rawSet.call(LS,'pwAddedPeople',JSON.stringify(m.addedPeople||{}));
+      rawRemove.call(LS,'pwPersonal');
+      mode='snapshot'; snapAt=d.exportedAt||'';
+    }catch(e){ console.warn('BDP snapshot',e); }
+  }
+
   /* ---------- start ---------- */
   async function start(){
     var c=window.claude;
@@ -127,6 +144,7 @@
       if(db){ try{ await hydrate(); mode='db'; }catch(e){ console.error('BDP hydrate',e); mode='local'; db=null; failed=true; } }
       else mode='local';
     }
+    else await loadSnapshot();
     await boot(); tools(); pill();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();

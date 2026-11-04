@@ -141,6 +141,7 @@
   ];
   // ---- BusDev Map, contacts, company researcher, heat map, data vocabulary (added Nov 3, 2026)
   var D2={
+ "View-only copy":"Copia de solo lectura",
  "Start":"Inicio","Active":"Activo","Past":"Anterior","Former":"Anterior",
  "Sources":"Fuentes","Who to call in":"A quién llamar en","click for details":"clic para ver detalles","click to go back":"clic para volver","Source ↗":"Fuente ↗","Branch page ↗":"Página de la sucursal ↗","Outreach email":"Correo de contacto","Brackets = fill in before sending":"Corchetes = completar antes de enviar","their email":"su correo",
   "works with":"trabaja con","built":"construyó","hiring":"contratando","now works at":"ahora trabaja en","runs":"dirige","via":"vía","person":"persona",
@@ -191,6 +192,7 @@
   var pl=function(n,one,many){ return n+' '+(+n===1?one:many); };
   var T=function(s){ return D.hasOwnProperty(s)?D[s]:s; };
   P=P.concat([
+    [/^updated (.+)$/,"actualizado $1"],
     [/^(.+) in (Texas|Florida|Georgia|Alabama|Mississippi|Louisiana|North Carolina|South Carolina|Tennessee)$/,function(m){return T(m[1])+' en '+STN[m[2]]}],
     [/^(.+) in (Texas|Florida|Georgia|Alabama|Mississippi|Louisiana|North Carolina|South Carolina|Tennessee): (\d+) (projects|companies)$/,function(m){return T(m[1])+' en '+STN[m[2]]+': '+m[3]+(m[4]==='projects'?' proyectos':' empresas')}],
     [/^(Sub list|Category|State|City|Company|Branch|Person|GC \/ Owner|Project|Signal|Warm path|Competitor|Our work) group$/,function(m){return 'Grupo: '+(T(m[1])).toLowerCase()}],
