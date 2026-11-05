@@ -98,6 +98,7 @@ function render() {
   const T = motion();
   const t = svg.transition().duration(T);
   const focusItem = items.find(i => i.role === "focus");
+  stage.classList.toggle("dense", items.some(i => i.dense));
 
   // Edges (hub -> branch)
   const ringItems = items.filter(i => i.role === "ring");

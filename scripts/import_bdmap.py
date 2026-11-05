@@ -24,14 +24,6 @@ js = sub1('const margin = phone ? 78 : 118;', 'const margin = phone ? 78 : 170;'
 # long one-line notes under ring circles get cut at the stage edge; shorten them (the tooltip keeps the full text)
 js = sub1('const badgeText = d.n.badge && (d.role !== "parent") && !(d.role === "focus" && items.some(i => i.dense)) ? d.n.badge : "";',
           'let badgeText = d.n.badge && (d.role !== "parent") && !(d.role === "focus" && items.some(i => i.dense)) ? d.n.badge : "";\n    const bMax = d.role === "ring" ? (phone ? 24 : 28) : 70; if (badgeText.length > bMax) badgeText = badgeText.slice(0, bMax - 1).trim() + "…";', js)
-# hub-and-spoke look (Client Networks style): labels inside circles, counts, satellites fanned behind each branch
-def swap_renderer(js):
-    a = js.index("function scene() {"); b = js.index("let jumpFrom = null;")
-    hub = open(os.path.join(ROOT, "scripts", "bdmap_hub.js"), encoding="utf-8").read()
-    return js[:a] + hub + js[b:]
-js = swap_renderer(js)
-js = sub1('d.role === "ring" ? (d.n.group && d.n.children.length ? "click to open" : "click for details")',
-          '(d.role === "ring" || d.role === "sat") ? (d.n.group && d.n.children.length ? "click to open" : "click for details") : d.role === "more" ? "click to see all"', js)
 # let the rest of the portal (contacts, company researcher, heat map) read the map's data and live edits
 js = sub1('function liRefresh() {\n  liBadges();', 'function liRefresh() {\n  liBadges();\n  try { window.dispatchEvent(new Event("bdmap:change")); } catch (e) {}', js)
 js = js.rstrip()
@@ -42,6 +34,8 @@ window.BDMAP = { COMPANIES, CATEGORIES, STATES, BRANCH_METRO, OUR_WORK, DC_DATA,
   openCompany: k => { const i = (INSTANCES[k] || [])[0]; if (i) { navigateTo(i.node); openPanel(i.node); } } };
 try { window.dispatchEvent(new Event("bdmap:ready")); } catch (e) {}
 })();"""
+sys.path.insert(0, os.path.join(ROOT, "scripts")); import bdmap_patches
+js = bdmap_patches.apply(js)
 open(os.path.join(ROOT, "bdmap.js"), "w", encoding="utf-8").write("/* Business Development Map — imported from the claude.ai map by scripts/import_bdmap.py. */\n" + js.strip() + "\n")
 
 # ---------- CSS ----------

@@ -11230,6 +11230,7 @@ function buildTree() {
         if (isClient(entry)) { co.badge = "IB Group client · " + co.badge; co.pastClient = true; }
       });
     }
+    buildCompanyFirst(catNode, cat, catName, inCat);
   });
 
   // Data Centers: builders, trade subs and the project pipeline (researched Nov 3, 2026).
@@ -11265,9 +11266,52 @@ function buildTree() {
   return top;
 }
 
+/* Company-first copy of a category: Company -> State -> City. Each city opens that company's office there
+   (its own copy of the company card, so the path bar reads Company > State > City). Logs and LinkedIn links
+   are keyed by company + person, so both orders show the same history. */
+function buildCompanyFirst(catNode, cat, catName, inCat) {
+  const markCf = n => { n.cf = true; n.children.forEach(markCf); };
+  const sorted = inCat.slice().sort((a, b) => (isClient(b) - isClient(a)) || a.company.name.localeCompare(b.company.name));
+  const kids = [];
+  sorted.forEach(entry => {
+    const locs = [];
+    STATES.forEach(st => st.metros.forEach(([mid, mname]) => {
+      const br = entry.branches.filter(b => (BRANCH_METRO[b.id] || []).includes(mid) && (b.group === "territory" || (ADDED_METROS.has(mid) && b.address && !/job site|service area|crew/i.test(b.name))));
+      if (br.length) locs.push({ st, mid, mname, br });
+    }));
+    const client = isClient(entry), states = [...new Set(locs.map(l => l.st.id))];
+    const coN = node("cf-" + cat + "-" + entry.key, entry.company.name, "company", { group: true, cf: true, pastClient: client,
+      tip: catName + (locs.length ? " · " + states.join(", ") : " · outside our markets"),
+      badge: (client ? "IB Group client · " : "") + (locs.length ? plural(states.length, "state", "states") + " · " + plural(locs.length, "city", "cities") : "Outside our markets") });
+    coN.parent = catNode; kids.push(coN);
+    const inst = (mid, label, br, offTip) => {
+      const co = buildCompany(entry, mid, mid + "~cf");
+      markCf(co);
+      co.panelName = entry.company.name + " — " + label; co.name = label;
+      if (br) { co.tip = "Here: " + br.map(b => b.name).join("; "); co.fields.unshift({ label: "Office in " + label, value: br.map(b => [b.name, b.address].filter(Boolean).join(" — ")) }); }
+      else co.tip = offTip;
+      if (client) { co.badge = "IB Group client · " + co.badge; co.pastClient = true; }
+      return co;
+    };
+    if (!locs.length) {
+      const stN = add(coN, node("cf-st-" + cat + "-" + entry.key + "-out", "Outside our markets", "state", { group: true, cf: true, tip: "No office in a city on this map", badge: "Other locations" }));
+      const offs = entry.branches.filter(b => b.address || b.group === "other");
+      add(stN, inst("out", "Other locations", null, offs.length ? "Offices: " + offs.map(b => b.name).join("; ") : "Offices outside our markets"));
+      return;
+    }
+    STATES.forEach(st => {
+      const mine = locs.filter(l => l.st === st); if (!mine.length) return;
+      const stN = add(coN, node("cf-st-" + cat + "-" + entry.key + "-" + st.id, st.name, "state", { group: true, cf: true,
+        tip: entry.company.name + " in " + st.name, badge: plural(mine.length, "city", "cities") }));
+      mine.forEach(l => add(stN, inst(l.mid, l.mname, l.br)));
+    });
+  });
+  catNode.kidsByState = catNode.children; catNode.kidsByCompany = kids;
+}
+
 function buildCompany(DATA, scope) {
   ["branches","people","partners","projects","signals","warmPaths"].forEach(k => { if (!Array.isArray(DATA[k])) DATA[k] = []; });
-  const K = scope + ":" + DATA.key + ":";
+  const K = (arguments[2] || scope) + ":" + DATA.key + ":";
   const branchName = id => (DATA.branches.find(b => b.id === id) || {}).name || id;
   const personName = id => (DATA.people.find(p => p.id === id) || {}).name || id;
   const projectName = id => (DATA.projects.find(p => p.id === id) || {}).name || id;
@@ -11472,6 +11516,37 @@ function buildCompany(DATA, scope) {
   return root;
 }
 const ROOT = buildTree();
+/* Drill order switch: States first (Category > State > City > Company) or Companies first (Category > Company > State > City). */
+let ORDER = "state";
+try { ORDER = localStorage.getItem("pwOrder") === "company" ? "company" : "state"; } catch (e) {}
+function applyOrder() { byId.forEach(n => { if (n.kidsByState) n.children = ORDER === "company" ? n.kidsByCompany : n.kidsByState; }); }
+applyOrder();
+function syncOrderUI() {
+  const sw = document.getElementById("pwOrder"); if (!sw) return;
+  sw.setAttribute("aria-checked", String(ORDER === "company"));
+  sw.querySelectorAll("[data-o]").forEach(s => s.classList.toggle("on", s.dataset.o === ORDER));
+  const h = document.getElementById("pwOrderHint"); if (h) h.textContent = ORDER === "company" ? "Company › State › City" : "State › City › Company";
+}
+function setOrder(o) {
+  if (o === ORDER) return;
+  ORDER = o; try { localStorage.setItem("pwOrder", o); } catch (e) {}
+  applyOrder();
+  // if you are inside a category, go back to it so the next circles follow the new order
+  const i = path.findIndex(n => n.kidsByState);
+  if (i >= 0 && path.length > i + 1) { remember(); path = path.slice(0, i + 1); opened = true; }
+  syncOrderUI(); render();
+}
+(function orderSwitch() {
+  const main = document.getElementById("pwMain"); if (!main || document.getElementById("pwOrder")) return;
+  const row = document.createElement("div"); row.className = "order-row";
+  row.innerHTML = '<span class="order-lbl" id="pwOrderLbl">Show first</span>' +
+    '<button type="button" class="order-sw" id="pwOrder" role="switch" aria-labelledby="pwOrderLbl" aria-checked="false">' +
+    '<span class="knob" aria-hidden="true"></span><span class="opt" data-o="state">States</span><span class="opt" data-o="company">Companies</span></button>' +
+    '<span class="order-hint" id="pwOrderHint"></span>';
+  main.parentNode.insertBefore(row, main);
+  row.querySelector("#pwOrder").addEventListener("click", () => setOrder(ORDER === "company" ? "state" : "company"));
+  syncOrderUI();
+})();
 // Competitor circles that are also on the map jump to that company:
 // same city if it has an office there, otherwise its headquarters city.
 function hqMetro(key) {
@@ -11618,6 +11693,7 @@ function render() {
   const T = motion();
   const t = svg.transition().duration(T);
   const focusItem = items.find(i => i.role === "focus");
+  stage.classList.toggle("dense", items.some(i => i.dense));
 
   // Edges (hub -> branch)
   const ringItems = items.filter(i => i.role === "ring");
@@ -12231,7 +12307,7 @@ function applyAdded() {
     if (!root.isCompanyRoot) return;
     const ck = root.companyKey, mine = list.filter(p => p.company === ck);
     if (!mine.length) return;
-    const scope = root.id.split(":")[0], K = scope + ":" + ck + ":";
+    const rawScope = root.id.split(":")[0], scope = rawScope.replace(/~cf$/, ""), K = rawScope + ":" + ck + ":";
     const gPeople = root.children.find(c => c.id === K + "g-people"); if (!gPeople) return;
     const entry = COMPANIES.find(e => e.key === ck);
     const group = (key, name) => {
@@ -12255,7 +12331,7 @@ function applyAdded() {
         fields: [F("Title", p.title), F("City", m ? m.name + ", " + m.state : (p.metro ? null : "Not in one of our cities")), F("Phone", p.phone), F("Email", p.email), F("Added", "By you on " + (p.createdAt || "").slice(0, 10))].filter(Boolean),
         person, companyData: entry, companyKey: ck };
       g.children.push(n); byId.set(n.id, n); injected.push(n);
-      if (!INDEX.some(i => i.n.injected && i.n.person.docId === p.id) && (!p.metro || p.metro === scope || !list.some(q => q.id === p.id && q.metro && byId.get(q.metro + ":" + ck + ":co"))))
+      if (!root.cf && !INDEX.some(i => i.n.injected && i.n.person.docId === p.id) && (!p.metro || p.metro === scope || !list.some(q => q.id === p.id && q.metro && byId.get(q.metro + ":" + ck + ":co"))))
         INDEX.push({ n, hay: [p.name, p.title, p.email, entry ? entry.company.name : ""].join(" ").toLowerCase(), crumb: pathOf(n).slice(0, -1).map(x => x.name).join(" › ") });
     });
     gPeople.children.forEach(g => { if (g.group) g.badge = `${g.children.length} ${g.children.length === 1 ? "person" : "people"}`; });
@@ -12356,7 +12432,7 @@ function openPanel(n) {
   panel.style.setProperty("--ptype", type.color);
   const ce = n.companyKey ? COMPANIES.find(e => e.key === n.companyKey) : null;
   const clientHere = ce ? isClient(ce) : !!n.pastClient;
-  $("pwPTitle").innerHTML = (clientHere ? '<span class="star" aria-label="IB Group client">★</span>' : "") + esc(n.name);
+  $("pwPTitle").innerHTML = (clientHere ? '<span class="star" aria-label="IB Group client">★</span>' : "") + esc(n.panelName || n.name);
   let html = "";
   if (clientHere) {
     const ib = ce && ce.company.ibClient;
@@ -12409,6 +12485,7 @@ document.addEventListener("keydown", ev => {
 const searchEl = $("pwSearch"), results = $("pwResults");
 const INDEX = [];
 byId.forEach(n => {
+  if (n.cf) return;
   const hay = [n.name, n.tip, ...n.fields.map(f => Array.isArray(f.value) ? f.value.join(" ") : f.value)].join(" ").toLowerCase();
   INDEX.push({ n, hay, crumb: pathOf(n).slice(0, -1).map(x => x.name).join(" › ") });
 });
@@ -12486,6 +12563,10 @@ window.__pwMap = { navigateTo: id => navigateTo(byId.get(id)), goUp, reset, get 
 
 window.BDMAP = { COMPANIES, CATEGORIES, STATES, BRANCH_METRO, OUR_WORK, DC_DATA, isClient, LI, OUT, ADDED, PERSONAL, lastTouch,
   key: (companyKey, personId) => companyKey + "__" + personId,
+  followups: () => fuRows().map(r => ({ key: r.key, bucket: r.bucket, person: r.person, title: r.title, company: r.company, client: r.client,
+    lastTalk: r.lastTalk, lastAny: r.lastAny, next: r.next, onMap: !!r.n, linkedin: r.n ? liUrl(r.n) : (LI[r.key] || "") })),
+  FU_BUCKETS, monday: mondayISO, fuText,
+  openPerson: k => { const n = personNodeFor(k); if (n) { navigateTo(n); openPanel(n); return true; } return false; },
   openCompany: k => { const i = (INSTANCES[k] || [])[0]; if (i) { navigateTo(i.node); openPanel(i.node); } } };
 try { window.dispatchEvent(new Event("bdmap:ready")); } catch (e) {}
 })();

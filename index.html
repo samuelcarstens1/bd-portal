@@ -1235,6 +1235,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 #view-leadgen .pw-map .panel{max-height:clamp(560px,86vh,1000px)}
 #view-leadgen .pw-map .stage .help{background:transparent}
 #view-leadgen .pw-map .edge{stroke:var(--hub-orange);stroke-width:3px}
+#view-leadgen .pw-map .stage.dense .edge{stroke-width:1.2px;stroke-opacity:.55}
 #view-leadgen .pw-map .sedge{stroke:var(--hub-orange);stroke-width:1.5px;stroke-opacity:.85}
 #view-leadgen .pw-map .node circle.body{fill:var(--hub-node);stroke:var(--hub-ring);stroke-width:2px}
 #view-leadgen .pw-map .node.sat circle.body{fill:var(--hub-node2);stroke:#FFFFFF;stroke-width:2px}
@@ -1257,6 +1258,40 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 #view-leadgen .pw-map .node.focus.dense text.label{fill:var(--hub-node)}
 @media (max-width:820px){ #view-leadgen .pw-map .stage{height:clamp(460px,72vh,700px)} }
 /* HUB MAP CSS END */
+/* Monday follow-ups on the Overview */
+.fu-ov{gap:14px}
+.fu-ov .fu-ov-act{display:flex;align-items:center;gap:12px}
+.fu-ov h3{font:600 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;display:flex;gap:8px;align-items:center}
+.fu-ov h3 .n{color:var(--fg)}
+.fu-ov h3.due{color:var(--accent)}
+.fu-ov ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.fu-ov li{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:var(--card);min-width:0}
+.fu-ov li.due{border-color:var(--accent)}
+.fu-ov .who{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
+.fu-ov .who a.name{font-weight:700;font-size:15px;color:var(--fg);text-decoration:none}
+.fu-ov .who a.name:hover{color:var(--accent);text-decoration:underline}
+.fu-ov .who .fu-co{color:var(--muted);font-size:13px}
+.fu-ov .who .star{color:var(--accent)}
+.fu-ov .t{font-size:13px;color:var(--muted)}
+.fu-ov .meta{font-size:12.5px;color:var(--muted)}
+.fu-ov .meta b{color:var(--accent);font-weight:600}
+.fu-ov .note2{font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.fu-ov .links{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px;font-size:13px;font-weight:600}
+.fu-ov .links a{color:var(--accent)}
+/* the follow-up list moved off the BusDev Map toolbar */
+#pwFUBtn,#pwFU{display:none!important}
+/* BusDev Map drill-order slider */
+#view-leadgen .order-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+#view-leadgen .order-lbl{font:600 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#view-leadgen .order-sw{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;align-items:center;min-height:44px;padding:4px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;font:700 14px/1 'Roboto Condensed','Barlow Condensed',sans-serif;letter-spacing:.3px;color:var(--fg)}
+#view-leadgen .order-sw .opt{position:relative;z-index:1;padding:0 18px;min-width:108px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:999px;transition:color .2s}
+#view-leadgen .order-sw .opt.on{color:#fff}
+#view-leadgen .order-sw .knob{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;background:#13253D;box-shadow:0 0 0 2px #F27A1A;transition:transform .25s ease}
+#view-leadgen .order-sw[aria-checked="true"] .knob{transform:translateX(100%)}
+#view-leadgen .order-sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#view-leadgen .order-hint{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){#view-leadgen .order-sw .knob{transition:none}}
+
 </style>
 </head>
 <body>
@@ -1315,6 +1350,11 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <a class="card tight tool" href="#week" style="padding:20px 22px;gap:10px"><span class="label">Meetings this week</span><span class="big" id="ovMeet">—</span><span class="sub13" id="ovMeetSub">—</span></a>
     <div class="card tight dark"><span class="label">Salary ROI (to date)</span><span class="big" style="color:var(--accent-bright)">3.1×</span><span class="sub13" style="color:var(--navy-dim)">Gross margin placed ÷ cost of seat</span></div>
   </div>
+
+  <section class="card fu-ov" id="ovFU" aria-labelledby="h-ovfu">
+    <div class="card-head"><h2 id="h-ovfu">Monday follow-ups</h2><div class="fu-ov-act"><span class="note" id="ovFUFor">—</span><button class="btn" type="button" id="ovFUCopy">Copy list</button></div></div>
+    <div id="ovFUBody"><p class="sub13">Loading…</p></div>
+  </section>
 
   <div class="grid g2">
     <div class="card">
