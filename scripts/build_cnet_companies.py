@@ -243,7 +243,7 @@ def main():
         n_part = sum(1 for p in roster if p["conf"].startswith("Apollo search"))
         out[key] = {"roster": roster, "rich": rich, "company": company, "short": short, "logo": "", "mono": c.get("mono") or "",
                     "top": top, "ops": ops, "hr": None,
-                    "exec": [x for x in [top, ops] + [p["id"] for p in roster if p["region"] == "Corporate"] if x][:5],
+                    "exec": list(dict.fromkeys(x for x in [top, ops] + [p["id"] for p in roster if p["region"] == "Corporate"] if x))[:5],
                     "mapTitle": f"{short} · Org Map", "mapTab": "Org Map",
                     "scope": f"{n_en} enriched in Apollo, {n_map} from the BusDev Map research, {n_part} with names only partly unlocked",
                     "regions": order, "asOf": c.get("asOf") or str(date.today())}
