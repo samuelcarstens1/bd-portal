@@ -18,8 +18,9 @@ SKIP = re.compile(r"intern|warehouse|painter|finisher|carpenter|real estate|orch
 TOP = [r"\bceo\b|chief executive", r"^president\b|\bpresident$|^president|division president", r"\bcoo\b|chief operating"]
 
 METRO = [
-    (r"houston|katy|spring|cypress|tomball|magnolia|waller|sugar land|the woodlands|pearland|humble|conroe|channelview|baytown", "Houston"),
-    (r"dallas|coppell|fort worth|arlington|plano|irving|frisco|denton|grapevine", "Dallas–Fort Worth"),
+    (r"houston|katy|\bspring\b|cypress|tomball|magnolia|waller|sugar land|the woodlands|pearland|humble|conroe|channelview|baytown", "Houston"),
+    (r"dallas|coppell|fort worth|arlington|plano|irving|frisco|denton|grapevine|mckinney|springtown|keller|southlake|mesquite|richardson", "Dallas–Fort Worth"),
+    (r"fort myers|cape coral|naples|bonita|estero", "Southwest Florida"),
     (r"san antonio|new braunfels", "San Antonio"), (r"austin|buda|round rock", "Austin"),
     (r"harlingen|mcallen|brownsville|edinburg|los fresnos|rgv|rio grande", "Rio Grande Valley"),
     (r"atlanta|marietta|alpharetta|kennesaw|norcross|savannah|augusta", "Georgia"),
@@ -34,6 +35,9 @@ METRO = [
     (r"orlando|kissimmee|sanford", "Central Florida"),
     (r"richmond|roanoke|virginia|beltsville|maryland", "Mid-Atlantic"),
 ]
+METRO_STATE = {"Houston": "Texas", "Dallas–Fort Worth": "Texas", "San Antonio": "Texas", "Austin": "Texas", "Rio Grande Valley": "Texas",
+               "Georgia": "Georgia", "Tennessee": "Tennessee", "Charlotte": "North Carolina", "Raleigh / Triad": "North Carolina", "South Carolina": "South Carolina",
+               "Louisiana": "Louisiana", "Palm Beach": "Florida", "South Florida": "Florida", "Tampa Bay": "Florida", "Central Florida": "Florida", "Southwest Florida": "Florida"}
 STATE_REGION = {"Texas": "Texas", "Florida": "Florida", "Georgia": "Georgia", "Tennessee": "Tennessee", "North Carolina": "North Carolina",
                 "South Carolina": "South Carolina", "Louisiana": "Louisiana", "Alabama": "Alabama", "Mississippi": "Mississippi",
                 "Virginia": "Mid-Atlantic", "Maryland": "Mid-Atlantic"}
@@ -63,6 +67,8 @@ def region_for(city, state, title, hq_metro):
     t = f"{city or ''} {state or ''}".lower()
     for rx, name in METRO:
         if re.search(rx, t):
+            if state and METRO_STATE.get(name) and METRO_STATE[name] != state:
+                continue  # e.g. Dallas, GA is not Dallas-Fort Worth
             return name
     if state in STATE_REGION:
         return STATE_REGION[state]
