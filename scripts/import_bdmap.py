@@ -24,6 +24,9 @@ js = sub1('const margin = phone ? 78 : 118;', 'const margin = phone ? 78 : 170;'
 # long one-line notes under ring circles get cut at the stage edge; shorten them (the tooltip keeps the full text)
 js = sub1('const badgeText = d.n.badge && (d.role !== "parent") && !(d.role === "focus" && items.some(i => i.dense)) ? d.n.badge : "";',
           'let badgeText = d.n.badge && (d.role !== "parent") && !(d.role === "focus" && items.some(i => i.dense)) ? d.n.badge : "";\n    const bMax = d.role === "ring" ? (phone ? 24 : 28) : 70; if (badgeText.length > bMax) badgeText = badgeText.slice(0, bMax - 1).trim() + "…";', js)
+# tag each circle with its type so the portal's night-jobsite styling can color it
+js = sub1('.attr("class", d => `node ${d.role}${d.n.group ? " grp" : " leaf"}${d.role === "focus" && items.some(i => i.dense) ? " dense" : ""}`)',
+          '.attr("class", d => `node ${d.role}${d.n.group ? " grp" : " leaf"} t-${d.n.type}${d.role === "focus" && items.some(i => i.dense) ? " dense" : ""}`)', js)
 # let the rest of the portal (contacts, company researcher, heat map) read the map's data and live edits
 js = sub1('function liRefresh() {\n  liBadges();', 'function liRefresh() {\n  liBadges();\n  try { window.dispatchEvent(new Event("bdmap:change")); } catch (e) {}', js)
 js = js.rstrip()

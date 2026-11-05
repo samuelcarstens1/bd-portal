@@ -7,6 +7,7 @@
 <title>BD Progress Portal</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@500;700&family=Roboto:wght@400;500;700&display=swap">
 <style>
 /* Layout: fixed navy sidebar + fluid paper-white content; one view visible at a time, switched by hash token. */
 :root{
@@ -1225,6 +1226,101 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .pw-map .tip b{font-weight:700}
 .pw-map .node:focus:not(:focus-visible){outline:none}
 /* BDMAP CSS END */
+/* NIGHT MAP CSS START */
+/* BusDev Map — Client Network Tracker look (navy blueprint grid, safety orange, Roboto Condensed).
+   Kept outside the BDMAP CSS markers so re-importing the map doesn't erase it. Same in light and dark portal themes. */
+#view-leadgen{
+  --nj-bg:#0A1424; --nj-panel:rgba(16,30,52,0.92); --nj-panel2:#13253D; --nj-line:#22385A; --nj-line2:#3A5478; --nj-ring:#4A6690;
+  --nj-text:#FFFFFF; --nj-muted:#C3CFDF; --nj-dim:#9FB0C8; --nj-orange:#F27A1A; --nj-deep:#C9580C; --nj-peach:#FFC197;
+  --nj-cond:'Roboto Condensed','Roboto',sans-serif; --nj-body:'Roboto',system-ui,sans-serif;
+  background-color:var(--nj-bg);
+  background-image:linear-gradient(rgba(255,255,255,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.035) 1px,transparent 1px);
+  background-size:40px 40px; color:var(--nj-text); font-family:var(--nj-body);
+  border-radius:12px; padding:24px; gap:18px;
+}
+#view-leadgen .head{border-color:var(--nj-line)}
+#view-leadgen .head .eyebrow{font-family:var(--nj-cond);font-weight:700;font-size:15px;letter-spacing:1px;color:var(--nj-orange)}
+#view-leadgen .head h1{font-family:var(--nj-cond);font-weight:700;font-size:40px;line-height:1.1;letter-spacing:0;color:var(--nj-text)}
+#view-leadgen .head .sub{color:var(--nj-muted);font-family:var(--nj-body)}
+#view-leadgen .pw-map{
+  --pw-bg:#0B1729; --pw-surface:var(--nj-panel); --pw-surface-2:rgba(242,122,26,0.08); --pw-fg:var(--nj-text); --pw-fg-muted:var(--nj-muted);
+  --pw-line:var(--nj-line2); --pw-accent:var(--nj-peach); --pw-accent-soft:rgba(242,122,26,0.08); --pw-edge:var(--nj-orange);
+  --pw-shadow:0 10px 30px rgba(0,0,0,.5);
+  --pw-c-company:#13253D; --pw-c-branch:#1E3556; --pw-c-person:#22385A; --pw-c-gc:#2B4A75; --pw-c-project:#0F1E33;
+  --pw-c-signal:#C9580C; --pw-c-warm:#F27A1A; --pw-c-comp:#4A5A72; --pw-c-ours:#C9580C;
+  --pw-client:var(--nj-orange); --pw-client-soft:rgba(242,122,26,0.10);
+  --pw-font-display:var(--nj-cond); --pw-font-body:var(--nj-body);
+  color:var(--nj-text); font-family:var(--nj-body);
+}
+#view-leadgen .pw-map a{color:var(--nj-peach)}
+#view-leadgen .pw-map a:hover{color:var(--nj-orange)}
+#view-leadgen .pw-map :focus-visible{outline-color:var(--nj-orange)}
+/* cards */
+#view-leadgen .pw-map .toolbar,#view-leadgen .pw-map .crumbs,#view-leadgen .pw-map .foot details,
+#view-leadgen .pw-map .panel,#view-leadgen .pw-map .fu{background:var(--nj-panel);border:1px solid var(--nj-line2);border-radius:12px}
+#view-leadgen .pw-map .fu{border-color:var(--nj-line2)}
+#view-leadgen .pw-map .panel header,#view-leadgen .pw-map .fu header{border-bottom-color:var(--nj-line)}
+/* buttons + inputs */
+#view-leadgen .pw-map .btn{background:transparent;border:1px solid var(--nj-line2);color:var(--nj-text);border-radius:8px;min-height:44px;font-family:var(--nj-cond);font-weight:700;font-size:14px;letter-spacing:.5px}
+#view-leadgen .pw-map .btn:hover{background:rgba(242,122,26,0.08);border-color:var(--nj-orange)}
+#view-leadgen .pw-map .btn.fu-btn{border:2px solid var(--nj-orange);color:var(--nj-text)}
+#view-leadgen .pw-map .btn.fu-btn[aria-expanded="true"],#view-leadgen .pw-map .btn.pr-btn[aria-expanded="true"]{background:var(--nj-deep);border-color:var(--nj-deep);color:var(--nj-text)}
+#view-leadgen .pw-map .btn.primary,#view-leadgen .pw-map .panel .li-row .btn.primary,#view-leadgen .pw-map .panel .out-form .btn.primary,#view-leadgen .pw-map .panel .em-btns .btn.primary{background:var(--nj-orange);border-color:var(--nj-orange);color:#0A1424}
+#view-leadgen .pw-map .btn.primary:hover{background:#FF8A2E}
+#view-leadgen .pw-map .search input,#view-leadgen .pw-map .panel input,#view-leadgen .pw-map .panel select,#view-leadgen .pw-map .panel textarea{background:#0B1729;color:var(--nj-text);border:1px solid var(--nj-line2);border-radius:8px;color-scheme:dark}
+#view-leadgen .pw-map .search input{min-height:44px}
+#view-leadgen .pw-map .search input::placeholder{color:var(--nj-dim)}
+#view-leadgen .pw-map .results{background:#0F1E33;border-color:var(--nj-line2)}
+#view-leadgen .pw-map .pr-chips button{background:transparent;border-color:var(--nj-line2);color:var(--nj-text);min-height:36px;border-radius:8px}
+#view-leadgen .pw-map .pr-chips button[aria-pressed="true"]{background:var(--nj-deep);border-color:var(--nj-deep);color:var(--nj-text)}
+#view-leadgen .pw-map .close{color:var(--nj-muted)}
+/* small type dots read on navy */
+#view-leadgen .pw-map .dot,#view-leadgen .pw-map .crumbs .step .dot{box-shadow:0 0 0 2px var(--nj-ring)}
+#view-leadgen .pw-map .crumbs .step{color:var(--nj-peach);font-family:var(--nj-cond);font-weight:700}
+#view-leadgen .pw-map .crumbs .step[aria-current="page"]{color:var(--nj-text)}
+#view-leadgen .pw-map .crumbs .step[aria-current="page"] .dot{box-shadow:0 0 0 3px #0A1424,0 0 0 5px var(--nj-orange)}
+#view-leadgen .pw-map .crumbs .typ{color:var(--nj-dim);font-family:var(--nj-body);font-weight:400}
+#view-leadgen .pw-map .crumbs .link{background:var(--nj-orange);height:2px}
+#view-leadgen .pw-map .crumbs .return{border:2px solid var(--nj-orange);color:var(--nj-text);font-family:var(--nj-cond);font-weight:700;border-radius:8px}
+/* headings and labels */
+#view-leadgen .pw-map .panel header h2,#view-leadgen .pw-map .fu header h2{font-family:var(--nj-cond);font-weight:700;letter-spacing:0;color:var(--nj-text)}
+#view-leadgen .pw-map .panel header .type{color:var(--nj-text);font-family:var(--nj-cond);font-weight:700;letter-spacing:.5px;box-shadow:inset 0 0 0 1px var(--nj-ring)}
+#view-leadgen .pw-map .panel dt{color:var(--nj-orange);font-family:var(--nj-cond);font-weight:700;font-size:13px;letter-spacing:.5px}
+#view-leadgen .pw-map .panel .li h3,#view-leadgen .pw-map .panel .email h3,#view-leadgen .pw-map .panel .out h3,#view-leadgen .pw-map .fu h3,#view-leadgen .pw-map .panel .rel h3{font-family:var(--nj-cond);font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--nj-muted)}
+#view-leadgen .pw-map .panel .rel{border-top-color:var(--nj-line)}
+#view-leadgen .pw-map .panel .rel button{background:#13253D;border-color:var(--nj-line2);color:var(--nj-text)}
+#view-leadgen .pw-map .panel .rel button:hover{border-color:var(--nj-orange)}
+#view-leadgen .pw-map .panel .out-log li,#view-leadgen .pw-map .fu li{background:#13253D;border-color:var(--nj-line)}
+#view-leadgen .pw-map .panel .client-box{background:rgba(242,122,26,0.10);border:1px solid var(--nj-orange)}
+#view-leadgen .pw-map .panel .client-box b,#view-leadgen .pw-map .panel header h2 .star,#view-leadgen .pw-map .fu .fu-go .star{color:var(--nj-orange);font-family:var(--nj-cond)}
+#view-leadgen .pw-map .panel .out-sum .due{color:var(--nj-orange)}
+#view-leadgen .pw-map .fu .fu-go{color:var(--nj-peach)}
+#view-leadgen .pw-map .chip{background:transparent;border-color:var(--nj-line2);color:var(--nj-text)}
+#view-leadgen .pw-map .foot,#view-leadgen .pw-map .foot summary{color:var(--nj-muted)}
+#view-leadgen .pw-map .foot summary{font-family:var(--nj-cond);font-weight:700;letter-spacing:.5px}
+#view-leadgen .pw-map .tip{background:#13253D;color:var(--nj-text);border:1px solid var(--nj-line2)}
+#view-leadgen .pw-map .tip b{font-family:var(--nj-cond)}
+/* the diagram */
+#view-leadgen .pw-map .stage{background:transparent;border:1px solid var(--nj-line2);border-radius:12px}
+#view-leadgen .pw-map .stage .help{background:rgba(10,20,36,0.85);color:var(--nj-dim)}
+#view-leadgen .pw-map .edge{stroke:var(--nj-orange);stroke-width:3px;opacity:.9}
+#view-leadgen .pw-map .node circle.body{stroke:var(--nj-ring);stroke-width:2px}
+#view-leadgen .pw-map .node.t-person circle.body,#view-leadgen .pw-map .node.t-ours circle.body{stroke:#FFFFFF}
+#view-leadgen .pw-map .node.t-signal circle.body,#view-leadgen .pw-map .node.t-warm circle.body{stroke:var(--nj-peach)}
+#view-leadgen .pw-map .node.ring:hover circle.body{stroke:var(--nj-orange);filter:none}
+#view-leadgen .pw-map .node.focus circle.body{stroke:var(--nj-orange);stroke-width:10px}
+#view-leadgen .pw-map .node.focus.t-person circle.body{stroke:#FFFFFF;stroke-width:12px}
+#view-leadgen .pw-map .node.parent circle.body{opacity:.55}
+#view-leadgen .pw-map .node text{font-family:var(--nj-body);fill:var(--nj-text);stroke:#0A1424;stroke-width:4px}
+#view-leadgen .pw-map .node.ring text.label,#view-leadgen .pw-map .node.parent text.label{font-family:var(--nj-cond);font-weight:700;font-size:13px}
+#view-leadgen .pw-map .node.focus text.label{font-family:var(--nj-cond);font-weight:700;font-size:20px;letter-spacing:0}
+#view-leadgen .pw-map .node.focus.dense text.label{fill:var(--nj-text);stroke:none}
+#view-leadgen .pw-map .node text.badge{fill:var(--nj-muted)}
+#view-leadgen .pw-map .node text.hint{fill:var(--nj-peach)}
+#view-leadgen .pw-map .node.parent text{fill:var(--nj-dim)}
+#view-leadgen .pw-map .node text.mark,#view-leadgen .pw-map .node text.ord{fill:var(--nj-text);stroke:none;font-family:var(--nj-cond)}
+@media (max-width:820px){ #view-leadgen{padding:16px 6px;border-radius:0;margin-inline:-16px} #view-leadgen .head{padding-inline:10px} #view-leadgen .head h1{font-size:30px} #view-leadgen .pw-map .panel{background:#101E34} }
+/* NIGHT MAP CSS END */
 </style>
 </head>
 <body>

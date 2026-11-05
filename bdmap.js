@@ -11589,7 +11589,7 @@ function render() {
   enter.append("title");
 
   const merged = enter.merge(sel)
-    .attr("class", d => `node ${d.role}${d.n.group ? " grp" : " leaf"}${d.role === "focus" && items.some(i => i.dense) ? " dense" : ""}`)
+    .attr("class", d => `node ${d.role}${d.n.group ? " grp" : " leaf"} t-${d.n.type}${d.role === "focus" && items.some(i => i.dense) ? " dense" : ""}`)
     .attr("aria-label", d => `${d.n.name}${d.role === "parent" ? " (go back)" : d.role === "ring" ? " (open)" : ""}`);
   merged.select("title").text(d => d.n.name);
   merged.transition(t).attr("transform", d => `translate(${d.x},${d.y})`).style("opacity", 1);
