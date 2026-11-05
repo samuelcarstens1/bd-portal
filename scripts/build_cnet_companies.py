@@ -140,7 +140,7 @@ def main():
                 continue
             b = branches.get(mp.get("branchId")) or {}
             bname = b.get("name") or ""
-            p = {"id": slug(mp["name"]), "name": mp["name"], "title": re.sub(r"\s*\((?:vendor data|theorg only|ZoomInfo; unverified)[^)]*\)", "", mp.get("title") or ""),
+            p = {"id": slug(mp["name"]), "name": mp["name"], "title": mp.get("title") or "",
                  "city": "", "region": "", "group": group_for(mp.get("title")), "li": "", "email": "", "since": "",
                  "conf": "From BusDev Map research" + (f" ({mp['evidence']})" if mp.get("evidence") else ""), "prior": [],
                  "_city": bname, "_state": ""}
@@ -170,6 +170,8 @@ def main():
             add({"id": f"{key}-a-{aid[-6:]}", "name": nm, "title": t, "city": "", "region": "", "group": group_for(t), "li": "", "email": "",
                  "since": "", "conf": "Apollo search · full name not unlocked", "prior": [], "_city": "", "_state": ""})
 
+        # keep only people we can reach or verify: a verified email or a LinkedIn link
+        roster[:] = [p for p in roster if (p.get("email") or "").strip() or (p.get("li") or "").strip()]
         # regions: geography when people sit in several metros, else by function
         top_rx = re.compile(r"\b(chief|ceo|coo|cfo|cso|chairman|founder|owner)\b|^president|^co-founder|executive vice president|^evp", re.I)
         for p in roster:
