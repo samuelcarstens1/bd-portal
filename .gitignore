@@ -1,2 +1,4 @@
 bdmap.html
 bdmap.css
+__pycache__/
+*.pyc
