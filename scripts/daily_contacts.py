@@ -6,6 +6,8 @@ Usage: python3 -I scripts/daily_contacts.py <export dir> <YYYY-MM-DD> <out dir>
 <export dir> is the portal database as ArtifactData writes it with out_dir:
   kv/<key>.json, kvc/<key>@<i>.json      portal keys (bdp-reports, bdp-cnet-logs) in chunks
   outreach/<id>.json                      BusDev Map outreach log ({person, title, companyName, entries[]})
+  emails/<id>.json                        optional: one short summary per email sent ({date, contact, name, subject, summary});
+                                          each is added to that person's Email line that day (or to their other line as a follow-up email)
 Writes into <out dir>:
   writes.json      the ArtifactData batch entries to apply (kv meta + chunks), without if_version
   report.txt       the text block that went into "What happened"
@@ -48,6 +50,10 @@ def read_key(src, key):
     return val, int(kv.get("n", 1))
 
 
+def r_type(r):
+    return (r[1].split("|")[0] or "").lower()
+
+
 def pretty_id(pid):
     return " ".join(w.capitalize() for w in pid.replace("p-", "").split("-"))
 
@@ -71,7 +77,7 @@ def main():
         bits = [t.get("type", "Contact")]
         if t.get("duration"):
             bits.append(DUR.get(t["duration"], t["duration"]))
-        if t.get("feel") is not None:
+        if t.get("feel") is not None and not (t.get("type") == "Email" and int(t["feel"]) == 0):
             bits.append("felt " + FEEL.get(int(t["feel"]), "neutral"))
         rows.append((t.get("created", 0), t.get("type", ""), name.lower(), who, " · ".join(bits), "Client Networks"))
 
@@ -92,7 +98,25 @@ def main():
                 bits.append("follow up " + e["next"])
             rows.append((0, e.get("channel", "") + "|" + e.get("outcome", ""), name.lower(), who, " · ".join(b for b in bits if b), "BusDev Map"))
 
+    # email summaries: add each to that person's Email line that day, else to their other line as a follow-up email
+    unmatched = []
+    for e in sorted(docs(src, "emails").values(), key=lambda e: e.get("created", 0)):
+        if e.get("date") != day or not (e.get("summary") or "").strip():
+            continue
+        nm = (e.get("name") or pretty_id(e.get("contact", "?"))).lower()
+        idx = [i for i, r in enumerate(rows) if r[2] == nm]
+        if not idx:
+            unmatched.append(e.get("name") or pretty_id(e.get("contact", "?")))
+            continue
+        em = [i for i in idx if r_type(rows[i]).startswith("email")]
+        i = (em or idx)[0]
+        subj = f'"{e["subject"].strip()}": ' if (e.get("subject") or "").strip() else ""
+        r = list(rows[i])
+        r[4] = r[4] + " · " + ("" if em else "follow-up email: ") + subj + e["summary"].strip()
+        rows[i] = tuple(r)
+
     calls = sum(1 for r in rows if r[1].startswith("Call"))
+    emails = sum(1 for r in rows if r_type(r).startswith("email"))
     meetings = sum(1 for r in rows if r[1].split("|")[0] in MEET or r[1].endswith("|Meeting set"))
     proposals = sum(1 for r in rows if r[1].endswith("|Proposal sent"))
     people = len({r[2] for r in rows})
@@ -111,6 +135,7 @@ def main():
         lines = [f"- {who}: {detail}" for _, _, _, who, detail, _ in sorted(rows, key=lambda x: (x[5], x[0], x[3]))]
         block = (f"{HEAD}: {len(rows)} contact{'s' if len(rows) != 1 else ''} with {people} "
                  f"{'person' if people == 1 else 'people'}{f' ({new_people} new)' if new_people else ''} · {calls} call{'s' if calls != 1 else ''}"
+                 f"{f' · {emails} email' + ('s' if emails != 1 else '') if emails else ''}"
                  f"{f' · {meetings} meeting' + ('s' if meetings != 1 else '') if meetings else ''}"
                  f"{f' · {proposals} proposal' + ('s' if proposals != 1 else '') if proposals else ''}\n" + "\n".join(lines))
     r["happened"] = (happened + ("\n\n" if happened and block else "") + block).strip()
@@ -133,8 +158,10 @@ def main():
     writes += [{"op": "delete", "collection": "kvc", "doc_id": f"bdp-reports~{i}"} for i in range(n, old_n)]
     json.dump(writes, open(os.path.join(out, "writes.json"), "w", encoding="utf-8"), ensure_ascii=False)
     open(os.path.join(out, "report.txt"), "w", encoding="utf-8").write(block or "No contacts logged today.")
-    print(f"{day}: {len(rows)} contacts ({calls} calls, {meetings} meetings, {proposals} proposals, {people} people); "
+    print(f"{day}: {len(rows)} contacts ({calls} calls, {emails} emails, {meetings} meetings, {proposals} proposals, {people} people); "
           f"report {len(val):,} chars in {n} chunk(s){' (new key)' if not old_n else ''}")
+    if unmatched:
+        print("Email summaries not matched to a contact logged today: " + ", ".join(unmatched))
 
 
 if __name__ == "__main__":
