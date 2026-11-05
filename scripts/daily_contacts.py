@@ -79,6 +79,8 @@ def main():
             bits.append(DUR.get(t["duration"], t["duration"]))
         if t.get("feel") is not None and not (t.get("type") == "Email" and int(t["feel"]) == 0):
             bits.append("felt " + FEEL.get(int(t["feel"]), "neutral"))
+        if (t.get("note") or "").strip():
+            bits.append(t["note"].strip())
         rows.append((t.get("created", 0), t.get("type", ""), name.lower(), who, " · ".join(bits), "Client Networks"))
 
     # BusDev Map outreach log
