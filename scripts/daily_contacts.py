@@ -12,6 +12,9 @@ Writes into <out dir>:
   writes.json      the ArtifactData batch entries to apply (kv meta + chunks), without if_version
   report.txt       the text block that went into "What happened"
 Safe to run more than once a day: the auto block and auto counts are replaced, never added twice.
+
+The "Daily report – 5 PM contact roll-up" scheduled task runs a copy of this script that is written out in its prompt
+(scheduled runs may not execute downloaded code), so change both together.
 """
 import glob, json, os, sys, time, random, string
 from datetime import datetime, timezone
