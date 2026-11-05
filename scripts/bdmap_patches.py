@@ -60,6 +60,12 @@ def apply(js):
     lastTalk: r.lastTalk, lastAny: r.lastAny, next: r.next, onMap: !!r.n, linkedin: r.n ? liUrl(r.n) : (LI[r.key] || "") })),
   FU_BUCKETS, monday: mondayISO, fuText,
   openPerson: k => { const n = personNodeFor(k); if (n) { navigateTo(n); openPanel(n); return true; } return false; },""")
+    # Client Networks hook (added by the portal): works for every company that has a network, not only Acousti
+    if 'n.companyKey === "acousti" && (n.isCompanyRoot' in js:
+        js = js.replace('window.CNET && n.companyKey === "acousti" && (n.isCompanyRoot || (n.person && window.CNET.hasPerson(n.name)))',
+                        'window.CNET && (window.CNET.hasCompany ? window.CNET.hasCompany(n.companyKey) : n.companyKey === "acousti") && (n.isCompanyRoot || (n.person && window.CNET.hasPerson(n.name, n.companyKey)))')
+        js = js.replace('"Open Acousti relationship network →"', '"Open " + ((COMPANIES.find(e => e.key === n.companyKey) || { company: { name: "the" } }).company.name) + " relationship network →"')
+        js = js.replace('window.CNET.open("acousti", b.dataset.cnet || null)', 'window.CNET.open(n.companyKey, b.dataset.cnet || null)')
     return js
 
 
