@@ -1,4 +1,5 @@
-/* Daily Reports: live preview of the contacts logged on the selected day (Client Networks + BusDev Map).
+/* Daily Reports: live preview of the contacts logged on the selected day (Client Networks + BusDev Map),
+   with each contact's notes and the saved summary of each email (portal database collection "emails").
    A scheduled run writes the same list into "What happened" and the counters at 5 PM Eastern. */
 (function(){
   'use strict';
@@ -13,10 +14,15 @@
   function rows(d){
     var out=[];
     (read('bdp-cnet-logs',[])||[]).forEach(function(t){ if(t.date!==d) return;
-      out.push({who:t.name||pretty(t.contact), co:t.companyName||(t.company==='circle'?'The Circle Group':'Acousti'), what:[t.type,DUR[t.duration]||'',t.feel!=null?tx('felt ','se sintió ')+FEEL[String(t.feel)]:''].filter(Boolean).join(' · '), src:'Client Networks'}); });
+      out.push({who:t.name||pretty(t.contact), co:t.companyName||(t.company==='circle'?'The Circle Group':'Acousti'), what:[t.type,DUR[t.duration]||'',t.feel!=null&&!(t.type==='Email'&&+t.feel===0)?tx('felt ','se sintió ')+FEEL[String(t.feel)]:'',t.note||''].filter(Boolean).join(' · '), src:'Client Networks', name:(t.name||pretty(t.contact)).toLowerCase(), type:t.type}); });
     var O=read('pwOutreach',{})||{};
     Object.keys(O).forEach(function(k){ (O[k]||[]).forEach(function(e){ if(e.at!==d) return;
       out.push({who:pretty(k.split('__')[1]), co:k.split('__')[0], what:[e.channel,e.outcome,e.note].filter(Boolean).join(' · '), src:'BusDev Map', key:k}); }); });
+    // email summaries saved with each drafted email: on that person's Email line, else on their other line as a follow-up email
+    (window.CNET_EMAILS||[]).filter(function(m){return m.date===d && m.summary;}).forEach(function(m){
+      var nm=(m.name||pretty(m.contact)).toLowerCase(), hit=out.filter(function(r){return r.name===nm;}), em=hit.filter(function(r){return r.type==='Email';});
+      var r=(em[0]||hit[0]); if(!r) return;
+      r.what+=' · '+(em.length?'':tx('follow-up email: ','correo de seguimiento: '))+(m.subject?'“'+m.subject+'”: ':'')+m.summary; });
     return out;
   }
   function render(){
@@ -34,6 +40,7 @@
   window.addEventListener('hashchange',function(){ if(location.hash==='#reports') later(); });
   window.addEventListener('bdmap:ready',later); window.addEventListener('bdmap:change',later);
   window.addEventListener('storage',later);
+  window.addEventListener('cnet:emails',later);
   document.addEventListener('click',function(e){ if(e.target.closest&&e.target.closest('#view-reports')) later(); });
   var line=document.getElementById('rptDateLine'); if(line&&window.MutationObserver) new MutationObserver(later).observe(line,{childList:true,characterData:true,subtree:true});
   render();
