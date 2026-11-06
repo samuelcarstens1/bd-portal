@@ -8,9 +8,13 @@ Usage: python3 -I scripts/daily_contacts.py <export dir> <YYYY-MM-DD> <out dir>
   outreach/<id>.json                      BusDev Map outreach log ({person, title, companyName, entries[]})
   emails/<id>.json                        optional: one short summary per email sent ({date, contact, name, subject, summary});
                                           each is added to that person's Email line that day (or to their other line as a follow-up email)
+  runlog/daily-<date>.json                optional: the scheduled task's run log; its "auto" counts are used when a browser
+                                          tab has saved an older copy of the day over the last run's block
 Writes into <out dir>:
   writes.json      the ArtifactData batch entries to apply (kv meta + chunks), without if_version
   report.txt       the text block that went into "What happened"
+  auto.json        the counts this run added (the task keeps them in its run log)
+Prints a summary line, "Report changed: yes|no", and any email summaries it could not match.
 Safe to run more than once a day: the auto block and auto counts are replaced, never added twice.
 
 The "Daily report – 5 PM contact roll-up" scheduled task runs a copy of this script that is written out in its prompt
@@ -65,6 +69,7 @@ def main():
     src, day, out = sys.argv[1], sys.argv[2], sys.argv[3]
     os.makedirs(out, exist_ok=True)
     rows = []  # (sort key, kind, person, who-line, detail)
+    long_notes = {}
     earlier = set()  # people with a logged contact before this day (so "new contacts" counts first-timers only)
 
     # Client Networks contact log
@@ -82,8 +87,10 @@ def main():
             bits.append(DUR.get(t["duration"], t["duration"]))
         if t.get("feel") is not None and not (t.get("type") == "Email" and int(t["feel"]) == 0):
             bits.append("felt " + FEEL.get(int(t["feel"]), "neutral"))
-        if (t.get("note") or "").strip():
-            bits.append(t["note"].strip())
+        note = (t.get("note") or "").strip()
+        if note:
+            long_notes[len(rows)] = " · ".join(bits)  # the line without its note, in case a saved email summary replaces it
+            bits.append(note)
         rows.append((t.get("created", 0), t.get("type", ""), name.lower(), who, " · ".join(bits), "Client Networks"))
 
     # BusDev Map outreach log
@@ -105,6 +112,7 @@ def main():
 
     # email summaries: add each to that person's Email line that day, else to their other line as a follow-up email
     unmatched = []
+    used = set()
     for e in sorted(docs(src, "emails").values(), key=lambda e: e.get("created", 0)):
         if e.get("date") != day or not (e.get("summary") or "").strip():
             continue
@@ -114,10 +122,18 @@ def main():
             unmatched.append(e.get("name") or pretty_id(e.get("contact", "?")))
             continue
         em = [i for i in idx if r_type(rows[i]).startswith("email")]
-        i = (em or idx)[0]
+        # several emails to one person: give each summary its own Email line, preferring lines that read like
+        # Samuel's own sent email (his number or name in the pasted note) over replies he pasted in
+        free = [i for i in em if i not in used]
+        mine = [i for i in free if "518-9018" in rows[i][4] or "Samuel" in rows[i][4]]
+        i = (mine or free or em or idx)[0]
         subj = f'"{e["subject"].strip()}": ' if (e.get("subject") or "").strip() else ""
         r = list(rows[i])
-        r[4] = r[4] + " · " + ("" if em else "follow-up email: ") + subj + e["summary"].strip()
+        base = r[4]
+        if em and i not in used and i in long_notes and len(base) - len(long_notes[i]) > 280:
+            base = long_notes[i]  # a pasted copy of the whole email: the saved summary says it more briefly
+        used.add(i)
+        r[4] = base + " · " + ("" if em else "follow-up email: ") + subj + e["summary"].strip()
         rows[i] = tuple(r)
 
     calls = sum(1 for r in rows if r[1].startswith("Call"))
@@ -133,6 +149,11 @@ def main():
     r = rpt.setdefault("days", {}).setdefault(day, {})
     happened = r.get("happened") or ""
     old_block = r.get("autoBlock") or ""
+    # If a browser tab saved an older copy over this day, its auto block and auto counts are gone from the report.
+    # The run log still has the counts the last run added: use them, so each counter becomes max(typed, logged).
+    rl = docs(src, "runlog").get("daily-" + day) or {}
+    prev = r.get("auto") or (rl.get("auto") if isinstance(rl.get("auto"), dict) else None) or {}
+    had_block = bool(old_block) and old_block in happened
     if old_block and old_block in happened:
         happened = happened.replace(old_block, "").strip()
     block = ""
@@ -144,7 +165,6 @@ def main():
                  f"{f' · {meetings} meeting' + ('s' if meetings != 1 else '') if meetings else ''}"
                  f"{f' · {proposals} proposal' + ('s' if proposals != 1 else '') if proposals else ''}\n" + "\n".join(lines))
     r["happened"] = (happened + ("\n\n" if happened and block else "") + block).strip()
-    prev = r.get("auto") or {}
     for k, v in auto.items():
         manual = max(0, int(r.get(k) or 0) - int(prev.get(k) or 0))
         r[k] = manual + v
@@ -162,9 +182,11 @@ def main():
                    "data": {"n": n, "rev": rev, "len": len(val), "at": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")}})
     writes += [{"op": "delete", "collection": "kvc", "doc_id": f"bdp-reports~{i}"} for i in range(n, old_n)]
     json.dump(writes, open(os.path.join(out, "writes.json"), "w", encoding="utf-8"), ensure_ascii=False)
+    json.dump(auto, open(os.path.join(out, "auto.json"), "w", encoding="utf-8"))
     open(os.path.join(out, "report.txt"), "w", encoding="utf-8").write(block or "No contacts logged today.")
     print(f"{day}: {len(rows)} contacts ({calls} calls, {emails} emails, {meetings} meetings, {proposals} proposals, {people} people); "
           f"report {len(val):,} chars in {n} chunk(s){' (new key)' if not old_n else ''}")
+    print("Report changed: " + ("no" if (block == old_block and (had_block or not block)) else "yes"))
     if unmatched:
         print("Email summaries not matched to a contact logged today: " + ", ".join(unmatched))
 
