@@ -2461,7 +2461,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
         if(idx>0) acts+='<button class="sbtn win" data-act="won" data-i="'+o._i+'">Won</button><button class="sbtn quiet" data-act="lost" data-i="'+o._i+'">Lost</button>';
         if(o.stage==='Won'||o.stage==='Lost') acts='<span class="sub13">Closed '+esc(o.closed||'')+'</span> <button class="sbtn quiet" data-act="reopen" data-i="'+o._i+'">Reopen</button>';
         acts+='<button class="sbtn" data-act="edit" data-i="'+o._i+'">Edit</button><button class="sbtn quiet" data-act="remove" data-i="'+o._i+'" aria-label="Remove '+esc(o.project)+'">✕</button>';
-        return '<tr><td>'+esc(o.project)+(o.status||o.contact?'<br><span class="sub13">'+esc([o.contact,o.status].filter(Boolean).join(' · '))+'</span>':'')+'</td><td>'+esc(o.gc||'—')+'</td><td>'+esc(o.metro)+'</td><td>'+esc(o.trade)+'</td><td><span class="'+cls+'">'+esc(o.stage)+'</span></td>'+
+        return '<tr><td>'+esc(o.project)+(o.status||o.contact?'<br><span class="sub13">'+esc([o.contact,o.status].filter(Boolean).join(' · '))+'</span>':'')+(o.co?'<br><span class="sub13">'+esc([o.timeline,o.source].filter(Boolean).join(' · '))+'</span>':'')+'</td><td>'+esc(o.gc||'—')+'</td><td>'+esc(o.metro)+'</td><td>'+esc(o.trade)+'</td><td><span class="'+cls+'">'+esc(o.stage)+'</span></td>'+
           '<td class="mono" style="text-align:right">'+esc(o.heads)+'</td><td class="mono" style="text-align:right">'+esc(o.weeks)+'</td>'+
           '<td class="mono" style="text-align:right">'+money(o.value)+'</td><td class="mono" style="text-align:right">'+(o.stage==='Lost'?'—':money(wgt(o)))+'</td><td>'+esc(o.next)+'</td><td><div class="acts">'+acts+'</div></td></tr>';
       }).join('');
