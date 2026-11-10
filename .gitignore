@@ -2,3 +2,9 @@ bdmap.html
 bdmap.css
 __pycache__/
 *.pyc
+# Client Networks contact data lives only in the private claude.ai artifact, never in this public repo
+cnet-data.js
+cnet-more.js
+cnet-circle.js
+cnet-batch*.js
+img/cnet/

@@ -12459,7 +12459,11 @@ function openPanel(n) {
   if (n.person) html += liBlock(n);
   if (n.isCompanyRoot) html += addBlock(n);
   if (n.person && n.companyData) html += emailBlock(n);
+  if (window.CNET && (window.CNET.hasCompany ? window.CNET.hasCompany(n.companyKey) : n.companyKey === "acousti") && (n.isCompanyRoot || (n.person && window.CNET.hasPerson(n.name, n.companyKey)))) {
+    html = '<div style="margin:0 0 12px"><button type="button" class="btn primary" data-cnet="' + (n.person ? esc(n.name) : "") + '">' + (n.person ? "Open contact profile & log →" : "Open " + ((COMPANIES.find(e => e.key === n.companyKey) || { company: { name: "the" } }).company.name) + " relationship network →") + '</button></div>' + html;
+  }
   $("pwPBody").innerHTML = html;
+  $("pwPBody").querySelectorAll("[data-cnet]").forEach(b => b.addEventListener("click", () => window.CNET.open(n.companyKey, b.dataset.cnet || null)));
   wireLI(n);
   wireOut(n);
   wirePersonal(n);

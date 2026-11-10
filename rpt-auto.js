@@ -17,7 +17,7 @@
       out.push({who:t.name||pretty(t.contact), co:t.companyName||(t.company==='circle'?'The Circle Group':'Acousti'), what:[t.type,DUR[t.duration]||'',t.feel!=null&&!(t.type==='Email'&&+t.feel===0)?tx('felt ','se sintió ')+FEEL[String(t.feel)]:'',t.note||''].filter(Boolean).join(' · '), src:'Client Networks', name:(t.name||pretty(t.contact)).toLowerCase(), type:t.type}); });
     var O=read('pwOutreach',{})||{};
     Object.keys(O).forEach(function(k){ (O[k]||[]).forEach(function(e){ if(e.at!==d) return;
-      out.push({who:pretty(k.split('__')[1]), co:k.split('__')[0], what:[e.channel,e.outcome,e.note].filter(Boolean).join(' · '), src:'BusDev Map', key:k}); }); });
+      out.push({who:pretty(k.split('__')[1]), co:k.split('__')[0], what:[e.channel,e.outcome,e.note].filter(Boolean).join(' · '), src:'Old BusDev Map', key:k}); }); });
     // email summaries saved with each drafted email: on that person's Email line, else on their other line as a follow-up email
     (window.CNET_EMAILS||[]).filter(function(m){return m.date===d && m.summary;}).forEach(function(m){
       var nm=(m.name||pretty(m.contact)).toLowerCase(), hit=out.filter(function(r){return r.name===nm;}), em=hit.filter(function(r){return r.type==='Email';});
@@ -33,7 +33,7 @@
     list.forEach(function(r){ if(r.key&&M&&M.COMPANIES){ var c=M.COMPANIES.find(function(e){return e.key===r.co}); if(c){ var pid=r.key.split('__')[1], pp=(c.people||[]).find(function(x){return x.id===pid}); if(pp) r.who=pp.name; r.co=c.company.name; } } });
     var past=d<todayET(), now=new Date(), etHour=+now.toLocaleString('en-US',{timeZone:'America/New_York',hour:'numeric',hour12:false});
     var when=past||(d===todayET()&&etHour>=17)?tx('Added to this report at 5 PM.','Agregado a este informe a las 5 PM.'):tx('Will be added to this report at 5 PM Eastern.','Se agregará a este informe a las 5 PM (hora del Este).');
-    box.innerHTML='<div class="rpt-auto-h"><b>'+tx('Contacts logged this day','Contactos registrados este día')+' · '+list.length+'</b><span>'+(list.length?when:tx('Nothing logged yet in Client Networks or the BusDev Map.','Nada registrado todavía en Redes de clientes ni en el mapa BusDev.'))+'</span></div>'+
+    box.innerHTML='<div class="rpt-auto-h"><b>'+tx('Contacts logged this day','Contactos registrados este día')+' · '+list.length+'</b><span>'+(list.length?when:tx('Nothing logged yet in Client Networks.','Nada registrado todavía en Redes de clientes.'))+'</span></div>'+
       (list.length?'<ul>'+list.map(function(r){ return '<li><b>'+esc(r.who)+'</b> <span class="co">'+esc(r.co)+'</span><span class="w">'+esc(r.what)+'</span><span class="s">'+esc(r.src)+'</span></li>'; }).join('')+'</ul>':'');
   }
   var t; function later(){ clearTimeout(t); t=setTimeout(render,80); }
@@ -41,6 +41,7 @@
   window.addEventListener('bdmap:ready',later); window.addEventListener('bdmap:change',later);
   window.addEventListener('storage',later);
   window.addEventListener('cnet:emails',later);
+  if(window.BDP_SYNC&&window.BDP_SYNC.onRemote){ window.BDP_SYNC.onRemote('bdp-cnet-logs',later); window.BDP_SYNC.onRemote('bdp-reports',later); }
   document.addEventListener('click',function(e){ if(e.target.closest&&e.target.closest('#view-reports')) later(); });
   var line=document.getElementById('rptDateLine'); if(line&&window.MutationObserver) new MutationObserver(later).observe(line,{childList:true,characterData:true,subtree:true});
   render();

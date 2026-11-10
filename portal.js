@@ -98,13 +98,14 @@
     return rows;
   }
   function saveCon(){ save('bdp-contacts',CON); }
-  /* People at every starred (IB Group client) company on the BusDev Map, plus people added on the map.
-     Read live from the map, so they follow its edits; contacts you add or import here sit alongside. */
+  /* People at every IB Group client company in the research data behind Client Networks, plus people added there.
+     Read live, so they follow edits made in Client Networks; contacts you add or import here sit alongside. */
   function mapContacts(){
     var M=window.BDMAP; if(!M) return [];
     var metroName={}; (M.STATES||[]).forEach(function(st){ st.metros.forEach(function(m){ metroName[m[0]]=m[1]+', '+st.id; }); });
     var out=[];
-    M.COMPANIES.filter(M.isClient).forEach(function(e){
+    var isCl=function(e){ return window.CNET&&window.CNET.isClient?window.CNET.isClient(e.key):M.isClient(e); };
+    M.COMPANIES.filter(isCl).forEach(function(e){
       var co=e.company||{};
       var where=function(bid){ if(!bid||bid==='hq') return co.hq||''; var b=(e.branches||[]).find(function(x){return x.id===bid}); var m=(M.BRANCH_METRO[bid]||[])[0]; return m&&metroName[m]?metroName[m]:(b&&b.name)||''; };
       var phoneOf=function(bid){ var b=(e.branches||[]).find(function(x){return x.id===bid}); return (b&&b.phone)||''; };
@@ -113,8 +114,8 @@
         out.push({name:p.name,title:p.title||'',company:co.name||e.key,companyKey:e.key,metro:where(p.branchId),email:p.email||'',phone:p.phone||phoneOf(p.branchId),phoneIsOffice:!p.phone&&!!phoneOf(p.branchId),linkedin:M.LI[k]||p.linkedin||'',touch:M.lastTouch(k)||'',fromMap:true});
       });
     });
-    Object.keys(M.ADDED||{}).forEach(function(id){ var a=M.ADDED[id]; var e=M.COMPANIES.find(function(x){return x.key===a.company}); if(!e||!M.isClient(e))return;
-      var k=M.key(a.company,'add-'+id);
+    Object.keys(M.ADDED||{}).forEach(function(id){ var a=M.ADDED[id]; var e=M.COMPANIES.find(function(x){return x.key===a.company}); if(!e||!isCl(e))return;
+      var k=M.key(a.company,'added-'+id);
       out.push({name:a.name,title:a.title||'',company:(e.company||{}).name||a.company,companyKey:a.company,metro:metroName[a.metro]||'',email:a.email||'',phone:a.phone||'',linkedin:M.LI[k]||'',touch:M.lastTouch(k)||'',fromMap:true}); });
     return out;
   }
@@ -138,7 +139,7 @@
     var groups={}, order=[];
     list.forEach(function(c){ var k=(c.company||'—').toLowerCase(); if(!groups[k]){ groups[k]={name:c.company||'—',key:c.companyKey||'',client:!!c.fromMap,people:[],st:{}}; order.push(k); } groups[k].people.push(c); if(c._st&&c._st!=='?') groups[k].st[c._st]=1; if(c.fromMap) groups[k].client=true; });
     order.sort(function(a,b){ return groups[a].name.localeCompare(groups[b].name); });
-    if(!all.length) tb.innerHTML='<div class="empty" style="margin:16px 0">'+(window.BDMAP?'No contacts yet. Star a client on the BusDev Map, add one here, or import a spreadsheet or vCard.':'Loading clients from the BusDev Map…')+'</div>';
+    if(!all.length) tb.innerHTML='<div class="empty" style="margin:16px 0">'+(window.BDMAP?'No contacts yet. Add one here, or import a spreadsheet or vCard.':'Loading your IB Group clients…')+'</div>';
     else if(!order.length) tb.innerHTML='<div class="empty" style="margin:16px 0">'+(q?'No contacts match "'+esc(q)+'".':'No contacts in this state.')+'</div>';
     else tb.innerHTML=order.map(function(k){
       var g=groups[k], open=!!conOpen[k]||(q&&order.length<=3), id='con-'+k.replace(/[^a-z0-9]+/g,'-');
@@ -149,13 +150,13 @@
       var people=g.people.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'')});
       var body='<div class="con-people" id="'+id+'"'+(open?'':' hidden')+'><div class="scroll"><table><thead><tr><th>Name</th><th>Role</th><th>Metro</th><th>Email</th><th>Phone</th><th>LinkedIn</th><th>Last touch</th><th></th></tr></thead><tbody>'+people.map(function(c){
         return '<tr><td><strong>'+esc(c.name)+'</strong>'+(c.notes?'<br><span class="sub13">'+esc(c.notes)+'</span>':'')+'</td><td>'+esc(c.title||'—')+'</td><td>'+esc(c.metro)+'</td><td>'+(c.email?'<a href="mailto:'+esc(c.email)+'" style="color:var(--accent)">'+esc(c.email)+'</a>':'')+'</td><td class="mono">'+esc(c.phone)+(c.phoneIsOffice?'<br><span class="sub13">office</span>':'')+'</td><td>'+(c.linkedin?'<a href="'+esc(c.linkedin)+'" target="_blank" rel="noopener"><span class="tag ok">Profile ↗</span></a>':'<span class="tag">None</span>')+'</td><td class="mono">'+esc(c.touch)+'</td><td>'+(c.fromMap?'':'<button class="sbtn quiet" data-delc="'+c._i+'" aria-label="Remove contact">✕</button>')+'</td></tr>';
-      }).join('')+'</tbody></table></div>'+(g.key?'<button type="button" class="sbtn" data-mapco="'+esc(g.key)+'" style="margin-top:10px">Open on BusDev Map</button>':'')+'</div>';
+      }).join('')+'</tbody></table></div>'+(g.key&&window.CNET&&window.CNET.hasCompany(g.key)?'<button type="button" class="sbtn" data-mapco="'+esc(g.key)+'" style="margin-top:10px">Open in Client Networks</button>':'')+'</div>';
       return head+body;
     }).join('');
     var set=function(id,t){var e=$(id);if(e)e.textContent=t};
     var nMap=all.length-mine.length;
     set('conEyebrow',all.length+' contact'+(all.length===1?'':'s')+' · '+Object.keys(allCos).filter(Boolean).length+' companies');
-    set('conFoot',order.length+(order.length===1?' company':' companies')+' · '+list.length+(list.length===1?' contact':' contacts')+' shown · '+nMap+' from IB Group clients on the BusDev Map'+(mine.length?' · '+mine.length+' added here':''));
+    set('conFoot',order.length+(order.length===1?' company':' companies')+' · '+list.length+(list.length===1?' contact':' contacts')+' shown · '+nMap+' from IB Group clients in Client Networks'+(mine.length?' · '+mine.length+' added here':''));
   }
 
   var addConBtn=$('addConBtn'), addConCard=$('addConCard'), conForm=$('conForm'), conImportBtn=$('conImportBtn'), conImportCard=$('conImportCard');
@@ -165,9 +166,9 @@
     conForm.addEventListener('submit',function(e){ e.preventDefault(); CON.push({name:$('cName').value.trim(),title:$('cTitle').value.trim(),company:$('cCompany').value.trim(),metro:$('cMetro').value.trim(),email:$('cEmail').value.trim(),phone:$('cPhone').value.trim(),linkedin:$('cLinkedin').value.trim(),touch:$('cTouch').value,notes:$('cNotes').value.trim(),added:today()}); saveCon(); conForm.reset(); toggle(addConBtn,addConCard,false); renderCon(); });
     $('conRows').addEventListener('click',function(e){ var h=e.target.closest('[data-cok]'); if(h){ var k=h.dataset.cok, o=h.getAttribute('aria-expanded')!=='true'; conOpen[k]=o; h.setAttribute('aria-expanded',String(o)); var p=$(h.getAttribute('aria-controls')); if(p) p.hidden=!o; } });
     var cs=$('conStates'); if(cs) cs.addEventListener('click',function(e){ var b=e.target.closest('[data-cst]'); if(!b)return; conState=b.dataset.cst; try{localStorage.setItem('bdp-con-state',conState)}catch(x){} renderCon(); });
-    $('conRows').addEventListener('click',function(e){ var m=e.target.closest('button[data-mapco]'); if(m&&window.BDMAP){ location.hash='#leadgen'; setTimeout(function(){ window.BDMAP.openCompany(m.dataset.mapco); },60); return; } });
+    $('conRows').addEventListener('click',function(e){ var m=e.target.closest('button[data-mapco]'); if(m&&window.CNET){ window.CNET.open(m.dataset.mapco,null,'profile'); return; } });
     var conT; var conLive=function(){ clearTimeout(conT); conT=setTimeout(renderCon,150); };
-    window.addEventListener('bdmap:ready',conLive); window.addEventListener('bdmap:change',conLive);
+    window.addEventListener('bdmap:ready',conLive); window.addEventListener('bdmap:change',conLive); window.addEventListener('cnet:clients',conLive);
     $('conRows').addEventListener('click',function(e){ var b=e.target.closest('button[data-delc]'); if(!b)return; if(!b.dataset.confirm){b.dataset.confirm='1';b.textContent='Remove?';b.style.color='var(--accent)';return;} CON.splice(+b.dataset.delc,1); saveCon(); renderCon(); });
     $('searchContacts').addEventListener('input',renderCon);
     var cf=$('conImportFile'); cf.addEventListener('change',function(){
@@ -525,7 +526,7 @@
     $('wkPhoto').addEventListener('change',function(){ var files=[].slice.call($('wkPhoto').files); var w=wkRec(cur,true); var left=files.length; files.forEach(function(f){ var img=new Image(), url=URL.createObjectURL(f); img.onload=function(){ var s=Math.min(1,1000/Math.max(img.width,img.height)); var c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); w.photos.push({src:c.toDataURL('image/jpeg',0.72),name:f.name,date:today()}); if(--left===0){ saveR(); renderW(); } }; img.src=url; }); $('wkPhoto').value=''; });
     $('wkDownload').addEventListener('click',function(){
       var w=wkRec(cur,false), t=weekTotals(cur), start=addDays(cur,-6); var win=window.open('','_blank'); if(!win){ alert('Allow pop-ups for this site to download the PDF.'); return; }
-      var days=weekDays(cur).slice(0,5).filter(function(d){return RPT.days[d]&&RPT.days[d].status!=='none'});
+      var days=weekDays(cur).filter(function(d){return RPT.days[d]&&RPT.days[d].status&&RPT.days[d].status!=='none'});
       var css='body{margin:0;padding:32px;font-family:"IBM Plex Sans",system-ui,sans-serif;color:#1B1F27;background:#fff} .mono{font-family:"IBM Plex Mono",monospace} h1{font-size:28px;margin:0 0 4px} .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5B6270} .sub{color:#5B6270;margin-bottom:20px} .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px} .tile{border:1px solid #E3DFD5;border-radius:10px;padding:14px 16px} .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:#5B6270} .big{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600} h2{font-size:16px;margin:18px 0 8px} h3{font-size:14px;margin:12px 0 4px} .kv{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #EDE9E0;font-size:14px} .kv:last-child{border-bottom:1px solid #EDE9E0} .muted{color:#5B6270;font-family:"IBM Plex Mono",monospace;font-size:12px} p{white-space:pre-wrap;font-size:14px;line-height:1.55;margin:0} .day{border:1px solid #E3DFD5;border-radius:8px;padding:12px 14px;margin-bottom:10px;break-inside:avoid} .photos{display:flex;flex-wrap:wrap;gap:10px} .photos figure{margin:0;width:220px;break-inside:avoid} .photos img{width:220px;height:165px;object-fit:cover;border-radius:6px;border:1px solid #E3DFD5} figcaption{font-size:11px;color:#5B6270;margin-top:4px} .head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:3px solid #16233A;padding-bottom:14px;margin-bottom:18px} .foot{margin-top:28px;font-size:11px;color:#5B6270;border-top:1px solid #EDE9E0;padding-top:10px} @media print{body{padding:0} @page{margin:18mm}}';
       var html='<!doctype html><html><head><meta charset="utf-8"><title>Work Week Summary — week ending '+cur+'</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style>'+css+'</style></head><body>'
         +'<div class="head"><div><div class="eyebrow">IB Group Worldwide · BD Progress Portal</div><h1>Work Week Summary</h1><div class="sub" style="margin:0">Samuel R. Carstens — Strategic Accounts &amp; Data Centers · FL · TX · LA · GA</div></div><div style="text-align:right"><div class="eyebrow">Week ending</div><div class="mono" style="font-size:18px;font-weight:600">'+fmtD(cur)+'</div><div class="muted">'+fmtD(start,{month:'short',day:'numeric'})+' – '+fmtD(cur,{month:'short',day:'numeric'})+'</div></div></div>'
@@ -540,6 +541,18 @@
     });
   }
   renderReport(); renderW(); renderOverview();
+  // the 5 PM roll-up (or another device) changed the reports: load them here, keeping whatever is being typed right now
+  if(window.BDP_SYNC&&window.BDP_SYNC.onRemote) window.BDP_SYNC.onRemote('bdp-reports',function(){
+    var fe=document.activeElement, fid=fe&&fe.id, fval=(fe&&typeof fe.value==='string')?fe.value:null, c0=null, c1=null; try{ c0=fe.selectionStart; c1=fe.selectionEnd; }catch(e){}
+    var oldBlock=(RPT.days[selDay]||{}).autoBlock||'';
+    var fresh=load('bdp-reports',{days:{},weeks:{}}); if(!fresh.days)fresh.days={}; if(!fresh.weeks)fresh.weeks={}; RPT=fresh;
+    renderReport(); renderW(); renderOverview();
+    if(fid&&fval!=null&&$(fid)&&/^(rpt(Title|Where|Happened|Movement|Tomorrow)|wkNextPlan|wkNotes)$/.test(fid)){
+      var v=fval, r=RPT.days[selDay];
+      if(fid==='rptHappened'&&r&&r.autoBlock&&v.indexOf(r.autoBlock)<0){ v=(oldBlock&&v.indexOf(oldBlock)>=0)?v.replace(oldBlock,r.autoBlock):((v.trim()?v.trim()+'\n\n':'')+r.autoBlock); }
+      $(fid).value=v; try{ $(fid).focus(); if(c0!=null&&v.slice(0,c0)===fval.slice(0,c0)) $(fid).setSelectionRange(c0,c1); }catch(e){}
+    }
+  });
   window.addEventListener('hashchange',function(){ if(location.hash==='#week'){ cur=weekEndingOf(today()); renderW(); } if(location.hash==='#reports')renderReport(); if(location.hash==='#overview')renderOverview(); });
   // Lead Gen hub contact count
 
@@ -587,7 +600,7 @@
   var cur={key:null,val:null};
   var hdr=$('view-pipeline').querySelector('header.head');
   function showHome(noPush){ sub.hidden=true; home.hidden=false; if(hdr)hdr.hidden=false; window.scrollTo(0,0); if(!noPush&&history.state&&history.state.pipe&&history.state.pipe!=='home')push({pipe:'home'}); }
-  function groupList(key,val){ return OPPS().map(function(o,i){o._i=i;return o}).filter(function(o){ return ACTIVE.indexOf(o.stage)>=0 && (o[key]||'—')===val; }); }
+  function groupList(key,val){ return OPPS().map(function(o,i){o._i=i;return o}).filter(function(o){ return ACTIVE.indexOf(o.stage)>=0 && +o.value>0 && (o[key]||'—')===val; }); }
   function stageCls(s){ return (s==='Won'||s==='Verbal yes'||s==='Proposal sent')?'tag ok':'tag'; }
 
   function showGroup(key,val,noPush){

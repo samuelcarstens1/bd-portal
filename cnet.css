@@ -1,0 +1,235 @@
+/* Client Networks (Acousti first). Flowchart colors are fixed; page background, cards and text use the portal's theme tokens. */
+#cnet{
+  --orange:#F27A1A; --orangeDeep:#C9580C; --peach:var(--accent);
+  --dim:var(--mute-soft); --cn-panel:var(--card); --cn-line:var(--line); --cn-node:#13253D; --cn-node2:#22385A;
+  --cn-champ:#C4321C; --cn-trust:#B8541A; --cn-warm:#946F00; --cn-cold:#2A6FBF;
+  color:var(--fg); font-family:var(--sans); display:flex; flex-direction:column; gap:0;
+}
+:root[data-theme="dark"] #cnet{ --cn-champ:#FF7A63; --cn-trust:#F6A06E; --cn-warm:#F2C14E; --cn-cold:#7DB8F2; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) #cnet{ --cn-champ:#FF7A63; --cn-trust:#F6A06E; --cn-warm:#F2C14E; --cn-cold:#7DB8F2; } }
+#cnet *{box-sizing:border-box}
+#cnet button{font:inherit;color:inherit}
+#cnet a{color:var(--accent)} #cnet a:hover{color:var(--accent-bright)}
+#cnet h1{margin:0;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:38px;line-height:1.1;color:var(--fg)}
+#cnet h2{margin:0;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:.5px;color:var(--fg)}
+#cnet .cn-cond{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700}
+#cnet .cn-muted{color:var(--muted)} #cnet .cn-dim{color:var(--mute-soft)} #cnet .cn-orange{color:var(--accent)}
+#cnet .cn-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+#cnet .cn-row{display:flex;flex-wrap:wrap;gap:16px}
+#cnet .cn-grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+#cnet .cn-subnav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;border-bottom:1px solid var(--line);margin:0 0 18px}
+#cnet .cn-subbtn{background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.5px;padding:10px 14px;min-height:44px;color:var(--muted)}
+#cnet .cn-subbtn.cn-on{color:var(--accent);border-bottom-color:var(--accent)}
+#cnet .cn-crumb{font-size:13px;color:var(--muted);padding:0 6px}
+/* org map */
+#cnet .cn-orgwrap{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+#cnet .cn-mapcol{flex:999 1 620px;min-width:0}
+#cnet .cn-aside{flex:1 1 340px;display:flex;flex-direction:column;gap:12px}
+#cnet .cn-stagewrap{position:relative;width:100%;overflow:hidden}
+#cnet .cn-stage{position:absolute;left:0;top:0;transform-origin:0 0}
+#cnet .cn-ln{position:absolute;transform-origin:0 50%;pointer-events:none}
+#cnet .cn-bub{position:absolute;border-radius:50%;cursor:pointer;transition:transform .15s ease;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;text-align:center;color:#FFFFFF}
+#cnet .cn-bub:hover,#cnet .cn-bub:focus-visible{transform:scale(1.3);z-index:6;outline:none}
+#cnet .cn-bub img{width:100%;height:100%;object-fit:cover;object-position:50% 25%}
+#cnet .cn-blabel{position:absolute;font-size:11px;color:var(--muted);white-space:nowrap;pointer-events:none}
+#cnet .cn-list{display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
+#cnet .cn-li{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;text-align:left;background:transparent;border:none;border-top:1px solid var(--line);padding:8px 6px;cursor:pointer;min-height:48px;color:var(--fg)}
+#cnet .cn-li:hover{background:var(--accent-wash)}
+#cnet .cn-mini{width:30px;height:30px;border-radius:50%;background:var(--cn-node2);border:2px solid #FFFFFF;display:flex;align-items:center;justify-content:center;font-size:11px;overflow:hidden;color:#fff}
+#cnet .cn-mini img{width:100%;height:100%;object-fit:cover;object-position:50% 25%}
+#cnet .cn-legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--muted)}
+#cnet .cn-legend span{display:inline-flex;align-items:center;gap:6px}
+#cnet .cn-ringdot{width:14px;height:14px;border-radius:50%;border:3px solid;display:inline-block}
+#cnet .cn-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+/* profile */
+#cnet .cn-phead{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;margin-bottom:14px}
+#cnet .cn-back{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;border-radius:8px;border:2px solid var(--orange);background:var(--card);cursor:pointer;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--fg)}
+#cnet .cn-back .cn-lg{width:26px;height:26px;border-radius:5px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line)}
+#cnet .cn-back .cn-lg img{width:24px;height:24px;object-fit:contain}
+#cnet .cn-dash{display:grid;grid-template-columns:minmax(240px,340px) 1fr;gap:24px}
+@media (max-width:900px){#cnet .cn-dash{grid-template-columns:1fr}}
+#cnet .cn-photo{width:100%;max-width:320px;aspect-ratio:1;border-radius:50%;border:14px solid #FFFFFF;box-shadow:0 0 0 1px var(--line);background:radial-gradient(circle at 50% 35%,#2C4466 0%,#15263F 70%);overflow:hidden;display:flex;align-items:center;justify-content:center}
+#cnet .cn-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+#cnet .cn-photo span{font-size:90px;color:#E6ECF4}
+#cnet .cn-namecard{display:flex;gap:18px;align-items:center;justify-content:space-between}
+#cnet .cn-logo{flex:none;width:86px;height:86px;border-radius:10px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden}
+#cnet .cn-logo img{width:78px;height:78px;object-fit:contain}
+#cnet .cn-kv{display:grid;grid-template-columns:110px 1fr;row-gap:10px;column-gap:14px;font-size:15px}
+#cnet .cn-kv .cn-k{color:var(--accent);font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700}
+#cnet .cn-seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--card);border:1px solid var(--line);border-radius:8px}
+#cnet .cn-seg div{position:relative;height:44px;display:flex;align-items:center;justify-content:center;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--muted)}
+#cnet .cn-seg div.cn-on{color:#0A1424}
+#cnet .cn-seg div.cn-on:after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-9px;border-left:9px solid transparent;border-right:9px solid transparent;border-top:9px solid var(--segc)}
+#cnet .cn-big{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:28px;color:var(--accent)}
+#cnet .cn-lbl{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--muted)}
+#cnet .cn-career div{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+#cnet .cn-ins{display:flex;gap:14px;justify-content:space-between;min-height:128px}
+#cnet .cn-badge{flex:none;width:76px;height:64px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+#cnet .cn-badge b{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-size:24px;line-height:1}
+#cnet .cn-badge small{font-size:11px;font-weight:500}
+/* connect */
+#cnet .cn-gauge{display:flex;gap:16px;align-items:center}
+#cnet .cn-gnum{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:58px;line-height:1}
+#cnet .cn-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+@media (max-width:640px){#cnet .cn-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#cnet .cn-stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+#cnet .cn-stat .cn-v{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:var(--accent)}
+#cnet .cn-chips{display:flex;flex-wrap:wrap;gap:8px}
+#cnet .cn-chip{min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:14px;cursor:pointer;color:var(--fg)}
+#cnet .cn-chip.cn-on{background:var(--orangeDeep);border-color:var(--orangeDeep);color:#fff}
+#cnet .cn-feel{min-height:52px;flex:1 1 110px;border-radius:8px;border:2px solid var(--line);background:var(--card);font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;color:var(--fg)}
+#cnet .cn-feel small{font-family:var(--sans);font-weight:400;font-size:12px;opacity:.8}
+#cnet .cn-field{display:flex;flex-direction:column;gap:6px}
+#cnet input[type=date]{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-size:14px;min-height:44px}
+#cnet .cn-save{align-self:flex-start;min-height:46px;padding:0 22px;border:none;border-radius:8px;background:var(--orange);color:#0A1424;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:16px;cursor:pointer}
+#cnet .cn-save:disabled{opacity:.5;cursor:not-allowed}
+#cnet .cn-hist{display:grid;grid-template-columns:130px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:14px}
+#cnet .cn-pill{display:inline-block;font-size:12px;font-weight:700;border-radius:4px;padding:3px 8px;color:#0A1424}
+#cnet .cn-del{background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:8px;min-height:36px;padding:0 12px;cursor:pointer;font-size:12px}
+#cnet .cn-del.cn-arm{border-color:#2F7FD8;color:#2F7FD8}
+#cnet table{width:100%;border-collapse:collapse;font-size:14px}
+#cnet th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;padding:8px;border-bottom:1px solid var(--line)}
+#cnet td{padding:10px 8px;border-top:1px solid var(--line-soft)}
+#cnet .cn-tscroll{overflow-x:auto}
+#cnet .cn-status{font-size:13px;color:var(--accent);min-height:18px}
+#cnet .cn-empty{padding:14px 0;color:var(--muted);font-size:14px}
+#cnet details summary{color:var(--muted)}
+#cnet .cn-li{height:auto;line-height:1.35;align-items:start;padding:9px 6px}
+#cnet .cn-li > span{min-width:0}
+#cnet .cn-subbtn,#cnet .cn-chip,#cnet .cn-back,#cnet .cn-save,#cnet .cn-del,#cnet .cn-feel{height:auto}
+#cnet .cn-list > *{flex:none}
+
+/* editable photo + phone numbers */
+#cnet .cn-photo{position:relative}
+#cnet .cn-photo-edit{cursor:pointer}
+#cnet .cn-photo-edit:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+#cnet .cn-photo-hint{position:absolute;left:0;right:0;bottom:0;padding:10px 0 16px;text-align:center;font-style:normal;font-size:14px;letter-spacing:.04em;color:#FFFFFF;background:linear-gradient(transparent,rgba(13,25,43,.82));opacity:0;transition:opacity .15s}
+#cnet .cn-photo-edit:hover .cn-photo-hint,#cnet .cn-photo-edit:focus-visible .cn-photo-hint,#cnet .cn-photo.cn-drop .cn-photo-hint{opacity:1}
+#cnet .cn-photo.cn-drop{box-shadow:0 0 0 4px #C9580C;border-style:dashed}
+#cnet .cn-linkbtn{background:none;border:0;padding:0;font:inherit;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+#cnet .cn-phtools{display:grid;grid-template-columns:minmax(180px,1fr) minmax(180px,1fr) minmax(280px,2fr);gap:16px;align-items:end}
+#cnet .cn-phf{display:flex;flex-direction:column;gap:6px}
+#cnet .cn-in{font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);min-width:0}
+#cnet .cn-in:focus{outline:2px solid var(--accent);outline-offset:1px}
+#cnet .cn-phtable{width:100%;border-collapse:collapse;font-size:14px}
+#cnet .cn-phtable th{text-align:left;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;color:var(--accent);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+#cnet .cn-phtable td{padding:6px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+#cnet .cn-phtable td .cn-in{width:100%;min-width:150px}
+#cnet .cn-save[disabled],#cnet .cn-subbtn[disabled]{opacity:.45;cursor:not-allowed}
+@media (max-width:760px){#cnet .cn-phtools{grid-template-columns:1fr}}
+#cnet .cn-reglines{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 16px}
+#cnet .cn-phtools{grid-template-columns:minmax(180px,1fr) minmax(280px,2fr)}
+@media (max-width:760px){#cnet .cn-phtools{grid-template-columns:1fr}}
+#cnet .cn-gone{display:inline-block;vertical-align:middle;margin-left:6px;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.02em;line-height:1;padding:3px 7px;border-radius:999px;background:var(--line);color:var(--muted)}
+#cnet h1 .cn-gone{font-size:14px;padding:5px 10px;margin-left:10px}
+#cnet .cn-statrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#cnet .cn-statrow .cn-chip{min-height:38px}
+
+/* contact-log notes and email summaries */
+#cnet .cn-note{width:100%;resize:vertical;min-height:70px;font:inherit;line-height:1.45}
+#cnet .cn-histnote{padding:0 0 12px 142px;margin-top:-6px;font-size:13px;line-height:1.5;color:var(--muted)}
+#cnet .cn-histnote b{color:var(--fg);font-weight:600}
+@media (max-width:640px){#cnet .cn-histnote{padding-left:0}}
+
+/* jobs & proposals with a company (saved into the Pipeline) */
+#cnet .cn-jobform{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px 16px;margin:4px 0 16px;border-color:var(--accent)}
+#cnet .cn-jf{display:flex;flex-direction:column;gap:6px;min-width:0}
+#cnet .cn-jf.wide{grid-column:1/-1}
+#cnet .cn-jf .cn-in{width:100%;min-height:42px}
+#cnet .cn-jf-files{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#cnet .cn-filechip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:13px}
+#cnet .cn-file{font-size:13px;text-decoration:none;white-space:nowrap}
+#cnet .cn-file:hover{text-decoration:underline}
+#cnet .cn-jobtable td{vertical-align:top}
+#cnet .cn-pill{white-space:nowrap}
+#cnet .cn-gantt{border:1px solid var(--line);border-radius:10px;padding:10px 12px 12px;margin:0 0 14px;background:var(--bg)}
+#cnet .cn-gt-row{display:grid;grid-template-columns:minmax(110px,190px) 1fr;gap:10px;align-items:center;min-height:26px}
+#cnet .cn-gt-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cnet .cn-gt-track{position:relative;height:16px;border-radius:4px;background:var(--line-soft,rgba(127,127,127,.12))}
+#cnet .cn-gt-axis .cn-gt-track{background:none;height:18px}
+#cnet .cn-gt-axis .cn-gt-track span{position:absolute;top:0;font-size:11px;color:var(--muted);white-space:nowrap;border-left:1px solid var(--line);padding-left:3px}
+#cnet .cn-gt-bar{position:absolute;top:2px;bottom:2px;border-radius:3px}
+#cnet .cn-gt-today{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--fg);opacity:.55;z-index:1}
+@media (max-width:640px){#cnet .cn-gt-row{grid-template-columns:90px 1fr}}
+/* Company picker: one dropdown per state */
+#cnet .cn-stbar{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 10px}
+#cnet .cn-steb{flex:0 0 auto}
+#cnet .cn-stpills{display:flex;flex-wrap:wrap;gap:8px}
+#cnet .cn-stpill{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:0 12px 0 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--fg)}
+#cnet .cn-stpill:hover{border-color:var(--mute-soft)}
+#cnet .cn-stpill .cn-stn{color:var(--mute-soft);font-weight:700}
+#cnet .cn-stpill .cn-stchev{color:var(--muted);transition:transform .15s}
+#cnet .cn-stpill.cn-on{background:#13253D;border-color:#F27A1A;color:#fff;box-shadow:0 0 0 1px #F27A1A}
+#cnet .cn-stpill.cn-on .cn-stn,#cnet .cn-stpill.cn-on .cn-stchev{color:#C3CFDF}
+#cnet .cn-stpill.cn-on .cn-stchev{transform:rotate(180deg)}
+#cnet .cn-stpill.cn-stall{border-style:dashed}
+#cnet .cn-stpill.cn-stall.cn-on{border-style:solid}
+#cnet .cn-stpill:focus-visible,#cnet .cn-stco:focus-visible,#cnet .cn-stx:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#cnet .cn-stmenu{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:40;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px rgba(10,20,36,.2);padding:12px 14px 14px}
+#cnet .cn-stmhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px 10px;margin:0 0 8px;border-bottom:1px solid var(--line);font-size:14px}
+#cnet .cn-stmhead b{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-size:19px;color:var(--fg)}
+#cnet .cn-stx{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:none;cursor:pointer;font-size:22px;line-height:1;color:var(--muted)}
+#cnet .cn-stx:hover{color:var(--fg);border-color:var(--mute-soft)}
+#cnet .cn-stlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px;max-height:min(60vh,470px);overflow:auto;overscroll-behavior:contain}
+#cnet .cn-stco{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-height:54px;padding:7px 12px;border-radius:10px;border:1px solid transparent;background:none;cursor:pointer;text-align:left;color:var(--fg)}
+#cnet .cn-stco:hover{background:var(--line-soft)}
+#cnet .cn-stconame{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:16px;line-height:1.2}
+#cnet .cn-stcometa{font-size:12.5px;color:var(--muted);line-height:1.3}
+#cnet .cn-stco.cn-on{background:#13253D;border-color:#F27A1A;color:#fff}
+#cnet .cn-stco.cn-on .cn-stcometa{color:#C3CFDF}
+@media (max-width:640px){
+  #cnet .cn-stpill{min-height:44px;font-size:14px;padding:0 10px 0 13px}
+  #cnet .cn-stlist{grid-template-columns:1fr;max-height:62vh}
+}
+/* projects this company is on (from the Projects tab) */
+#cnet .cn-pjrow{grid-template-columns:1fr auto;width:100%}
+#cnet .cn-pjst{text-align:right;white-space:nowrap;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700}
+#cnet .cn-pjdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+/* competitors (bottom of the company profile) */
+#cnet .cn-compgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+#cnet .cn-compcard{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;background:var(--card)}
+#cnet .cn-compcard.cn-in{border-left:3px solid var(--orange)}
+#cnet .cn-compname{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:17px;line-height:1.25}
+#cnet .cn-complink{font-family:inherit;font-weight:inherit;font-size:inherit;text-align:left}
+#cnet .cn-comptag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+#cnet .cn-compcard.cn-in .cn-comptag{color:var(--accent)}
+#cnet .cn-compmetros{font-size:13px;color:var(--fg)}
+#cnet .cn-compnote{margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+#cnet .cn-compsrc{font-size:12.5px;align-self:flex-start}
+/* warm paths, branches, GCs & owners (from the BusDev Map research) */
+#cnet .cn-warm{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+#cnet .cn-warm li{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+#cnet .cn-warmn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--orange);color:#0A1424;display:flex;align-items:center;justify-content:center;font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700}
+#cnet .cn-warmt{font-family:'Roboto Condensed','Barlow Condensed',sans-serif;font-weight:700;font-size:16px;line-height:1.25}
+#cnet .cn-warm p,#cnet .cn-mapitem p{margin:4px 0 0;font-size:13.5px;line-height:1.5}
+#cnet .cn-maplist{display:flex;flex-direction:column}
+#cnet .cn-mapitem{padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;display:flex;flex-direction:column;gap:3px}
+#cnet .cn-mapitem:first-child{border-top:0;padding-top:0}
+#cnet .cn-mapname{font-weight:600;font-size:15px}
+#cnet .cn-kind{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:var(--line);color:var(--muted);vertical-align:2px}
+#cnet .cn-hiring{color:var(--accent);font-size:13px}
+#cnet .cn-foldbtn{margin-top:10px;min-height:40px}
+/* LinkedIn link editing, personal notes, add a person */
+#cnet .cn-liform{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#cnet .cn-liform .cn-in{flex:1 1 240px;min-width:0}
+#cnet .cn-liform .cn-chip{min-height:38px}
+#cnet .cn-perform{display:flex;flex-direction:column;gap:14px}
+#cnet .cn-perform .cn-in{width:100%}
+#cnet .cn-addp{display:flex;flex-direction:column;gap:10px;margin:6px 0;border-color:var(--accent)}
+#cnet .cn-addp .cn-in{width:100%;min-height:42px}
+
+/* IB Group clients: gold star (same gold as the Company researcher's star) and the toggle on the company profile */
+#cnet .cn-star,#view-network .cn-star{color:var(--warn);font-style:normal}
+#view-network .cn-hstar{margin-right:.28em}
+#cnet .cn-stconame .cn-star{margin-right:5px}
+#cnet .cn-stpill .cn-star{margin-right:2px;font-size:15px}
+#cnet .cn-stpill.cn-on .cn-star,#cnet .cn-stco.cn-on .cn-star{color:#F2C14E}
+#cnet .cn-stpill.cn-stcl{border-color:color-mix(in srgb,var(--warn) 55%,var(--line))}
+#cnet .cn-stpill.cn-stcl.cn-on{border-color:#F27A1A}
+#cnet .cn-clientbtn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:999px;border:1px dashed var(--mute-soft);background:var(--card);color:var(--fg);cursor:pointer;font:700 14px 'Roboto Condensed','Barlow Condensed',sans-serif;letter-spacing:.02em}
+#cnet .cn-clientbtn .cn-star{font-size:18px;line-height:1}
+#cnet .cn-clientbtn:hover{border-color:var(--warn)}
+#cnet .cn-clientbtn.cn-on{border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 14%,var(--card))}
+#cnet .cn-clientbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#cnet .cn-clientbadge{display:inline-flex;align-items:center;gap:6px;font:700 14px 'Roboto Condensed','Barlow Condensed',sans-serif}
+@media (max-width:640px){ #cnet .cn-clientbtn{min-height:44px} }

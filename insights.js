@@ -44,7 +44,7 @@
       var MS=metroState(M);
       M.COMPANIES.forEach(function(e){
         var co=e.company||{}, c=getCo(co.name||e.key);
-        c.mapKey=e.key; c.src.map=1; c.client=c.client||M.isClient(e); c.data=co;
+        c.mapKey=e.key; c.src.map=1; c.client=c.client||(window.CNET&&window.CNET.isClient&&window.CNET.hasCompany(e.key)?window.CNET.isClient(e.key):M.isClient(e)); c.data=co;
         addType(c,CAT_TYPE[co.category||'div9']);
         (e.branches||[]).forEach(function(b){ var m=(M.BRANCH_METRO[b.id]||[])[0]; var st=m&&MS[m]?MS[m].st:(statesIn(b.address)[0]||''); if(b.group==='territory') addState(c,st);
           c.offices.push({name:b.name,where:m&&MS[m]?MS[m].name+', '+MS[m].st:(b.address||''),phone:b.phone||'',note:b.note||'',hiring:b.hiring||[],link:b.link||'',src:'map'}); });
@@ -104,7 +104,7 @@
     if(!list.length){ rows.innerHTML='<div class="card lr-empty">'+tx('No companies match. Try another search or filter.','Ninguna empresa coincide.')+'</div>'; return; }
     if(q) list.sort(function(a,b){ var an=a.name.toLowerCase().indexOf(q)>=0?0:1, bn=b.name.toLowerCase().indexOf(q)>=0?0:1; return an-bn; });
     rows.innerHTML=list.slice(0,300).map(function(c){
-      var srcs=[c.src.map?'BusDev Map':'',c.src.radar?'Labor Radar':'',c.src.dc?'Data centers':''].filter(Boolean).join(' · ');
+      var srcs=[c.src.map?'Client Networks':'',c.src.radar?'Labor Radar':'',c.src.dc?'Data centers':''].filter(Boolean).join(' · ');
       var counts=[c.people.length?plural(c.people.length,'person','people'):'',c.projects.length?plural(c.projects.length,'past project','past projects'):'',c.leads.length?plural(c.leads.length,'radar lead','radar leads'):'',c.events.length?plural(c.events.length,'event','events'):''].filter(Boolean).join(' · ');
       return '<button type="button" class="card rs-row" data-co="'+c.id+'"><span class="rs-name">'+(c.client?'<span class="rs-star" title="IB Group client">★</span> ':'')+esc(c.name)+'</span>'+
         '<span class="rs-meta">'+esc([c.types.join(' / '),(c.data&&c.data.hq)||c.hqText,c.states.length?c.states.join(', '):''].filter(Boolean).join(' · '))+'</span>'+
@@ -119,8 +119,8 @@
     var factHtml='<dl class="rs-facts">'+facts.filter(function(f){return f[1]}).map(function(f){ return '<dt>'+esc(f[0])+'</dt><dd>'+(/<a /.test(f[1])?f[1]:esc(f[1]))+'</dd>'; }).join('')+'</dl>';
     h+='<div><button type="button" class="btn" id="rsBack">‹ '+tx('All companies','Todas las empresas')+'</button></div>';
     h+='<header class="head"><div class="head-left"><span class="eyebrow">'+esc(c.types.join(' · ')||tx('Company','Empresa'))+(c.states.length?' · '+esc(c.states.join(', ')):'')+'</span><h1>'+(c.client?'<span class="rs-star" title="IB Group client">★</span> ':'')+esc(c.name)+'</h1>'+
-      '<span class="sub">'+esc([c.client?tx('IB Group client','Cliente de IB Group'):'',c.src.map?'BusDev Map':'',c.src.radar?'Labor Radar':'',c.src.dc?tx('Data center research','Investigación de centros de datos'):''].filter(Boolean).join(' · '))+'</span></div>'+
-      '<div class="head-right">'+(c.mapKey?'<button type="button" class="btn primary" data-mapopen="'+esc(c.mapKey)+'">'+tx('Open on BusDev Map','Abrir en el mapa')+'</button>':'')+(c.leads.length?'<a class="btn" href="#leads">'+tx('Labor Radar','Radar Laboral')+'</a>':'')+'</div></header>';
+      '<span class="sub">'+esc([c.client?tx('IB Group client','Cliente de IB Group'):'',c.src.map?tx('Client Networks','Redes de clientes'):'',c.src.radar?'Labor Radar':'',c.src.dc?tx('Data center research','Investigación de centros de datos'):''].filter(Boolean).join(' · '))+'</span></div>'+
+      '<div class="head-right">'+(c.mapKey&&window.CNET&&window.CNET.hasCompany(c.mapKey)?'<button type="button" class="btn primary" data-mapopen="'+esc(c.mapKey)+'">'+tx('Open in Client Networks','Abrir en Redes de clientes')+'</button>':'')+(c.leads.length?'<a class="btn" href="#leads">'+tx('Labor Radar','Radar Laboral')+'</a>':'')+'</div></header>';
     h+='<div class="grid g2 rs-top">'+sec(tx('Company facts','Datos de la empresa'),factHtml)+sec(tx('Why it matters / way in','Por qué importa / cómo entrar'),ul(c.notes.map(function(n){return '<li>'+esc(n)+'</li>'}))+(c.warm.length?'<h3>'+tx('Warm paths','Caminos cálidos')+'</h3>'+'<ol class="rs-ul">'+c.warm.map(function(w){return '<li><b>'+esc(w.name)+'</b> — '+esc(w.text)+'</li>'}).join('')+'</ol>':''))+'</div>';
     if(c.leads.length) h+=sec(tx('On the Labor Radar now','En el Radar Laboral ahora'),'<div class="rs-table"><table><thead><tr><th>'+tx('Project','Proyecto')+'</th><th>'+tx('Where','Dónde')+'</th><th>'+tx('Labor need','Necesidad')+'</th><th>'+tx('Score','Puntaje')+'</th></tr></thead><tbody>'+c.leads.slice().sort(function(a,b){return (b.score||0)-(a.score||0)}).map(function(l){return '<tr><td><b>'+esc(l.project)+'</b><br><span class="sub13">'+esc([l.ptype,l.size].filter(Boolean).join(' · '))+'</span></td><td>'+esc([l.metro,l.state].filter(Boolean).join(', '))+'</td><td>'+esc(l.window||'')+'</td><td class="mono">'+esc(l.score)+'</td></tr>'}).join('')+'</tbody></table></div>');
     if(c.people.length) h+=sec(tx('People','Personas')+' · '+c.people.length,'<div class="rs-table"><table><thead><tr><th>'+tx('Name','Nombre')+'</th><th>'+tx('Title','Cargo')+'</th><th>'+tx('Based','Ubicación')+'</th><th>LinkedIn</th><th>'+tx('Last touch','Último contacto')+'</th></tr></thead><tbody>'+c.people.map(function(p){return '<tr><td><b>'+esc(p.name)+'</b>'+(p.evidence?'<br><span class="sub13">'+(p.link?link(p.link,p.evidence):esc(p.evidence))+'</span>':'')+'</td><td>'+esc(p.title)+'</td><td>'+esc(p.where||'')+'</td><td>'+(p.linkedin?link(p.linkedin,'Profile ↗'):'<span class="tag">None</span>')+'</td><td class="mono">'+esc(p.touch)+'</td></tr>'}).join('')+'</tbody></table></div>');
@@ -150,7 +150,7 @@
     $('rsRows').addEventListener('click',function(e){ var b=e.target.closest('[data-co]'); if(b) rsOpen(b.dataset.co); });
     $('rsProfile').addEventListener('click',function(e){
       if(e.target.closest('#rsBack')){ if(history.state&&history.state.rs) history.back(); else rsClose(); return; }
-      var m=e.target.closest('[data-mapopen]'); if(m&&window.BDMAP){ location.hash='#leadgen'; setTimeout(function(){ window.BDMAP.openCompany(m.dataset.mapopen); },60); }
+      var m=e.target.closest('[data-mapopen]'); if(m&&window.CNET){ window.CNET.open(m.dataset.mapopen,null,'profile'); }
     });
     window.addEventListener('popstate',function(e){ if(location.hash!=='#research')return; var s=e.state||{}; if(s.rs) rsOpen(s.rs,false); else rsClose(); });
     var qt; $('rsQ').addEventListener('input',function(e){ clearTimeout(qt); qt=setTimeout(function(){ RS.q=e.target.value.trim(); rsRender(); },150); });
@@ -171,8 +171,8 @@
     CO.forEach(function(c){
       if(!c.src.map) return;
       var ct=c.types[0];
-      c.projects.forEach(function(p){ add(c.name,ct,p.type,p.st,p.name,'BusDev Map',p.link);
-        gcNames(p.gc).forEach(function(g){ add(g,'General contractor',p.type,p.st,p.name,'BusDev Map',p.link); }); });
+      c.projects.forEach(function(p){ add(c.name,ct,p.type,p.st,p.name,'Company research',p.link);
+        gcNames(p.gc).forEach(function(g){ add(g,'General contractor',p.type,p.st,p.name,'Company research',p.link); }); });
     });
     var leadCos={}; R.companies.forEach(function(rc){ (rc.leadIds||[]).forEach(function(id){ (leadCos[id]=leadCos[id]||[]).push(rc); }); });
     R.leads.forEach(function(l){ if(l.active===false)return; var pt=classify(l.project,l.ptype), src=(l.src||[])[0];
@@ -213,7 +213,7 @@
     var top=Object.keys(D.cells).filter(function(k){return k.split('|')[0]!=='Other'}).sort(function(a,b){return D.cells[b].v-D.cells[a].v}).slice(0,5);
     var who=CT.find(function(t){return t[0]===HM.type})[1];
     $('hmTake').innerHTML=top.length?'<span class="label">'+tx('Hottest','Más activo')+'</span>'+top.map(function(k){ var p=k.split('|'); return '<button type="button" class="hm-pill" data-k="'+esc(k)+'">'+esc((HM.type==='all'?'':who+' · ')+p[0]+' in '+ST_NAME[p[1]])+' <b>'+D.cells[k].v+'</b></button>'; }).join(''):'';
-    $('hmFoot').textContent=tx('Counting ','Contando ')+(HM.measure==='projects'?tx('distinct projects','proyectos distintos'):tx('distinct companies','empresas distintas'))+tx(' from the BusDev Map, the Labor Radar and data center research. Click a cell for the companies and projects behind it.',' del mapa, el radar y la investigación de centros de datos. Haga clic en una celda para ver detalles.');
+    $('hmFoot').textContent=tx('Counting ','Contando ')+(HM.measure==='projects'?tx('distinct projects','proyectos distintos'):tx('distinct companies','empresas distintas'))+tx(' from the company research in Client Networks, the Labor Radar and data center research. Click a cell for the companies and projects behind it.',' de la investigación de empresas en Redes de clientes, el radar y la investigación de centros de datos. Haga clic en una celda para ver detalles.');
     hmDetail(D);
   }
   function hmDetail(D){
@@ -257,7 +257,7 @@
   /* ---------- Overview tool counts ---------- */
   function overview(){
     var con=0, cos=0; var M=window.BDMAP;
-    if(M){ var cl=M.COMPANIES.filter(M.isClient); cos=cl.length; cl.forEach(function(e){ con+=(e.people||[]).length; }); }
+    if(M){ var cl=M.COMPANIES.filter(function(e){ return window.CNET&&window.CNET.isClient&&window.CNET.hasCompany(e.key)?window.CNET.isClient(e.key):M.isClient(e); }); cos=cl.length; cl.forEach(function(e){ con+=(e.people||[]).length; }); }
     try{ con+=JSON.parse(localStorage.getItem('bdp-contacts')||'[]').length; }catch(e){}
     var set=function(id,t){ var e=$(id); if(e)e.textContent=t; };
     if(M) set('ovConMeta',con+tx(' contacts · ',' contactos · ')+cos+tx(' client companies',' empresas cliente'));
@@ -269,7 +269,7 @@
   var t; function refresh(){ clearTimeout(t); t=setTimeout(function(){ build(); REC=records(); rsFill(); rsRender(); hmRender(); overview(); if(RS.open){ var c=CO.find(function(x){return x.id===RS.open}); if(!c) rsClose(); } },80); }
   rsWire(); hmWire();
   window.addEventListener('bdmap:ready',function(){ haveMap=true; refresh(); });
-  window.addEventListener('bdmap:change',refresh);
+  window.addEventListener('bdmap:change',refresh); window.addEventListener('cnet:clients',refresh);
   if(window.BDMAP){ haveMap=true; }
   fetch('data/leads.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(d){ if(d){ R.leads=d.leads||[]; R.companies=d.companies||[]; R.run=d.run||{}; } haveRadar=true; refresh(); }).catch(function(){ haveRadar=true; refresh(); });
   fetch('data/market.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(d){ MK=d; hmMarket(); }).catch(function(){});

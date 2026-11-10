@@ -5,11 +5,13 @@
    browser's storage exactly as before. UI preferences (language, last tab) stay per-browser. */
 (function(){
   'use strict';
-  var SYNC=['bdp-opps','bdp-contacts','bdp-expenses','bdp-expmeta','bdp-goals','bdp-kpis','bdp-reports','bdp-weeks','bdp-aop','ib-ramp-plan-v1','bdp-seed-ftp-v1'];
+  var SYNC=['bdp-cnet-logs','bdp-cnet-edits','bdp-projects','bdp-opps','bdp-contacts','bdp-expenses','bdp-expmeta','bdp-goals','bdp-kpis','bdp-reports','bdp-weeks','bdp-aop','ib-ramp-plan-v1','bdp-seed-ftp-v1'];
   var CHUNK=180000;
   var LS=window.localStorage, P=Storage.prototype, rawSet=P.setItem, rawGet=P.getItem, rawRemove=P.removeItem;
-  var snapAt='', db=null, mode='local', known={}, timers={}, writing={}, again={}, pending=0, failed=false, mine={};
-  window.BDP_SYNC={mode:function(){return mode}};
+  var snapAt='', db=null, mode='local', known={}, timers={}, writing={}, again={}, pending=0, failed=false, mine={}, dirty={}, handlers={};
+  // onRemote(key, fn): when another device or a scheduled run changes this key, the new value is loaded into this
+  // tab and fn(value) runs, so the page never saves an old copy over it. Keys without a handler show the Refresh banner.
+  window.BDP_SYNC={mode:function(){return mode},db:function(){return mode==='db'?db:null},onRemote:function(k,fn){ (handlers[k]=handlers[k]||[]).push(fn); }};
 
   /* ---------- status pill ---------- */
   function pill(){
@@ -41,7 +43,7 @@
   }
   async function push(key){
     if(writing[key]){ again[key]=true; return; }
-    writing[key]=true; pending++; pill();
+    writing[key]=true; dirty[key]=false; pending++; pill();
     try{
       var val=rawGet.call(LS,key);
       if(val==null){ var m=known[key]; await retry(function(){return db.doc('kv/'+key).delete();}); if(m) for(var j=0;j<m.n;j++) await db.doc('kvc/'+key+'~'+j).delete(); delete known[key]; }
@@ -58,7 +60,18 @@
     writing[key]=false; pending--; pill();
     if(again[key]){ again[key]=false; push(key); }
   }
-  function schedule(key){ clearTimeout(timers[key]); timers[key]=setTimeout(function(){push(key)},700); }
+  function schedule(key){ dirty[key]=true; clearTimeout(timers[key]); timers[key]=setTimeout(function(){push(key)},700); }
+  async function pull(id,m){
+    // a change of ours is still waiting to be written: don't overwrite either side, ask for a refresh instead
+    if(dirty[id]||writing[id]){ banner(); return; }
+    try{
+      var v=await readKey(id,m);
+      if(m.len!=null&&v.length!==m.len){ await sleep(600); v=await readKey(id,m); if(v.length!==m.len) throw new Error('length mismatch'); }
+      if(dirty[id]||writing[id]){ banner(); return; }
+      rawSet.call(LS,id,v); known[id]={n:m.n,rev:m.rev};
+      (handlers[id]||[]).forEach(function(fn){ try{ fn(v); }catch(e){ console.error('BDP remote',id,e); } });
+    }catch(e){ console.warn('BDP pull',id,e); banner(); }
+  }
 
   /* ---------- storage patch ---------- */
   P.setItem=function(k,v){ rawSet.call(this,k,v); if(this===LS&&mode==='db'&&SYNC.indexOf(k)>=0)schedule(k); };
@@ -73,7 +86,8 @@
     db.collection('kv').onSnapshot(function(s){
       s.docChanges().forEach(function(ch){ var id=ch.doc.id, m=ch.doc.data()||{}; if(SYNC.indexOf(id)<0)return;
         if(ch.type==='removed'){ if(known[id])banner(); return; }
-        if(mine[m.rev]||(known[id]&&known[id].rev===m.rev))return; banner(); });
+        if(mine[m.rev]||(known[id]&&known[id].rev===m.rev))return;
+        if(handlers[id]&&handlers[id].length) pull(id,m); else banner(); });
     },function(){});
   }
 
@@ -85,10 +99,38 @@
     await load('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
     load('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
     await load('portal.js'); await load('leads.js');
-    await load('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'); await load('bdmap.js'); await load('classify.js'); await load('insights.js'); await load('fu-overview.js'); await load('rpt-auto.js');
+    await load('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'); await load('bdmap.js'); await load('classify.js'); await load('insights.js'); await load('fu-overview.js'); await load('rpt-auto.js'); await load('cnet-data.js'); await load('cnet-circle.js'); await load('cnet-more.js'); await load('cnet-batch2.js'); await load('cnet-batch3.js'); await load('cnet-batch4.js'); await load('cnet-batch5.js'); await load('cnet-batch6.js'); await load('officemap-data.js'); await load('cnet.js'); await load('officemap.js'); await load('projects.js'); await load('research.js'); await load('intel.js');
     patchDownloads();
     pill();
   }
+
+  /* ---------- links that would take over the portal's own frame ----------
+     Inside the artifact, an email (mailto:) or phone (tel:) link, or an outside website opened in this frame,
+     replaces the portal with a blank white page that the Back button can't undo. Every such click opens in a new
+     tab instead; if the browser blocks that, the address, number or link is copied and a short note says so. */
+  var nativeOpen=window.open.bind(window);
+  function toast(msg){
+    var t=document.getElementById('bdpToast');
+    if(!t){ t=document.createElement('div'); t.id='bdpToast'; t.setAttribute('role','status'); t.setAttribute('aria-live','polite');
+      t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;max-width:calc(100% - 32px);padding:10px 16px;border-radius:10px;background:#13253D;color:#fff;font:600 14px/1.4 system-ui,-apple-system,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25)';
+      document.body.appendChild(t); }
+    t.textContent=msg; t.hidden=false; clearTimeout(t._h); t._h=setTimeout(function(){ t.hidden=true; },3500);
+  }
+  document.addEventListener('click',function(e){
+    if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return;
+    var a=e.target&&e.target.closest&&e.target.closest('a[href]'); if(!a) return;
+    var h=(a.getAttribute('href')||'').trim();
+    if(h===''){ e.preventDefault(); return; }   // a link with no address: do nothing rather than reload the frame
+    var mail=/^mailto:/i.test(h), tel=/^tel:/i.test(h), ext=/^(https?:)?\/\//i.test(h)&&a.getAttribute('target')!=='_blank';
+    if(!mail&&!tel&&!ext) return;
+    e.preventDefault();
+    var w=null; try{ w=nativeOpen(h,'_blank'); }catch(x){ w=null; }
+    if(w){ try{ w.opener=null; }catch(x){} return; }
+    var val=mail?decodeURIComponent(h.slice(7).split('?')[0]):tel?((a.textContent||'').trim()||h.slice(4)):h;
+    var label=mail?'Email':tel?'Phone number':'Link';
+    var copy=navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(val):Promise.reject();
+    copy.then(function(){ toast(label+' copied: '+val); },function(){ toast(label+': '+val); });
+  },true);
 
   /* ---------- file saving that works inside the artifact ---------- */
   var dl=null;

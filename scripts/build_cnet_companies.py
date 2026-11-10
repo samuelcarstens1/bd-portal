@@ -5,7 +5,7 @@ Usage: python3 -I scripts/build_cnet_companies.py <matches.json> <search.json> <
   matches.json  {apollo_id: enriched person}      (people_bulk_match results)
   search.json   {apollo_id: search person}        (mixed_people_api_search results, partly masked names)
   mapdump.json  [BusDev Map company entries]      (window.BDMAP.COMPANIES filtered to these keys)
-  config.json   [{key, short, orgIds: [...], enriched: [apollo ids], asOf}]
+  config.json   [{key, short, orgIds: [...], enriched: [apollo ids], asOf, keepMapPeople?}]
 Writes one JS file that adds every company to window.CNET_COMPANIES.
 """
 import json, re, sys
@@ -177,7 +177,9 @@ def main():
                  "since": "", "conf": "Apollo search · full name not unlocked", "prior": [], "_city": "", "_state": ""})
 
         # keep only people we can reach or verify: a verified email or a LinkedIn link
-        roster[:] = [p for p in roster if (p.get("email") or "").strip() or (p.get("li") or "").strip()]
+        # (config keepMapPeople: also keep people the BusDev Map research documented at the company, with evidence)
+        roster[:] = [p for p in roster if (p.get("email") or "").strip() or (p.get("li") or "").strip()
+                     or (c.get("keepMapPeople") and p["conf"].startswith("From BusDev Map research ("))]
         # regions: geography when people sit in several metros, else by function
         top_rx = re.compile(r"\b(chief|ceo|coo|cfo|cso|chairman|founder|owner)\b|^president|^co-founder|executive vice president|^evp", re.I)
         for p in roster:
