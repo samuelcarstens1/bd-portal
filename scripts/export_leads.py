@@ -13,7 +13,9 @@ from datetime import datetime, timezone
 
 KEEP = ["state", "metro", "project", "ptype", "size", "stage", "signal", "sdate", "gc", "sub",
         "window", "who", "web", "line", "src", "t", "s", "h", "p", "c", "score", "prevScore",
-        "list", "firstSeen", "lastChecked", "active", "changeNote"]
+        "list", "firstSeen", "lastChecked", "active", "changeNote",
+        # pipeline fields: client match, open-shop/union flag, pitch type, date the drywall sub was last researched
+        "client", "shop", "pitch", "subChecked"]
 CO_KEEP = ["name", "aka", "type", "hq", "offices", "states", "events", "associations", "charities",
            "sports", "leadIds", "notes", "firstSeen", "lastChecked", "changeNote"]
 STATUSES = {"Not contacted", "Left voicemail", "Spoke – interested", "Meeting set",
