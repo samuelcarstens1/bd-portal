@@ -53,7 +53,9 @@ progress.
   - Stages: New, Qualified, Meeting set, Proposal sent, Verbal yes, Won, Lost.
   - Total and weighted pipeline are computed from the list, never typed in.
   - "Won this quarter" is the value of Won opportunities closed in the current calendar quarter.
-  - "Average opportunity" averages every opportunity ever brought in.
+  - "Avg. opportunity" averages only opportunities with a proposal price (any stage). Company rows with no price stay out
+    of it (Samuel, Nov 11, 2026).
+  - The Opportunities table is a fold-away list, closed by default; the browser remembers whether it was left open.
   - By stage, By metro and By trade show only active opportunities that have a proposal price. Company rows with no price
     stay in the table but out of the breakdowns.
 - **One pipeline row per proposal.** Name the row after the job, put the customer in parentheses, and put the scope, rate,

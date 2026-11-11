@@ -701,6 +701,13 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .phase .phase-head h2::before{content:"▾ ";color:var(--muted);font-size:.8em}
 .phase.collapsed .phase-head h2::before{content:"▸ "}
 
+.opp-card{display:block}
+.opp-sum{cursor:pointer;list-style:none;align-items:center}
+.opp-sum::-webkit-details-marker{display:none}
+.opp-sum h2::before{content:"\25B8\00A0";color:var(--muted);font-size:.8em}
+.opp-card[open] .opp-sum h2::before{content:"\25BE\00A0"}
+.opp-sum:hover h2{color:var(--accent)}
+.opp-sum:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:10px}
 .kv.drill{cursor:pointer;border-radius:4px}.kv.drill:hover{background:var(--bg)}
 .sublist{display:flex;flex-direction:column;gap:10px}
 .co{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) 120px 40px;gap:12px;align-items:center;cursor:pointer}
@@ -1498,7 +1505,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <div class="card tight"><span class="label">Total pipeline</span><span class="big" id="kTotal">—</span><span class="sub13" id="kTotalSub">Open opportunities</span></div>
     <div class="card tight"><span class="label">Weighted pipeline</span><span class="big" id="kWeighted">—</span><span class="sub13">Stage probability applied</span></div>
     <div class="card tight"><span class="label" id="kWonLabel">Won this quarter</span><span class="big" id="kWon">—</span><span class="sub13" id="kWonSub">—</span></div>
-    <div class="card tight dark"><span class="label">Avg. opportunity</span><span class="big" style="color:var(--accent-bright)" id="kAvg">—</span><span class="sub13" style="color:var(--navy-dim)" id="kAvgSub">Across all opportunities brought in</span></div>
+    <div class="card tight dark"><span class="label">Avg. opportunity</span><span class="big" style="color:var(--accent-bright)" id="kAvg">—</span><span class="sub13" style="color:var(--navy-dim)" id="kAvgSub">Across priced proposals</span></div>
   </div>
 
   <div class="card">
@@ -1517,15 +1524,15 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     </div>
   </div>
 
-  <div class="card" style="padding:0">
-    <div class="card-head" style="padding:20px 24px 0"><h2>Opportunities</h2><span class="note">New first, then by weighted value</span></div>
+  <details class="card opp-card" id="oppCard" style="padding:0">
+    <summary class="card-head opp-sum" style="padding:20px 24px"><h2>Opportunities</h2><span class="note" id="oppSumNote">New first, then by weighted value</span></summary>
     <div class="statebar" id="oppStates" role="group" aria-label="Show opportunities in one state"></div>
     <div class="scroll"><table class="table">
       <thead><tr><th>Project</th><th>GC</th><th>Metro</th><th>Trade</th><th>Stage</th><th style="text-align:right">Workers</th><th style="text-align:right">Weeks</th><th style="text-align:right">Value</th><th style="text-align:right">Weighted</th><th>Next step</th><th>Action</th></tr></thead>
       <tbody id="oppRows"></tbody>
     </table></div>
     <div class="sub13" style="padding:14px 24px" id="oppFoot"></div>
-  </div>
+  </details>
   </div>
 </section>
 
@@ -2491,13 +2498,16 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
     var weighted=open.reduce(function(s,o){return s+wgt(o)},0);
     var wonQ=OPPS.filter(function(o){ if(o.stage!=='Won'||!o.closed)return false; var q=quarterOf(new Date(o.closed+'T12:00:00')); return q.y===cq.y&&q.q===cq.q; });
     var won=wonQ.reduce(function(s,o){return s+o.value},0);
-    var avg=OPPS.length?OPPS.reduce(function(s,o){return s+o.value},0)/OPPS.length:0;
+    // average proposal: only opportunities with a proposal price (company rows with no price would drag it to $0)
+    var pricedAll=OPPS.filter(function(o){return +o.value>0});
+    var avg=pricedAll.length?pricedAll.reduce(function(s,o){return s+(+o.value)},0)/pricedAll.length:0;
 
     set('pipeEyebrow',OPPS.length+' opportunit'+(OPPS.length===1?'y':'ies')+' · '+qualified.length+' qualified');
     set('kTotal',OPPS.length?money(total):'—'); set('kTotalSub',open.length+' open opportunit'+(open.length===1?'y':'ies'));
     set('kWeighted',OPPS.length?money(weighted):'—');
     set('kWonLabel','Won · Q'+cq.q+' '+cq.y); set('kWon',wonQ.length?money(won):'—'); set('kWonSub',wonQ.length+' closed won this quarter');
-    set('kAvg',OPPS.length?money(avg):'—'); set('kAvgSub','Across '+OPPS.length+' opportunit'+(OPPS.length===1?'y':'ies')+' brought in');
+    set('kAvg',pricedAll.length?money(avg):'—'); set('kAvgSub','Across '+pricedAll.length+' priced proposal'+(pricedAll.length===1?'':'s'));
+    set('oppSumNote',OPPS.length+' opportunit'+(OPPS.length===1?'y':'ies')+' · '+(($('oppCard')||{}).open?'click to hide':'click to show'));
     set('ovTotal',OPPS.length?money(total):'—'); set('ovSub',OPPS.length?('Weighted '+money(weighted)+' · '+open.length+' open'):'No opportunities entered yet');
 
     // By stage (qualified only)
@@ -2546,6 +2556,9 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
     }
     set('oppFoot',OPPS.length?(OPPS.length+' opportunities · '+OPPS.filter(function(o){return o.stage==='New'}).length+' new · '+qualified.length+' qualified · '+OPPS.filter(function(o){return o.stage==='Won'}).length+' won · '+OPPS.filter(function(o){return o.stage==='Lost'}).length+' lost · saved in this browser'):'Saved in this browser until the shared database is connected.');
   }
+
+  // Opportunities list folds away; remember open/closed in this browser
+  var oppCard=$('oppCard'); if(oppCard){ try{ if(localStorage.getItem('bdp-opp-open')==='1') oppCard.open=true; }catch(e){} oppCard.addEventListener('toggle',function(){ try{ localStorage.setItem('bdp-opp-open',oppCard.open?'1':'0'); }catch(e){} set('oppSumNote',OPPS.length+' opportunit'+(OPPS.length===1?'y':'ies')+' · '+(oppCard.open?'click to hide':'click to show')); }); }
 
   // Row actions
   var stBar=$('oppStates'); if(stBar) stBar.addEventListener('click',function(e){ var b=e.target.closest('[data-st]'); if(!b)return; oppState=b.dataset.st; try{localStorage.setItem('bdp-opp-state',oppState)}catch(x){} render(); });
