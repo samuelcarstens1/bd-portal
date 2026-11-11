@@ -15,7 +15,7 @@ head = t + "\n" + head.replace(t, "", 1).strip()
 open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(head + "\n" + body.strip() + "\n")
 for f in ["sync.js", "i18n.js", "portal.js", "leads.js", "seed-opps.json", "data/leads.json", "data/market.json", "bdmap.js", "classify.js",
           "insights.js", "fu-overview.js", "rpt-auto.js", "cnet.js", "cnet.css", "officemap.js", "officemap-data.js", "projects.js",
-          "projects.css", "research.js", "intel.js", "intel.css"]:
+          "projects.css", "research.js", "intel.js", "intel.css", "calendar.js", "calendar.css"]:
     shutil.copy(os.path.join(src, f), os.path.join(out, f))
 # Client Networks data (cnet-data.js, cnet-*.js batches, img/cnet/) holds contact details and lives only in the
 # artifact; it is never in this public repo, so publish leaves those artifact files in place.

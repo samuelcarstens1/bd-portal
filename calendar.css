@@ -1,0 +1,123 @@
+/* Calendar tab. Uses the portal's theme tokens (light and dark). */
+#calendar{display:flex;flex-direction:column;gap:16px;--cal-scheduled:var(--accent);--cal-inperson:var(--good);--cal-project:#5C7496;--cal-followup:var(--warn)}
+#calendar *{box-sizing:border-box}
+#calendar button{font:inherit}
+#calendar h2{font-size:18px;font-weight:700}
+#calendar h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted);margin:0 0 8px}
+#calendar textarea,#calendar select,#calendar input[type=text],#calendar input[type=date],#calendar input[type=time],#calendar input[type=tel]{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font:inherit;font-size:15px;line-height:1.5}
+#calendar textarea{resize:vertical}
+#calendar textarea:focus-visible,#calendar select:focus-visible,#calendar button:focus-visible,#calendar a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cal-g-scheduled{--c:var(--cal-scheduled)}.cal-g-inperson{--c:var(--cal-inperson)}.cal-g-project{--c:var(--cal-project)}.cal-g-followup{--c:var(--cal-followup)}
+
+/* up next */
+#calendar .cal-next{gap:6px}
+#calendar .cal-next .eyebrow{color:#F3B58A}
+#calendar .cal-next h2{font-size:24px;line-height:1.2;color:#fff}
+#calendar .cal-next p{margin:0}
+#calendar .cal-next-when{font-size:16px;font-weight:600;color:#fff}
+#calendar .cal-next-who{color:#C9D1DE}
+#calendar .cal-next-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:8px}
+#calendar .cal-next-prep{font-size:13px;color:#C9D1DE}
+#calendar .cal-next .cal-open{align-self:flex-start;margin-top:10px;background:#fff;border-color:#fff;color:#16233A}
+#calendar .cal-next-empty .eyebrow{color:var(--muted)}
+#calendar .cal-next-empty p{color:var(--muted);max-width:60ch}
+#calendar .cal-phone{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-family:var(--mono);font-weight:600;font-size:14px;white-space:nowrap}
+#calendar .cal-phone span{font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#calendar .cal-next .cal-phone{background:transparent;border-color:#4A5A78;color:#fff}
+#calendar .cal-next .cal-phone span{color:#C9D1DE}
+
+/* toolbar */
+#calendar .cal-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+#calendar .cal-nav{display:flex;align-items:center;gap:8px}
+#calendar .cal-nav h2{min-width:170px;text-align:center}
+#calendar .cal-nav .btn{padding:0 14px}
+#calendar .cal-filters{display:flex;flex-wrap:wrap;gap:6px}
+#calendar .cal-fbtn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;font-weight:600;font-size:13px}
+#calendar .cal-fbtn i{width:10px;height:10px;border-radius:50%;border:2px solid var(--c);flex:none}
+#calendar .cal-fbtn.on{color:var(--fg)}
+#calendar .cal-fbtn.on i{background:var(--c)}
+
+/* month grid + side list */
+#calendar .cal-main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:16px;align-items:start}
+#calendar .cal-grid{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+#calendar .cal-dow,#calendar .cal-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+#calendar .cal-dow span{padding:10px 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line)}
+#calendar .cal-cell{display:flex;flex-direction:column;gap:4px;min-height:104px;padding:6px;border:0;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);background:transparent;color:var(--fg);text-align:left;cursor:pointer;min-width:0}
+#calendar .cal-cell:nth-child(7n){border-right:0}
+#calendar .cal-week:last-child .cal-cell{border-bottom:0}
+#calendar .cal-cell:hover{background:var(--accent-wash)}
+#calendar .cal-cell.is-out{color:var(--mute-soft)}
+#calendar .cal-cell.is-out .cal-chip{opacity:.6}
+#calendar .cal-cell.is-sel{box-shadow:inset 0 0 0 2px var(--accent)}
+#calendar .cal-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+#calendar .cal-cell.is-today .cal-num{background:var(--navy);color:#fff}
+#calendar .cal-chips{display:flex;flex-direction:column;gap:3px;min-width:0}
+#calendar .cal-chip{display:block;padding:2px 6px;border-left:3px solid var(--c);border-radius:3px;background:var(--bg);font-size:11.5px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#calendar .cal-chip.is-done{text-decoration:line-through;color:var(--muted)}
+#calendar .cal-more{font-size:11px;color:var(--muted);padding-left:6px}
+#calendar .cal-dots{display:none;gap:3px}
+#calendar .cal-dots i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+#calendar .cal-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+#calendar .cal-side .card{padding:18px;gap:12px}
+#calendar .cal-side-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+#calendar .cal-list{display:flex;flex-direction:column;gap:8px}
+#calendar .cal-item{display:flex;flex-direction:column;gap:2px;width:100%;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--c);border-radius:6px;background:var(--card);color:var(--fg);text-align:left;cursor:pointer;min-width:0}
+#calendar .cal-item:hover{background:var(--accent-wash)}
+#calendar .cal-item-k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+#calendar .cal-item-l{font-weight:600;font-size:14.5px;overflow-wrap:anywhere}
+#calendar .cal-item-s{font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#calendar .cal-item.is-done .cal-item-l{text-decoration:line-through;color:var(--muted)}
+#calendar .cal-dated{display:flex;flex-direction:column;gap:4px}
+#calendar .cal-date{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+/* call sheet */
+#calendar .cal-sheet{gap:22px;max-width:860px}
+#calendar .cal-sheet-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+#calendar .cal-sheet-acts{display:flex;gap:8px}
+#calendar .cal-sheet-head{display:flex;flex-direction:column;gap:4px}
+#calendar .cal-sheet-head h2{font-size:26px;line-height:1.2}
+#calendar .cal-sheet-head p{margin:0}
+#calendar .cal-sheet-when{font-size:16px;font-weight:600}
+#calendar .cal-sheet-who{color:var(--muted)}
+#calendar .cal-sheet-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+#calendar .cal-link{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--accent);font-weight:600;cursor:pointer}
+#calendar .cal-pre{margin:0;white-space:pre-wrap;font-size:15px;line-height:1.6;max-width:72ch}
+#calendar .cal-check,#calendar .cal-qs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+#calendar .cal-check label{display:flex;gap:12px;align-items:flex-start;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:15px;line-height:1.45}
+#calendar .cal-check input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--accent)}
+#calendar .cal-check input:checked + span{color:var(--muted);text-decoration:line-through}
+#calendar .cal-qs{counter-reset:q;gap:14px}
+#calendar .cal-qs li{counter-increment:q;display:flex;flex-direction:column;gap:6px}
+#calendar .cal-qs label{font-size:16px;font-weight:600;line-height:1.4}
+#calendar .cal-qs label::before{content:counter(q) '. ';color:var(--accent);font-variant-numeric:tabular-nums}
+#calendar .cal-sheet-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px}
+
+/* form */
+#calendar .cal-form{gap:14px;max-width:860px}
+#calendar .cal-fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#calendar .cal-f{display:flex;flex-direction:column;gap:5px}
+#calendar .cal-f label{font-size:13px;font-weight:600}
+#calendar .cal-msg{margin:0;padding:10px 14px;border-radius:8px;background:var(--accent-wash);font-size:14px}
+#calendar .cal-del{margin-left:auto;color:var(--accent)}
+
+/* Overview strip */
+.cal-ov{display:grid;grid-template-columns:auto 1fr auto;column-gap:16px;row-gap:2px;align-items:center;padding:14px 18px;border-radius:10px;background:var(--navy);color:#fff;border-left:5px solid var(--accent-bright)}
+.cal-ov-k{grid-row:1/3;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#F3B58A}
+.cal-ov-t{font-weight:700;font-size:16px}
+.cal-ov-s{grid-column:2;font-size:13px;color:#C9D1DE}
+.cal-ov-go{grid-column:3;grid-row:1/3;font-weight:600;font-size:14px;white-space:nowrap}
+.cal-ov:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+@media (max-width:1100px){ #calendar .cal-main{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:720px){
+  #calendar .cal-cell{min-height:58px;align-items:center;padding:6px 2px}
+  #calendar .cal-chips{display:none}
+  #calendar .cal-dots{display:flex}
+  #calendar .cal-dow span{text-align:center;padding:8px 2px}
+  #calendar .cal-fgrid{grid-template-columns:minmax(0,1fr)}
+  #calendar .cal-nav h2{min-width:0;flex:1}
+  #calendar .cal-bar > .btn.primary{width:100%}
+  .cal-ov{grid-template-columns:1fr}
+  .cal-ov-k,.cal-ov-go,.cal-ov-s{grid-column:1;grid-row:auto}
+}
+@media (prefers-reduced-motion:no-preference){ #calendar .cal-cell,#calendar .cal-item{transition:background .15s} }

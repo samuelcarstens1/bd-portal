@@ -23,7 +23,7 @@
     var arr=S.leads.filter(function(l){ return S.tab==='all' || (l.active!==false && l.list===S.tab); });
     if(S.state) arr=arr.filter(function(l){return l.state===S.state});
     if(S.type) arr=arr.filter(function(l){return l.ptype===S.type});
-    if(S.q){ var q=S.q.toLowerCase(); arr=arr.filter(function(l){ return [l.project,l.gc,l.metro,l.who,l.ptype,l.sub,l.state].join(' ').toLowerCase().indexOf(q)>=0; }); }
+    if(S.q){ var q=S.q.toLowerCase(); arr=arr.filter(function(l){ return [l.project,l.gc,l.metro,l.who,l.ptype,l.sub,l.state,l.client,l.pitch,l.shop].join(' ').toLowerCase().indexOf(q)>=0; }); }
     var sc=function(l){return l.score||0};
     var mv=function(l){return l.prevScore==null?0:Math.abs(sc(l)-l.prevScore)};
     if(S.sort==='new') arr.sort(function(a,b){ return String(b.firstSeen||'').localeCompare(String(a.firstSeen||''))||sc(b)-sc(a); });
@@ -100,19 +100,22 @@
     if((l.h||0)>0) t.appendChild(el('span','lr-tag hire',tx('Hiring','Contratando')));
     if(l.status && l.status!=='Not contacted') t.appendChild(el('span','lr-tag st',l.status));
     if(l.active===false) t.appendChild(el('span','lr-tag',tx('Closed out','Cerrado')));
+    if(l.client) t.appendChild(el('span','lr-tag client',tx('IB client','Cliente IB')));
+    if(/^competitor/i.test(l.pitch||'')) t.appendChild(el('span','lr-tag rival',tx('Competitor','Competidor')));
     if(l.ptype) t.appendChild(el('span','lr-tag',l.ptype));
+    if(l.shop) t.appendChild(el('span','lr-tag',l.shop));
     b.appendChild(t);
     b.appendChild(el('div','lr-meta',[l.metro,l.state,l.size].filter(Boolean).join(' · ')));
     var w=el('div','lr-window'); w.appendChild(el('b',null,tx('Labor need','Necesidad'))); w.appendChild(document.createTextNode(l.window||'—')); b.appendChild(w);
     if(l.changeNote) b.appendChild(el('div','lr-change',tx('Latest: ','Último: ')+l.changeNote));
     var kv=el('dl','lr-kv');
-    [[tx('GC','GC'),l.gc||tx('Not identified','Sin identificar')],[tx('Who to call','A quién llamar'),l.who||'—'],[tx('Contact','Contacto'),l.web||'—']].forEach(function(r){ kv.appendChild(el('dt',null,r[0])); kv.appendChild(el('dd',null,r[1])); });
+    [[tx('GC','GC'),l.gc||tx('Not identified','Sin identificar')],[tx('Drywall sub','Sub de drywall'),l.sub||tx('Not identified yet','Aún sin identificar')],[tx('Who to call','A quién llamar'),l.who||'—'],[tx('Contact','Contacto'),l.web||'—']].concat(l.client?[[tx('Client status','Estado de cliente'),l.client]]:[]).concat(l.pitch?[[tx('Pitch','Propuesta'),l.pitch]]:[]).forEach(function(r){ kv.appendChild(el('dt',null,r[0])); kv.appendChild(el('dd',null,r[1])); });
     b.appendChild(kv);
 
     var det=el('details','lr-more'); det.appendChild(el('summary',null,tx('Why it scored '+s+', pitch and sources','Por qué obtuvo '+s+', propuesta y fuentes')));
     var inner=el('div','lr-inner');
     var kv2=el('dl','lr-kv');
-    [[tx('Stage','Etapa'),l.stage],[tx('Signal','Señal'),(l.signal||'')+(l.sdate?' ('+l.sdate+')':'')],[tx('Drywall sub','Sub de drywall'),l.sub||tx('Unknown','Desconocido')],[tx('First seen','Detectado'),fmtDate(l.firstSeen,{month:'short',day:'numeric',year:'numeric'})],[tx('Last checked','Revisado'),fmtDate(l.lastChecked,{month:'short',day:'numeric',year:'numeric'})]].forEach(function(r){ if(r[1]){ kv2.appendChild(el('dt',null,r[0])); kv2.appendChild(el('dd',null,r[1])); } });
+    [[tx('Stage','Etapa'),l.stage],[tx('Signal','Señal'),(l.signal||'')+(l.sdate?' ('+l.sdate+')':'')],[tx('First seen','Detectado'),fmtDate(l.firstSeen,{month:'short',day:'numeric',year:'numeric'})],[tx('Last checked','Revisado'),fmtDate(l.lastChecked,{month:'short',day:'numeric',year:'numeric'})]].forEach(function(r){ if(r[1]){ kv2.appendChild(el('dt',null,r[0])); kv2.appendChild(el('dd',null,r[1])); } });
     inner.appendChild(kv2);
     if(l.line){
       var ln=el('div','lr-line'); var txt=el('span',null,l.line); ln.appendChild(txt);

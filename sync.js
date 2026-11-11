@@ -5,7 +5,7 @@
    browser's storage exactly as before. UI preferences (language, last tab) stay per-browser. */
 (function(){
   'use strict';
-  var SYNC=['bdp-cnet-logs','bdp-cnet-edits','bdp-projects','bdp-opps','bdp-contacts','bdp-expenses','bdp-expmeta','bdp-goals','bdp-kpis','bdp-reports','bdp-weeks','bdp-aop','ib-ramp-plan-v1','bdp-seed-ftp-v1'];
+  var SYNC=['bdp-cnet-logs','bdp-cnet-edits','bdp-projects','bdp-calendar','bdp-opps','bdp-contacts','bdp-expenses','bdp-expmeta','bdp-goals','bdp-kpis','bdp-reports','bdp-weeks','bdp-aop','ib-ramp-plan-v1','bdp-seed-ftp-v1'];
   var CHUNK=180000;
   var LS=window.localStorage, P=Storage.prototype, rawSet=P.setItem, rawGet=P.getItem, rawRemove=P.removeItem;
   var snapAt='', db=null, mode='local', known={}, timers={}, writing={}, again={}, pending=0, failed=false, mine={}, dirty={}, handlers={};
@@ -99,7 +99,7 @@
     await load('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
     load('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
     await load('portal.js'); await load('leads.js');
-    await load('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'); await load('bdmap.js'); await load('classify.js'); await load('insights.js'); await load('fu-overview.js'); await load('rpt-auto.js'); await load('cnet-data.js'); await load('cnet-circle.js'); await load('cnet-more.js'); await load('cnet-batch2.js'); await load('cnet-batch3.js'); await load('cnet-batch4.js'); await load('cnet-batch5.js'); await load('cnet-batch6.js'); await load('officemap-data.js'); await load('cnet.js'); await load('officemap.js'); await load('projects.js'); await load('research.js'); await load('intel.js');
+    await load('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'); await load('bdmap.js'); await load('classify.js'); await load('insights.js'); await load('fu-overview.js'); await load('rpt-auto.js'); await load('cnet-data.js'); await load('cnet-circle.js'); await load('cnet-more.js'); await load('cnet-batch2.js'); await load('cnet-batch3.js'); await load('cnet-batch4.js'); await load('cnet-batch5.js'); await load('cnet-batch6.js'); await load('officemap-data.js'); await load('cnet.js'); await load('officemap.js'); await load('projects.js'); await load('calendar.js'); await load('research.js'); await load('intel.js');
     patchDownloads();
     pill();
   }

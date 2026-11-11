@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@500;700&family=Roboto:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="cnet.css">
 <link rel="stylesheet" href="projects.css">
+<link rel="stylesheet" href="calendar.css">
 <link rel="stylesheet" href="intel.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap">
 <style>
@@ -903,6 +904,8 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 .lr-tag.new{background:var(--accent-wash);color:var(--accent)}
 .lr-tag.hire{background:var(--accent);color:#fff}
 .lr-tag.st{background:var(--good-wash);color:var(--good)}
+.lr-tag.client{background:var(--good);color:#fff}
+.lr-tag.rival{background:var(--bad,#b42318);color:#fff}
 .lr-meta{font-size:13px;color:var(--muted)}
 .lr-window{font-size:14px}
 .lr-window b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--s4);margin-right:8px;font-weight:600}
@@ -1363,6 +1366,7 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
     <a href="#overview" data-view="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>Overview</a>
     <a href="#pipeline" data-view="pipeline"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M6 10h12M8 15h8M10 20h4"/></svg>Pipeline</a>
     <a href="#projects" data-view="projects"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg>Projects</a>
+    <a href="#calendar" data-view="calendar"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15h3"/></svg>Calendar</a>
     <a href="#intel" data-view="intel"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Daily Intel</a>
     <a href="#reports" data-view="reports"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h7"/></svg>Daily Reports</a>
     <a href="#foundations" data-view="foundations"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>Annual Operation Plan</a>
@@ -1529,6 +1533,12 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 <section class="view" id="view-projects" aria-labelledby="h-projects">
   <header class="head"><div class="head-left"><span class="eyebrow">Projects</span><h1 id="h-projects">Projects We're Chasing</h1><span class="sub">Every job you're going after: where it is, when interiors start, who's on it, and where we stand with each of them. Companies and people link to their Client Networks profiles.</span></div></header>
   <div id="projects"></div>
+</section>
+
+<!-- CALENDAR: meetings with their call sheets, project dates and follow-ups -->
+<section class="view" id="view-calendar" aria-labelledby="h-calendar">
+  <header class="head"><div class="head-left"><span class="eyebrow">Calendar</span><h1 id="h-calendar">Calendar</h1><span class="sub">Calls, in-person meetings, project dates and follow-ups in one place. Open a meeting to get its call sheet: background, what to do first, the questions to ask and room for the answers.</span></div></header>
+  <div id="calendar"></div>
 </section>
 
 <!-- DAILY INTEL: the morning BD market report, read-only; "Track this" starts a Project -->
@@ -2570,7 +2580,7 @@ try{ var saved=JSON.parse(localStorage.getItem('bdp-opps')||'[]'); if(Array.isAr
 })();
 
 (function(){
-  var views=['overview','pipeline','projects','intel','reports','leadgen','network','officemap','foundations','week','roi','expenses','contacts','leads','flow','research'];
+  var views=['overview','pipeline','projects','calendar','intel','reports','leadgen','network','officemap','foundations','week','roi','expenses','contacts','leads','flow','research'];
   var side=document.getElementById('side'), menuBtn=document.getElementById('menuBtn');
   function show(){
     var h=(location.hash||'#overview').slice(1);

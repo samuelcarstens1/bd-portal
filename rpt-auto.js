@@ -1,6 +1,6 @@
 /* Daily Reports: live preview of the contacts logged on the selected day (Client Networks + BusDev Map),
    with each contact's notes and the saved summary of each email (portal database collection "emails").
-   A scheduled run writes the same list into "What happened" and the counters at 5 PM Eastern. */
+   A scheduled run writes the same list into "What happened" and the counters at 10 PM Eastern. */
 (function(){
   'use strict';
   var L=window.BDP_LOCALE||'en-US', ES=(L||'').toLowerCase().indexOf('es')===0, tx=function(en,es){return ES?es:en};
@@ -32,7 +32,7 @@
     var d=day(), list=rows(d), M=window.BDMAP;
     list.forEach(function(r){ if(r.key&&M&&M.COMPANIES){ var c=M.COMPANIES.find(function(e){return e.key===r.co}); if(c){ var pid=r.key.split('__')[1], pp=(c.people||[]).find(function(x){return x.id===pid}); if(pp) r.who=pp.name; r.co=c.company.name; } } });
     var past=d<todayET(), now=new Date(), etHour=+now.toLocaleString('en-US',{timeZone:'America/New_York',hour:'numeric',hour12:false});
-    var when=past||(d===todayET()&&etHour>=17)?tx('Added to this report at 5 PM.','Agregado a este informe a las 5 PM.'):tx('Will be added to this report at 5 PM Eastern.','Se agregará a este informe a las 5 PM (hora del Este).');
+    var when=past||(d===todayET()&&etHour>=22)?tx('Added to this report at 10 PM.','Agregado a este informe a las 10 PM.'):tx('Will be added to this report at 10 PM Eastern.','Se agregará a este informe a las 10 PM (hora del Este).');
     box.innerHTML='<div class="rpt-auto-h"><b>'+tx('Contacts logged this day','Contactos registrados este día')+' · '+list.length+'</b><span>'+(list.length?when:tx('Nothing logged yet in Client Networks.','Nada registrado todavía en Redes de clientes.'))+'</span></div>'+
       (list.length?'<ul>'+list.map(function(r){ return '<li><b>'+esc(r.who)+'</b> <span class="co">'+esc(r.co)+'</span><span class="w">'+esc(r.what)+'</span><span class="s">'+esc(r.src)+'</span></li>'; }).join('')+'</ul>':'');
   }
