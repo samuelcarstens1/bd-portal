@@ -1320,6 +1320,12 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
 
 /* Monday follow-ups on the Overview */
 .fu-ov{gap:14px}
+.fu-ov .fu-tog{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-align:left;min-height:32px}
+.fu-ov .fu-tog::before{content:"\25B8\00A0";color:var(--muted);font-size:.8em}
+.fu-ov .fu-tog[aria-expanded="true"]::before{content:"\25BE\00A0"}
+.fu-ov .fu-tog:hover{color:var(--accent)}
+.fu-ov .fu-tog:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.fu-ov .fu-ov-act{flex-wrap:wrap}
 .fu-ov .fu-ov-act{display:flex;align-items:center;gap:12px}
 .fu-ov .fu-table td{padding:10px 12px;vertical-align:middle}
 .fu-ov .fu-table a.fu-name{font-weight:700;color:var(--accent);text-decoration:none}
@@ -1414,8 +1420,8 @@ input[type=search]{min-height:44px;padding:0 14px;border-radius:6px;border:1px s
   </div>
 
   <section class="card fu-ov" id="ovFU" aria-labelledby="h-ovfu">
-    <div class="card-head"><h2 id="h-ovfu">Monday follow-ups</h2><div class="fu-ov-act"><span class="note" id="ovFUFor">—</span><button class="btn" type="button" id="ovFUCopy">Copy list</button></div></div>
-    <div id="ovFUBody"><p class="sub13">Loading…</p></div>
+    <div class="card-head"><h2 id="h-ovfu"><button type="button" class="fu-tog" id="ovFUToggle" aria-expanded="false" aria-controls="ovFUBody">Monday follow-ups</button></h2><div class="fu-ov-act"><span class="note" id="ovFUFor">—</span><button class="btn" type="button" id="ovFUCopy">Copy list</button></div></div>
+    <div id="ovFUBody" hidden><p class="sub13">Loading…</p></div>
   </section>
 
   <div class="grid g2">

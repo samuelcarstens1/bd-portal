@@ -29,6 +29,11 @@
   var t; function later(){ clearTimeout(t); t=setTimeout(render,120); }
   window.addEventListener('bdmap:ready',later); window.addEventListener('bdmap:change',later); window.addEventListener('cnet:logs',later); window.addEventListener('cnet:clients',later);
   window.addEventListener('hashchange',function(){ if(location.hash==='#overview'||location.hash==='') later(); });
+  // The list folds away (closed by default); this browser remembers whether it was left open
+  var tog=$('ovFUToggle'), fuBody=$('ovFUBody');
+  function setOpen(on){ if(!tog||!fuBody) return; tog.setAttribute('aria-expanded',on?'true':'false'); fuBody.hidden=!on; }
+  if(tog){ var open=false; try{ open=localStorage.getItem('bdp-fu-open')==='1'; }catch(e){} setOpen(open);
+    tog.addEventListener('click',function(){ var on=tog.getAttribute('aria-expanded')!=='true'; setOpen(on); try{ localStorage.setItem('bdp-fu-open',on?'1':'0'); }catch(e){} }); }
   var copy=$('ovFUCopy');
   if(copy) copy.addEventListener('click',async function(){
     var rs=rows(); if(!rs) return;
